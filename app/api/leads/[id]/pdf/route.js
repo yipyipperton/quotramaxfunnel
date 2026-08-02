@@ -202,7 +202,7 @@ export async function GET(req, { params }) {
         });
 
         // Outer border for table
-        page.drawRectangle({ x: 40, y: 487, width: 532, height: 119, color: rgb(0, 0, 0), borderWidth: 0.5, borderColor: borderLightColor });
+        page.drawRectangle({ x: 40, y: 487, width: 532, height: 119, borderWidth: 1, borderColor: borderLightColor });
 
         // ------------------ 4. ESTIMATED BUDGET RANGE (HERO CARD) ------------------
         page.drawRectangle({
@@ -256,7 +256,7 @@ export async function GET(req, { params }) {
         page.drawText(`$${midTotal.toLocaleString()} USD`, { x: 460, y: 297, size: 10, font: helveticaBold, color: greenColor });
 
         // Outer border for breakdown table
-        page.drawRectangle({ x: 40, y: 290, width: 532, height: 91, color: rgb(0, 0, 0), borderWidth: 0.5, borderColor: borderLightColor });
+        page.drawRectangle({ x: 40, y: 290, width: 532, height: 91, borderWidth: 1, borderColor: borderLightColor });
 
         // ------------------ 6. IMPORTANT NOTICES / ALERT BOX ------------------
         page.drawRectangle({
