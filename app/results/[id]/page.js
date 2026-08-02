@@ -179,7 +179,7 @@ export default function Results() {
 
                             {/* Cost Breakdown Progress Bars Graph */}
                             <div className="space-y-5 mb-8">
-                                <h3 className="text-xs font-bold text-slate-450 uppercase tracking-widest border-b border-white/5 pb-2">Ballpark Itemized Breakdown</h3>
+                                <h3 className="text-xs font-bold text-slate-455 uppercase tracking-widest border-b border-white/5 pb-2">Ballpark Itemized Breakdown</h3>
                                 
                                 <div className="space-y-2">
                                     <div className="flex justify-between items-center text-xs">
@@ -211,6 +211,42 @@ export default function Results() {
                                     </div>
                                 </div>
                             </div>
+
+                            {/* 2026 Assumptions & Exclusions Card */}
+                            {estimate.assumptions && (
+                                <div className="mb-8 p-5 bg-[#12182c]/60 border border-white/5 rounded-xl space-y-4 text-xs">
+                                    <h4 className="font-bold text-indigo-300 uppercase tracking-wider text-[11px] flex items-center gap-2">
+                                        <span>📋</span> Assumptions Used For This 2026 Valuation
+                                    </h4>
+                                    <ul className="space-y-1.5 text-slate-400">
+                                        {estimate.assumptions.map((asm, i) => (
+                                            <li key={i} className="flex items-start gap-2">
+                                                <span className="text-indigo-400 font-bold">•</span>
+                                                <span>{asm}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+
+                                    <div className="pt-3 border-t border-white/5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div>
+                                            <strong className="block text-emerald-400 font-bold text-[10px] uppercase mb-1">✓ Inclusions Included:</strong>
+                                            <ul className="space-y-1 text-[10px] text-slate-400">
+                                                {estimate.inclusions?.map((inc, i) => (
+                                                    <li key={i}>• {inc}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                        <div>
+                                            <strong className="block text-amber-400 font-bold text-[10px] uppercase mb-1">⚠️ Exclusions (May Require On-Site Allowance):</strong>
+                                            <ul className="space-y-1 text-[10px] text-slate-400">
+                                                {estimate.exclusions?.map((exc, i) => (
+                                                    <li key={i}>• {exc}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Results Core CTAs */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-white/5 pt-6">

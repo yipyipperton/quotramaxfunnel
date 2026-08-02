@@ -14,6 +14,11 @@ export default function Home() {
         propertyType: 'Residential',
         stories: '1',
         roofSize: 2000,
+        footprintLength: '',
+        footprintWidth: '',
+        sizeMode: 'footprint', // 'footprint' or 'slider'
+        complexity: 'Gable', // Gable, Hip, Valleys, Complex
+        layers: '1', // 1, 2, 3
         condition: 'Good',
         service: 'Replacement',
         material: 'Asphalt shingles',
@@ -159,7 +164,7 @@ export default function Home() {
                     {/* Left Panel: Pitch Copy */}
                     <div className="lg:col-span-6 flex flex-col justify-center py-4">
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 w-fit mb-6 uppercase tracking-widest">
-                            ⚡ Pre-Qualified Estimate in 60 Seconds
+                            ⚡ 2026 Instant Roof Valuation Engine
                         </span>
                         
                         <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1] text-white mb-6">
@@ -171,7 +176,7 @@ export default function Home() {
                         </h1>
                         
                         <p className="text-base sm:text-lg text-slate-400 leading-relaxed mb-8 max-w-lg">
-                            Answer 5 quick qualification questions about your property and project specifications to generate a preliminary materials and labor estimate report.
+                            Answer 5 quick qualification questions about your home footprint, roof shape, and material preferences to generate a 2026 preliminary materials and labor estimate report.
                         </p>
 
                         {/* Checklist Details */}
@@ -179,15 +184,15 @@ export default function Home() {
                             <div className="flex gap-3 items-start">
                                 <span className="flex-shrink-0 w-5 h-5 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xs font-bold">✓</span>
                                 <div>
-                                    <strong className="block text-slate-200 text-sm font-bold">No Pressure Pricing</strong>
-                                    <span className="text-[11px] text-slate-400">Review preliminary ranges privately before scheduling site visits.</span>
+                                    <strong className="block text-slate-200 text-sm font-bold">2026 Regional Benchmarks</strong>
+                                    <span className="text-[11px] text-slate-400">Calculates precise material & regional trade labor costs.</span>
                                 </div>
                             </div>
                             <div className="flex gap-3 items-start">
                                 <span className="flex-shrink-0 w-5 h-5 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xs font-bold">✓</span>
                                 <div>
-                                    <strong className="block text-slate-200 text-sm font-bold">Comprehensive PDF</strong>
-                                    <span className="text-[11px] text-slate-400">Receive a detailed budget summary listing materials, labor, and safety fees.</span>
+                                    <strong className="block text-slate-200 text-sm font-bold">Comprehensive Executive PDF</strong>
+                                    <span className="text-[11px] text-slate-400">Receive a detailed itemized budget report and slope assessment.</span>
                                 </div>
                             </div>
                         </div>
@@ -203,8 +208,8 @@ export default function Home() {
                                     <span className="text-xs font-bold uppercase tracking-widest text-slate-400">
                                         Step {step} of 5: <span className="text-indigo-400">
                                             {step === 1 ? 'Customer & Location' :
-                                             step === 2 ? 'Property Parameters' :
-                                             step === 3 ? 'Roof Specifications' :
+                                             step === 2 ? 'Footprint & Elevation' :
+                                             step === 3 ? 'Roof Shape & Materials' :
                                              step === 4 ? 'Project Qualifications' :
                                              'Schedule On-Site Visit'}
                                         </span>
@@ -227,7 +232,7 @@ export default function Home() {
                                 <div className="space-y-5">
                                     <div>
                                         <h2 className="text-xl font-extrabold text-white">Owner & Location Details</h2>
-                                        <p className="text-xs text-slate-400 mt-1">Provide your contact info so we can route your custom budget report.</p>
+                                        <p className="text-xs text-slate-400 mt-1">Provide your contact info so we can route your regional 2026 estimate report.</p>
                                     </div>
 
                                     <div className="space-y-4">
@@ -244,8 +249,8 @@ export default function Home() {
                                             <input id="phone" type="tel" value={formData.phone} onChange={handleInputChange} placeholder="727-808-4646" className="w-full bg-[#12182c] border border-white/10 rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:border-indigo-500 transition-colors text-white placeholder-slate-650" />
                                         </div>
                                         <div className="flex flex-col gap-2 relative">
-                                            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider" htmlFor="address">Project Street Address</label>
-                                            <input id="address" type="text" value={formData.address} onChange={handleInputChange} placeholder="100 Broadway, New York, NY" className="w-full bg-[#12182c] border border-white/10 rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:border-indigo-500 transition-colors text-white placeholder-slate-650" />
+                                            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider" htmlFor="address">Project Street Address & ZIP</label>
+                                            <input id="address" type="text" value={formData.address} onChange={handleInputChange} placeholder="100 Broadway, Dallas, TX 75201" className="w-full bg-[#12182c] border border-white/10 rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:border-indigo-500 transition-colors text-white placeholder-slate-650" />
                                         </div>
                                     </div>
 
@@ -259,25 +264,25 @@ export default function Home() {
                                 </div>
                             )}
 
-                            {/* STEP 2: Property Parameters */}
+                            {/* STEP 2: Property Footprint & Sizing */}
                             {step === 2 && (
                                 <div className="space-y-6">
                                     <div>
-                                        <h2 className="text-xl font-extrabold text-white">Property Parameters</h2>
-                                        <p className="text-xs text-slate-400 mt-1">Specify building category and story elevation parameters.</p>
+                                        <h2 className="text-xl font-extrabold text-white">Footprint & Sizing</h2>
+                                        <p className="text-xs text-slate-400 mt-1">Specify building footprint or total roof surface area.</p>
                                     </div>
 
                                     <div className="space-y-5">
                                         <div className="flex flex-col gap-2.5">
-                                            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Property Type</label>
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <button onClick={() => handleSelectOption('propertyType', 'Residential')} className={`p-4 rounded-xl border flex flex-col items-center gap-2 transition-all ${formData.propertyType === 'Residential' ? 'bg-indigo-500/10 border-indigo-500 text-white shadow-[0_0_12px_rgba(99,102,241,0.15)]' : 'bg-[#12182c] border-white/5 text-slate-400 hover:border-white/15'}`}>
-                                                    <span className="text-2xl">🏠</span>
-                                                    <span className="text-xs font-bold">Residential Home</span>
+                                            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Property Type & Elevation</label>
+                                            <div className="grid grid-cols-2 gap-3">
+                                                <button onClick={() => handleSelectOption('propertyType', 'Residential')} className={`p-3 rounded-xl border flex flex-col items-center gap-1 transition-all ${formData.propertyType === 'Residential' ? 'bg-indigo-500/10 border-indigo-500 text-white shadow-[0_0_12px_rgba(99,102,241,0.15)]' : 'bg-[#12182c] border-white/5 text-slate-400 hover:border-white/15'}`}>
+                                                    <span className="text-xl">🏠</span>
+                                                    <span className="text-xs font-bold">Residential</span>
                                                 </button>
-                                                <button onClick={() => handleSelectOption('propertyType', 'Commercial')} className={`p-4 rounded-xl border flex flex-col items-center gap-2 transition-all ${formData.propertyType === 'Commercial' ? 'bg-indigo-500/10 border-indigo-500 text-white shadow-[0_0_12px_rgba(99,102,241,0.15)]' : 'bg-[#12182c] border-white/5 text-slate-400 hover:border-white/15'}`}>
-                                                    <span className="text-2xl">🏢</span>
-                                                    <span className="text-xs font-bold">Commercial Building</span>
+                                                <button onClick={() => handleSelectOption('propertyType', 'Commercial')} className={`p-3 rounded-xl border flex flex-col items-center gap-1 transition-all ${formData.propertyType === 'Commercial' ? 'bg-indigo-500/10 border-indigo-500 text-white shadow-[0_0_12px_rgba(99,102,241,0.15)]' : 'bg-[#12182c] border-white/5 text-slate-400 hover:border-white/15'}`}>
+                                                    <span className="text-xl">🏢</span>
+                                                    <span className="text-xs font-bold">Commercial</span>
                                                 </button>
                                             </div>
                                         </div>
@@ -286,24 +291,48 @@ export default function Home() {
                                             <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Story Height Elevation</label>
                                             <div className="grid grid-cols-3 gap-3">
                                                 {['1', '2', '3'].map((num) => (
-                                                    <button key={num} onClick={() => handleSelectOption('stories', num)} className={`py-3.5 rounded-xl border text-xs font-bold transition-all ${formData.stories === num ? 'bg-indigo-500/10 border-indigo-500 text-white' : 'bg-[#12182c] border-white/5 text-slate-400 hover:border-white/15'}`}>
+                                                    <button key={num} onClick={() => handleSelectOption('stories', num)} className={`py-3 rounded-xl border text-xs font-bold transition-all ${formData.stories === num ? 'bg-indigo-500/10 border-indigo-500 text-white' : 'bg-[#12182c] border-white/5 text-slate-400 hover:border-white/15'}`}>
                                                         {num === '3' ? '3+ Stories' : `${num} Story`}
                                                     </button>
                                                 ))}
                                             </div>
                                         </div>
 
-                                        <div className="flex flex-col gap-2.5 pt-2">
+                                        {/* Footprint Sizing Choice */}
+                                        <div className="flex flex-col gap-3 pt-2">
                                             <div className="flex justify-between items-center">
-                                                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider" htmlFor="roofSize">Approximate Roof Size</label>
-                                                <span className="text-sm font-extrabold text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-3 py-1 rounded-lg">{formData.roofSize.toLocaleString()} sq ft</span>
+                                                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Home Ground Footprint (Length × Width)</label>
+                                                <div className="flex gap-2">
+                                                    <button type="button" onClick={() => handleSelectOption('sizeMode', 'footprint')} className={`text-[10px] font-bold px-2.5 py-1 rounded-md border ${formData.sizeMode === 'footprint' ? 'bg-indigo-500/20 border-indigo-500 text-indigo-300' : 'bg-white/5 border-white/10 text-slate-400'}`}>Dimensions</button>
+                                                    <button type="button" onClick={() => handleSelectOption('sizeMode', 'slider')} className={`text-[10px] font-bold px-2.5 py-1 rounded-md border ${formData.sizeMode === 'slider' ? 'bg-indigo-500/20 border-indigo-500 text-indigo-300' : 'bg-white/5 border-white/10 text-slate-400'}`}>Slider</button>
+                                                </div>
                                             </div>
-                                            <input type="range" id="roofSize" min="1000" max="6000" step="100" value={formData.roofSize} onChange={handleSliderChange} className="w-full h-2 rounded-lg bg-slate-800 appearance-none cursor-pointer accent-indigo-500 mt-2" />
-                                            <div className="flex justify-between text-[10px] text-slate-500 font-bold px-1 mt-1">
-                                                <span>1,000 SQ FT</span>
-                                                <span>3,500 SQ FT</span>
-                                                <span>6,000+ SQ FT</span>
-                                            </div>
+
+                                            {formData.sizeMode === 'footprint' ? (
+                                                <div className="space-y-2">
+                                                    <div className="grid grid-cols-2 gap-3">
+                                                        <div className="flex flex-col gap-1">
+                                                            <span className="text-[10px] font-semibold text-slate-400">Length (ft)</span>
+                                                            <input id="footprintLength" type="number" value={formData.footprintLength} onChange={handleInputChange} placeholder="50" className="w-full bg-[#12182c] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white outline-none focus:border-indigo-500" />
+                                                        </div>
+                                                        <div className="flex flex-col gap-1">
+                                                            <span className="text-[10px] font-semibold text-slate-400">Width (ft)</span>
+                                                            <input id="footprintWidth" type="number" value={formData.footprintWidth} onChange={handleInputChange} placeholder="40" className="w-full bg-[#12182c] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white outline-none focus:border-indigo-500" />
+                                                        </div>
+                                                    </div>
+                                                    <p className="text-[10px] text-slate-400 leading-normal">
+                                                        * Sloped roof surface area is calculated automatically using your footprint dimensions, slope pitch, and roof shape complexity.
+                                                    </p>
+                                                </div>
+                                            ) : (
+                                                <div className="space-y-2">
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="text-xs font-bold text-slate-300">Total Roof Surface Area</span>
+                                                        <span className="text-xs font-extrabold text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-0.5 rounded-lg">{formData.roofSize.toLocaleString()} sq ft</span>
+                                                    </div>
+                                                    <input type="range" id="roofSize" min="1000" max="6000" step="100" value={formData.roofSize} onChange={handleSliderChange} className="w-full h-2 rounded-lg bg-slate-800 appearance-none cursor-pointer accent-indigo-500 mt-1" />
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
 
@@ -320,21 +349,28 @@ export default function Home() {
                                 </div>
                             )}
 
-                            {/* STEP 3: Roof Specs */}
+                            {/* STEP 3: Roof Shape Complexity & Materials */}
                             {step === 3 && (
                                 <div className="space-y-6">
                                     <div>
-                                        <h2 className="text-xl font-extrabold text-white">Roof Specifications</h2>
-                                        <p className="text-xs text-slate-400 mt-1">Select your service parameters and material choices.</p>
+                                        <h2 className="text-xl font-extrabold text-white">Roof Shape & Materials</h2>
+                                        <p className="text-xs text-slate-400 mt-1">Specify roof shape complexity and material grade.</p>
                                     </div>
 
                                     <div className="space-y-5">
+                                        {/* Roof Shape Complexity Cards */}
                                         <div className="flex flex-col gap-2.5">
-                                            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Current Wear Condition</label>
-                                            <div className="grid grid-cols-3 gap-3">
-                                                {['Good', 'Fair', 'Poor'].map((cond) => (
-                                                    <button key={cond} onClick={() => handleSelectOption('condition', cond)} className={`py-3.5 rounded-xl border text-xs font-bold transition-all ${formData.condition === cond ? 'bg-indigo-500/10 border-indigo-500 text-white shadow-[0_0_10px_rgba(99,102,241,0.1)]' : 'bg-[#12182c] border-white/5 text-slate-400 hover:border-white/15'}`}>
-                                                        {cond}
+                                            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Roof Shape / Complexity</label>
+                                            <div className="grid grid-cols-2 gap-3">
+                                                {[
+                                                    { value: 'Gable', label: '📐 Simple Gable', desc: '2 sloping sides' },
+                                                    { value: 'Hip', label: '🏠 Hip Roof', desc: 'Slopes on all 4 sides' },
+                                                    { value: 'Valleys', label: '🏔️ Valleys & Dormers', desc: 'L-shape / multiple gables' },
+                                                    { value: 'Complex', label: '🏰 Complex / Custom', desc: 'Multi-angle & turrets' }
+                                                ].map((comp) => (
+                                                    <button key={comp.value} type="button" onClick={() => handleSelectOption('complexity', comp.value)} className={`p-3 rounded-xl border text-left flex flex-col gap-0.5 transition-all ${formData.complexity === comp.value ? 'bg-indigo-500/10 border-indigo-500 text-white shadow-[0_0_12px_rgba(99,102,241,0.15)]' : 'bg-[#12182c] border-white/5 text-slate-400 hover:border-white/15'}`}>
+                                                        <span className="text-xs font-bold text-slate-200">{comp.label}</span>
+                                                        <span className="text-[9px] text-slate-500">{comp.desc}</span>
                                                     </button>
                                                 ))}
                                             </div>
@@ -342,26 +378,26 @@ export default function Home() {
 
                                         <div className="flex flex-col gap-2.5">
                                             <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Desired Service Scope</label>
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <button onClick={() => handleSelectOption('service', 'Repair')} className={`p-4 rounded-xl border text-left flex flex-col gap-1 transition-all ${formData.service === 'Repair' ? 'bg-indigo-500/10 border-indigo-500 text-white shadow-[0_0_12px_rgba(99,102,241,0.15)]' : 'bg-[#12182c] border-white/5 text-slate-400 hover:border-white/15'}`}>
-                                                    <span className="text-base font-bold text-slate-200">🛠️ Localized Repair</span>
-                                                    <span className="text-[10px] text-slate-400 leading-normal">Fix leaks, structural patches, or minor wear and tear areas.</span>
+                                            <div className="grid grid-cols-2 gap-3">
+                                                <button onClick={() => handleSelectOption('service', 'Repair')} className={`p-3.5 rounded-xl border text-left flex flex-col gap-1 transition-all ${formData.service === 'Repair' ? 'bg-indigo-500/10 border-indigo-500 text-white shadow-[0_0_12px_rgba(99,102,241,0.15)]' : 'bg-[#12182c] border-white/5 text-slate-400 hover:border-white/15'}`}>
+                                                    <span className="text-xs font-bold text-slate-200">🛠️ Localized Repair</span>
+                                                    <span className="text-[9px] text-slate-400 leading-normal">Fix leaks, patches, or targeted wear areas.</span>
                                                 </button>
-                                                <button onClick={() => handleSelectOption('service', 'Replacement')} className={`p-4 rounded-xl border text-left flex flex-col gap-1 transition-all ${formData.service === 'Replacement' ? 'bg-indigo-500/10 border-indigo-500 text-white shadow-[0_0_12px_rgba(99,102,241,0.15)]' : 'bg-[#12182c] border-white/5 text-slate-400 hover:border-white/15'}`}>
-                                                    <span className="text-base font-bold text-slate-200">🔄 Complete Replacement</span>
-                                                    <span className="text-[10px] text-slate-400 leading-normal">Full shingle or metal panels tear-off and brand new install.</span>
+                                                <button onClick={() => handleSelectOption('service', 'Replacement')} className={`p-3.5 rounded-xl border text-left flex flex-col gap-1 transition-all ${formData.service === 'Replacement' ? 'bg-indigo-500/10 border-indigo-500 text-white shadow-[0_0_12px_rgba(99,102,241,0.15)]' : 'bg-[#12182c] border-white/5 text-slate-400 hover:border-white/15'}`}>
+                                                    <span className="text-xs font-bold text-slate-200">🔄 Full Replacement</span>
+                                                    <span className="text-[9px] text-slate-400 leading-normal">Complete tear-off & brand new install.</span>
                                                 </button>
                                             </div>
                                         </div>
 
                                         <div className="flex flex-col gap-2.5">
                                             <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Preferred Material Styling</label>
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            <div className="grid grid-cols-2 gap-3">
                                                 {[
-                                                    { value: 'Asphalt shingles', label: '🏠 Architectural Asphalt', desc: 'Standard protection' },
-                                                    { value: 'Metal', label: '🛡️ Standing-Seam Metal', desc: 'Premium metal sheeting' },
-                                                    { value: 'Tile', label: '🧱 Spanish Slate & Clay Tile', desc: 'Luxury ceramic profiles' },
-                                                    { value: 'Other', label: '❓ Other Style / Undecided', desc: 'Consult with inspector' }
+                                                    { value: 'Asphalt shingles', label: '🏠 Architectural Asphalt', desc: '$450–$750/sq installed' },
+                                                    { value: 'Metal', label: '🛡️ Standing-Seam Metal', desc: '$950–$1,650/sq installed' },
+                                                    { value: 'Tile', label: '🧱 Spanish Slate & Tile', desc: '$1,200–$2,400/sq installed' },
+                                                    { value: 'Other', label: '❓ Designer / Undecided', desc: 'Consult with inspector' }
                                                 ].map((mat) => (
                                                     <button key={mat.value} onClick={() => handleSelectOption('material', mat.value)} className={`p-3 rounded-xl border text-left flex flex-col gap-0.5 transition-all ${formData.material === mat.value ? 'bg-indigo-500/10 border-indigo-500 text-white shadow-[0_0_12px_rgba(99,102,241,0.15)]' : 'bg-[#12182c] border-white/5 text-slate-400 hover:border-white/15'}`}>
                                                         <span className="text-xs font-bold text-slate-200">{mat.label}</span>
@@ -385,15 +421,32 @@ export default function Home() {
                                 </div>
                             )}
 
-                            {/* STEP 4: Project Qualifications (Consolidated timelines + structure parameters) */}
+                            {/* STEP 4: Project Qualifications & Existing Shingle Layers */}
                             {step === 4 && (
                                 <div className="space-y-6">
                                     <div>
                                         <h2 className="text-xl font-extrabold text-white">Project Qualifications</h2>
-                                        <p className="text-xs text-slate-400 mt-1">Specify timeline urgency, financing, slope pitch, and current shingles age.</p>
+                                        <p className="text-xs text-slate-400 mt-1">Specify shingle layers, timeline urgency, financing, and slope pitch.</p>
                                     </div>
 
                                     <div className="space-y-5">
+                                        {/* Shingle Layers Input */}
+                                        <div className="flex flex-col gap-2.5">
+                                            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Existing Shingle Layers on Roof</label>
+                                            <div className="grid grid-cols-3 gap-3">
+                                                {[
+                                                    { value: '1', label: '1 Layer', desc: 'Standard tear-off' },
+                                                    { value: '2', label: '2 Layers', desc: '+35% disposal fee' },
+                                                    { value: '3', label: '3+ Layers', desc: '+65% heavy tear-off' }
+                                                ].map((lay) => (
+                                                    <button key={lay.value} type="button" onClick={() => handleSelectOption('layers', lay.value)} className={`p-3 rounded-xl border text-center flex flex-col items-center gap-0.5 transition-all ${formData.layers === lay.value ? 'bg-indigo-500/10 border-indigo-500 text-white' : 'bg-[#12182c] border-white/5 text-slate-400 hover:border-white/15'}`}>
+                                                        <span className="text-xs font-bold">{lay.label}</span>
+                                                        <span className="text-[9px] text-slate-500">{lay.desc}</span>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+
                                         {/* Grid Row 1: Timeline & Pitch */}
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="flex flex-col gap-2">

@@ -98,21 +98,27 @@ export async function GET(req) {
 export async function POST(req) {
     try {
         const body = await req.json();
-        const { name, email, phone, address, propertyType, stories, roofSize, condition, service, material, timeline, insurance, roofAge, pitch, appointment } = body;
+        const { name, email, phone, address, propertyType, stories, roofSize, footprintLength, footprintWidth, complexity, layers, condition, service, material, timeline, insurance, roofAge, pitch, appointment } = body;
 
         // Validation
-        if (!name || !email || !address || !roofSize || !material) {
+        if (!name || !email || !address || (!roofSize && (!footprintLength || !footprintWidth)) || !material) {
             return NextResponse.json({ success: false, error: 'Required fields are missing' }, { status: 400 });
         }
 
-        // Calculate estimate
+        // Calculate estimate with 2026 pricing engine
         const estimateResult = calculateEstimate({
+            name,
+            address,
             material,
             stories,
             condition,
             service,
             property_type: propertyType,
             roof_size: roofSize,
+            footprintLength,
+            footprintWidth,
+            complexity,
+            layers,
             pitch,
             roof_age: roofAge
         });
@@ -123,6 +129,10 @@ export async function POST(req) {
         // Serialize extra parameters to remain fully compatible with existing DB table schema
         const motivationPayload = JSON.stringify({
             propertyType,
+            footprintLength,
+            footprintWidth,
+            complexity,
+            layers,
             service,
             timeline,
             insurance,

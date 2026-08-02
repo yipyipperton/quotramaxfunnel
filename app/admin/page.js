@@ -528,23 +528,29 @@ export default function Admin() {
                                     <div>
                                         <span className="text-slate-500 block">Phone Number:</span>
                                         <span className="text-slate-200 block font-semibold">{selectedLead.phone || 'Not provided'}</span>
-                                    </div>
-                                    <div>
                                         <span className="text-slate-500 block">Physical Address:</span>
                                         <span className="text-slate-200 block font-semibold leading-relaxed">{selectedLead.address}</span>
                                     </div>
                                     
                                     {/* Details block */}
                                     <div className="space-y-4">
-                                        <h4 className="font-bold text-slate-300 uppercase tracking-widest text-[10px]">Project Qualifications</h4>
+                                        <h4 className="font-bold text-slate-300 uppercase tracking-widest text-[10px]">2026 Project Qualifications</h4>
                                         <div className="grid grid-cols-2 gap-3">
                                             <div>
-                                                <span className="text-slate-500 block">Size:</span>
-                                                <span className="text-slate-200 font-semibold">{selectedLead.size.toLocaleString()} sq ft</span>
+                                                <span className="text-slate-500 block">Footprint / Size:</span>
+                                                <span className="text-slate-200 font-semibold">{selectedLead.size?.toLocaleString()} sq ft</span>
                                             </div>
                                             <div>
                                                 <span className="text-slate-500 block">Material:</span>
                                                 <span className="text-slate-200 font-semibold">{selectedLead.material}</span>
+                                            </div>
+                                            <div>
+                                                <span className="text-slate-500 block">Roof Shape / Complexity:</span>
+                                                <span className="text-indigo-400 font-bold">{selectedLead.estimateDetails?.complexity || selectedLead.complexity || 'Gable'}</span>
+                                            </div>
+                                            <div>
+                                                <span className="text-slate-500 block">Shingle Layers:</span>
+                                                <span className="text-indigo-400 font-bold">{selectedLead.estimateDetails?.layers || selectedLead.layers || '1'} Layer(s)</span>
                                             </div>
                                             <div>
                                                 <span className="text-slate-500 block">Stories:</span>
@@ -569,6 +575,10 @@ export default function Admin() {
                                             <div>
                                                 <span className="text-slate-500 block">Slope Pitch:</span>
                                                 <span className="text-slate-200 font-semibold">{selectedLead.pitch}</span>
+                                            </div>
+                                            <div className="col-span-2">
+                                                <span className="text-slate-500 block">Regional Labor Benchmark:</span>
+                                                <span className="text-emerald-400 font-semibold">{selectedLead.estimateDetails?.region || 'US National Benchmark'} ({selectedLead.estimateDetails?.regionMult || '1.0'}x index)</span>
                                             </div>
                                             <div className="col-span-2">
                                                 <span className="text-slate-500 block">Financing:</span>

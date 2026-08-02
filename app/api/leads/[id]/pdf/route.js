@@ -57,14 +57,24 @@ export async function GET(req, { params }) {
         const size = lead.size || lead.roof_size || 2000;
         const propertyType = extraData.propertyType || 'Residential';
         const service = extraData.service || 'Replacement';
+        const complexity = extraData.complexity || 'Gable';
+        const layers = extraData.layers || '1';
+        const pitch = extraData.pitch || 'Standard';
 
         const estimate = extraData.estimate || calculateEstimate({
+            name: lead.name,
+            address: lead.address,
             material,
             stories,
             condition,
             service,
             property_type: propertyType,
-            roof_size: size
+            roof_size: size,
+            footprintLength: extraData.footprintLength,
+            footprintWidth: extraData.footprintWidth,
+            complexity,
+            layers,
+            pitch
         });
 
         // Initialize PDF Document
@@ -183,11 +193,11 @@ export async function GET(req, { params }) {
         page.drawText('DETAILS', { x: 400, y: 593, size: 8, font: helveticaBold, color: rgb(1, 1, 1) });
 
         const specs = [
-            ['Calculated Roof Footprint', `${size.toLocaleString()} sq ft`, 'Includes standard pitch & waste factor'],
-            ['Structure Story Height', `${stories} Story`, 'Determines access & rigging complexity'],
-            ['Material Selection', material, 'Manufacturer grade specification'],
-            ['Current Roof Condition', condition, 'Age and structural wear assessment'],
-            ['Service Goal', service, 'Full replacement or tear-off scope']
+            ['Calculated Roof Scope', `${estimate.squares || Math.round(size/100)} Squares (${estimate.slopedSqFt || size} sq ft)`, `Includes pitch area expansion & waste factor`],
+            ['Roof Shape Complexity', complexity, 'Determines labor waste factor & ridge lines'],
+            ['Shingle Layers Tear-off', `${layers} Layer(s)`, 'Tear-off labor & dumpster disposal factor'],
+            ['Structure Story Height', `${stories} Story`, 'Determines access & safety scaffolding'],
+            ['Material Selection', material, 'Manufacturer grade specification']
         ];
 
         let specY = 570;
