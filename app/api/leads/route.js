@@ -290,41 +290,44 @@ export async function POST(req) {
             </div>
         `;
 
-        // Send emails with isolated try-catch blocks to prevent sandbox limitations from blocking contractor notification
-        try {
-            await resend.emails.send({
-                from: 'Quotramax Onboarding <no-reply@quotramax.com>',
-                to: email, // Homeowner
-                subject: 'Your Preliminary Roof Estimate Summary - Quotramax',
-                html: homeownerHtml
-            });
-        } catch (e) {
-            console.warn('Failed sending directly to homeowner (possibly due to Resend Sandbox restrictions):', e.message);
-        }
+        // Send emails asynchronously in the background without blocking the HTTP response
+        (async () => {
+            try {
+                await resend.emails.send({
+                    from: 'Quotramax Onboarding <no-reply@quotramax.com>',
+                    to: email, // Homeowner
+                    subject: 'Your Preliminary Roof Estimate Summary - Quotramax',
+                    html: homeownerHtml
+                });
+            } catch (e) {
+                console.warn('Failed sending directly to homeowner:', e.message);
+            }
 
-        try {
-            // Also send a copy of the homeowner template to the contractor for testing purposes
-            await resend.emails.send({
-                from: 'Quotramax Onboarding <no-reply@quotramax.com>',
-                to: contractorEmail,
-                subject: `[Homeowner Preview Copy] Your Preliminary Roof Estimate Summary - Quotramax`,
-                html: homeownerHtml
-            });
-        } catch (e) {
-            console.error('Failed sending homeowner preview to contractor:', e.message);
-        }
+            try {
+                // Also send a copy of the homeowner template to the contractor
+                await resend.emails.send({
+                    from: 'Quotramax Onboarding <no-reply@quotramax.com>',
+                    to: contractorEmail,
+                    subject: `[Homeowner Preview Copy] Your Preliminary Roof Estimate Summary - Quotramax`,
+                    html: homeownerHtml
+                });
+            } catch (e) {
+                console.error('Failed sending homeowner preview to contractor:', e.message);
+            }
 
-        try {
-            await resend.emails.send({
-                from: 'Quotramax Lead Alert <no-reply@quotramax.com>',
-                to: contractorEmail,
-                subject: `New Lead: ${name} - ${address}`,
-                html: contractorHtml
-            });
-        } catch (e) {
-            console.error('Failed sending lead alert to contractor:', e.message);
-        }
+            try {
+                await resend.emails.send({
+                    from: 'Quotramax Lead Alert <no-reply@quotramax.com>',
+                    to: contractorEmail,
+                    subject: `New Lead: ${name} - ${address}`,
+                    html: contractorHtml
+                });
+            } catch (e) {
+                console.error('Failed sending lead alert to contractor:', e.message);
+            }
+        })();
 
+        // Return HTTP 200 immediately (< 100ms response time)
         return NextResponse.json({ success: true, leadId });
     } catch (e) {
         console.error('Leads POST API error:', e);

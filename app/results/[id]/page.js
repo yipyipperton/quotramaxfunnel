@@ -25,33 +25,34 @@ export default function Results() {
     useEffect(() => {
         if (!id) return;
 
-        // Fetch lead details
-        fetch(`/api/leads/${id}`)
-            .then(res => {
+        // Fetch lead and settings concurrently in parallel
+        Promise.all([
+            fetch(`/api/leads/${id}`).then(res => {
                 if (!res.ok) throw new Error('Estimate not found');
                 return res.json();
-            })
-            .then(data => {
-                setLead(data);
-                if (data.status === 'Inspection Scheduled' || data.appointment) {
+            }),
+            fetch('/api/settings').then(res => res.json()).catch(() => null)
+        ])
+        .then(([leadData, settingsData]) => {
+            if (leadData) {
+                setLead(leadData);
+                if (leadData.status === 'Inspection Scheduled' || leadData.appointment) {
                     setScheduled(true);
-                    if (data.appointment) {
-                        setAppointmentDetails(data.appointment);
+                    if (leadData.appointment) {
+                        setAppointmentDetails(leadData.appointment);
                     }
                 }
-                setLoading(false);
-            })
-            .catch(err => {
-                console.error(err);
-                setError('Failed to load estimate details.');
-                setLoading(false);
-            });
-
-        // Fetch public contractor details
-        fetch('/api/settings')
-            .then(res => res.json())
-            .then(data => setContractor(data))
-            .catch(err => console.error('Error loading contractor settings:', err));
+            }
+            if (settingsData) {
+                setContractor(settingsData);
+            }
+            setLoading(false);
+        })
+        .catch(err => {
+            console.error(err);
+            setError('Failed to load estimate details.');
+            setLoading(false);
+        });
     }, [id]);
 
     const handleDownloadPDF = () => {
