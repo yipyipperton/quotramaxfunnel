@@ -98,7 +98,9 @@ export async function GET(req) {
 export async function POST(req) {
     try {
         const body = await req.json();
-        const { name, email, phone, address, propertyType, stories, roofSize, footprintLength, footprintWidth, complexity, layers, condition, service, material, timeline, insurance, roofAge, pitch, appointment } = body;
+        const { name, email, phone, address, zip, propertyType, stories, roofSize, footprintLength, footprintWidth, complexity, layers, condition, service, material, timeline, insurance, roofAge, pitch, appointment } = body;
+
+        const fullAddress = zip ? `${address}, ${zip}` : address;
 
         // Validation
         if (!name || !email || !address || (!roofSize && (!footprintLength || !footprintWidth)) || !material) {
@@ -108,7 +110,7 @@ export async function POST(req) {
         // Calculate estimate with 2026 pricing engine
         const estimateResult = calculateEstimate({
             name,
-            address,
+            address: fullAddress,
             material,
             stories,
             condition,
@@ -129,6 +131,7 @@ export async function POST(req) {
         // Serialize extra parameters to remain fully compatible with existing DB table schema
         const motivationPayload = JSON.stringify({
             propertyType,
+            zip,
             footprintLength,
             footprintWidth,
             complexity,
@@ -146,9 +149,9 @@ export async function POST(req) {
             name,
             email,
             phone: phone || '',
-            address,
-            zip: '34652', // default fallback
-            size: parseInt(roofSize),
+            address: fullAddress,
+            zip: zip || '34652',
+            size: parseInt(roofSize || 2200),
             material,
             price: meanPrice,
             motivation: motivationPayload, // holds extra json metadata

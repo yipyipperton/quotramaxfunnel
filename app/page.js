@@ -11,12 +11,14 @@ export default function Home() {
         email: '',
         phone: '',
         address: '',
+        zip: '',
         propertyType: 'Residential',
         stories: '1',
-        roofSize: 2000,
+        homeCategory: 'Medium', // Small, Medium, Large, Estate
+        roofSize: 2200,
         footprintLength: '',
         footprintWidth: '',
-        sizeMode: 'footprint', // 'footprint' or 'slider'
+        sizeMode: 'preset', // 'preset', 'footprint', or 'slider'
         complexity: 'Gable', // Gable, Hip, Valleys, Complex
         layers: '1', // 1, 2, 3
         condition: 'Good',
@@ -52,9 +54,20 @@ export default function Home() {
                 formatted += '-' + cleanInput.substring(6, 10);
             }
             setFormData(prev => ({ ...prev, phone: formatted }));
+        } else if (id === 'zip') {
+            const cleanZip = value.replace(/\D/g, '').substring(0, 5);
+            setFormData(prev => ({ ...prev, zip: cleanZip }));
         } else {
             setFormData(prev => ({ ...prev, [id]: value }));
         }
+    };
+
+    const handleHomeCategorySelect = (category, sqFt) => {
+        setFormData(prev => ({
+            ...prev,
+            homeCategory: category,
+            roofSize: sqFt
+        }));
     };
 
     const handleSliderChange = (e) => {
@@ -76,6 +89,7 @@ export default function Home() {
                 return 'Please enter a valid 10-digit phone number.';
             }
             if (!formData.address.trim()) return 'Please enter your street address.';
+            if (!formData.zip.trim() || formData.zip.length !== 5) return 'Please enter a valid 5-digit ZIP code.';
         }
         if (step === 5) {
             if (!formData.appointmentDate) return 'Please select a preferred inspection date.';
@@ -176,7 +190,7 @@ export default function Home() {
                         </h1>
                         
                         <p className="text-base sm:text-lg text-slate-400 leading-relaxed mb-8 max-w-lg">
-                            Answer 5 quick qualification questions about your home footprint, roof shape, and material preferences to generate a 2026 preliminary materials and labor estimate report.
+                            Answer 5 quick qualification questions about your property and material preferences to generate a 2026 preliminary materials and labor estimate report.
                         </p>
 
                         {/* Checklist Details */}
@@ -208,7 +222,7 @@ export default function Home() {
                                     <span className="text-xs font-bold uppercase tracking-widest text-slate-400">
                                         Step {step} of 5: <span className="text-indigo-400">
                                             {step === 1 ? 'Customer & Location' :
-                                             step === 2 ? 'Footprint & Elevation' :
+                                             step === 2 ? 'Home Size & Elevation' :
                                              step === 3 ? 'Roof Shape & Materials' :
                                              step === 4 ? 'Project Qualifications' :
                                              'Schedule On-Site Visit'}
@@ -248,9 +262,17 @@ export default function Home() {
                                             <label className="text-xs font-bold text-slate-400 uppercase tracking-wider" htmlFor="phone">Phone Number</label>
                                             <input id="phone" type="tel" value={formData.phone} onChange={handleInputChange} placeholder="727-808-4646" className="w-full bg-[#12182c] border border-white/10 rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:border-indigo-500 transition-colors text-white placeholder-slate-650" />
                                         </div>
-                                        <div className="flex flex-col gap-2 relative">
-                                            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider" htmlFor="address">Project Street Address & ZIP</label>
-                                            <input id="address" type="text" value={formData.address} onChange={handleInputChange} placeholder="100 Broadway, Dallas, TX 75201" className="w-full bg-[#12182c] border border-white/10 rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:border-indigo-500 transition-colors text-white placeholder-slate-650" />
+                                        
+                                        {/* Separate Street Address and ZIP Code */}
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                            <div className="sm:col-span-2 flex flex-col gap-2">
+                                                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider" htmlFor="address">Street Address</label>
+                                                <input id="address" type="text" value={formData.address} onChange={handleInputChange} placeholder="100 Broadway St" className="w-full bg-[#12182c] border border-white/10 rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:border-indigo-500 transition-colors text-white placeholder-slate-650" />
+                                            </div>
+                                            <div className="flex flex-col gap-2">
+                                                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider" htmlFor="zip">ZIP Code</label>
+                                                <input id="zip" type="text" maxLength="5" value={formData.zip} onChange={handleInputChange} placeholder="75201" className="w-full bg-[#12182c] border border-white/10 rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:border-indigo-500 transition-colors text-white placeholder-slate-650 font-mono" />
+                                            </div>
                                         </div>
                                     </div>
 
@@ -268,8 +290,8 @@ export default function Home() {
                             {step === 2 && (
                                 <div className="space-y-6">
                                     <div>
-                                        <h2 className="text-xl font-extrabold text-white">Footprint & Sizing</h2>
-                                        <p className="text-xs text-slate-400 mt-1">Specify building footprint or total roof surface area.</p>
+                                        <h2 className="text-xl font-extrabold text-white">Home Category & Elevation</h2>
+                                        <p className="text-xs text-slate-400 mt-1">Select your home category—our engine auto-calculates roof surface area.</p>
                                     </div>
 
                                     <div className="space-y-5">
@@ -298,36 +320,39 @@ export default function Home() {
                                             </div>
                                         </div>
 
-                                        {/* Footprint Sizing Choice */}
-                                        <div className="flex flex-col gap-3 pt-2">
+                                        {/* Visual Home Size Presets */}
+                                        <div className="flex flex-col gap-2.5 pt-2">
                                             <div className="flex justify-between items-center">
-                                                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Home Ground Footprint (Length × Width)</label>
+                                                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Home Category / Size</label>
                                                 <div className="flex gap-2">
-                                                    <button type="button" onClick={() => handleSelectOption('sizeMode', 'footprint')} className={`text-[10px] font-bold px-2.5 py-1 rounded-md border ${formData.sizeMode === 'footprint' ? 'bg-indigo-500/20 border-indigo-500 text-indigo-300' : 'bg-white/5 border-white/10 text-slate-400'}`}>Dimensions</button>
-                                                    <button type="button" onClick={() => handleSelectOption('sizeMode', 'slider')} className={`text-[10px] font-bold px-2.5 py-1 rounded-md border ${formData.sizeMode === 'slider' ? 'bg-indigo-500/20 border-indigo-500 text-indigo-300' : 'bg-white/5 border-white/10 text-slate-400'}`}>Slider</button>
+                                                    <button type="button" onClick={() => handleSelectOption('sizeMode', 'preset')} className={`text-[10px] font-bold px-2.5 py-1 rounded-md border ${formData.sizeMode === 'preset' ? 'bg-indigo-500/20 border-indigo-500 text-indigo-300' : 'bg-white/5 border-white/10 text-slate-400'}`}>Presets</button>
+                                                    <button type="button" onClick={() => handleSelectOption('sizeMode', 'slider')} className={`text-[10px] font-bold px-2.5 py-1 rounded-md border ${formData.sizeMode === 'slider' ? 'bg-indigo-500/20 border-indigo-500 text-indigo-300' : 'bg-white/5 border-white/10 text-slate-400'}`}>Custom Sq Ft</button>
                                                 </div>
                                             </div>
 
-                                            {formData.sizeMode === 'footprint' ? (
-                                                <div className="space-y-2">
+                                            {formData.sizeMode === 'preset' ? (
+                                                <div className="space-y-3">
                                                     <div className="grid grid-cols-2 gap-3">
-                                                        <div className="flex flex-col gap-1">
-                                                            <span className="text-[10px] font-semibold text-slate-400">Length (ft)</span>
-                                                            <input id="footprintLength" type="number" value={formData.footprintLength} onChange={handleInputChange} placeholder="50" className="w-full bg-[#12182c] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white outline-none focus:border-indigo-500" />
-                                                        </div>
-                                                        <div className="flex flex-col gap-1">
-                                                            <span className="text-[10px] font-semibold text-slate-400">Width (ft)</span>
-                                                            <input id="footprintWidth" type="number" value={formData.footprintWidth} onChange={handleInputChange} placeholder="40" className="w-full bg-[#12182c] border border-white/10 rounded-xl px-3 py-2.5 text-xs text-white outline-none focus:border-indigo-500" />
-                                                        </div>
+                                                        {[
+                                                            { key: 'Small', label: '🏡 Small / Townhome', sqFt: 1400, range: '~1,200–1,600 sq ft' },
+                                                            { key: 'Medium', label: '🏠 Medium Single-Family', sqFt: 2100, range: '~1,800–2,400 sq ft' },
+                                                            { key: 'Large', label: '🏰 Executive Home', sqFt: 2900, range: '~2,500–3,400 sq ft' },
+                                                            { key: 'Estate', label: '🏛️ Extra Large Estate', sqFt: 4000, range: '~3,600+ sq ft' }
+                                                        ].map((item) => (
+                                                            <button key={item.key} type="button" onClick={() => handleHomeCategorySelect(item.key, item.sqFt)} className={`p-3 rounded-xl border text-left flex flex-col gap-0.5 transition-all ${formData.homeCategory === item.key ? 'bg-indigo-500/10 border-indigo-500 text-white shadow-[0_0_12px_rgba(99,102,241,0.15)]' : 'bg-[#12182c] border-white/5 text-slate-400 hover:border-white/15'}`}>
+                                                                <span className="text-xs font-bold text-slate-200">{item.label}</span>
+                                                                <span className="text-[9px] text-slate-500 font-medium">{item.range}</span>
+                                                            </button>
+                                                        ))}
                                                     </div>
                                                     <p className="text-[10px] text-slate-400 leading-normal">
-                                                        * Sloped roof surface area is calculated automatically using your footprint dimensions, slope pitch, and roof shape complexity.
+                                                        * Don't worry if you aren't sure—our engine auto-adjusts your estimate using pitch, roof complexity, and local building codes.
                                                     </p>
                                                 </div>
                                             ) : (
                                                 <div className="space-y-2">
                                                     <div className="flex justify-between items-center">
-                                                        <span className="text-xs font-bold text-slate-300">Total Roof Surface Area</span>
+                                                        <span className="text-xs font-bold text-slate-300">Custom Roof Surface Area</span>
                                                         <span className="text-xs font-extrabold text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-0.5 rounded-lg">{formData.roofSize.toLocaleString()} sq ft</span>
                                                     </div>
                                                     <input type="range" id="roofSize" min="1000" max="6000" step="100" value={formData.roofSize} onChange={handleSliderChange} className="w-full h-2 rounded-lg bg-slate-800 appearance-none cursor-pointer accent-indigo-500 mt-1" />
