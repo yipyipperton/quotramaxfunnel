@@ -37,21 +37,21 @@ export default function Login() {
     };
 
     return (
-        <div className="min-h-screen bg-[#070a13] text-slate-100 flex flex-col justify-center items-center font-sans px-6">
+        <div className="min-h-screen bg-[#070a13] text-slate-100 flex flex-col justify-center items-center font-sans px-4 sm:px-6">
             <div className="w-full max-w-md">
-                
+
                 {/* Brand */}
-                <div className="flex flex-col items-center gap-2 mb-8 cursor-pointer" onClick={() => router.push('/')}>
+                <div className="flex flex-col items-center gap-2 mb-6 sm:mb-8 cursor-pointer" onClick={() => router.push('/')}>
                     <svg className="w-10 h-10 text-indigo-500 filter drop-shadow-[0_0_10px_rgba(99,102,241,0.5)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                         <polyline points="9 22 9 12 15 12 15 22" />
                     </svg>
                     <span className="font-heading font-extrabold text-2xl tracking-tight mt-1 text-white">QUOTRA<span className="text-indigo-500">MAX</span></span>
-                    <span className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Contractor Dashboard Portal</span>
+                    <span className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1 text-center">Contractor Dashboard Portal</span>
                 </div>
 
                 {/* Login Card */}
-                <div className="relative border border-white/5 rounded-2xl bg-slate-900/50 backdrop-blur-xl p-8 shadow-2xl overflow-hidden before:absolute before:top-0 before:left-0 before:w-full before:height-[3px] before:bg-gradient-to-r before:from-indigo-500 before:to-emerald-400">
+                <div className="relative border border-white/5 rounded-2xl bg-slate-900/50 backdrop-blur-xl p-6 sm:p-8 shadow-2xl overflow-hidden before:absolute before:top-0 before:left-0 before:w-full before:height-[3px] before:bg-gradient-to-r before:from-indigo-500 before:to-emerald-400">
                     <h2 className="text-xl font-bold text-white mb-6 text-center">Secure Sign In</h2>
 
                     {error && (

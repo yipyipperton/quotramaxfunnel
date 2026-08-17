@@ -128,36 +128,36 @@ export default function Results() {
             
             {/* Header */}
             <header className="border-b border-white/5 bg-[#070a13]/80 backdrop-blur-md sticky top-0 z-40">
-                <div className="max-w-5xl mx-auto px-6 py-4 flex justify-between items-center">
-                    <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => router.push('/')}>
-                        <svg className="w-7 h-7 text-indigo-500 filter drop-shadow-[0_0_8px_rgba(99,102,241,0.5)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center gap-3">
+                    <div className="flex items-center gap-2 sm:gap-2.5 cursor-pointer min-w-0" onClick={() => router.push('/')}>
+                        <svg className="w-6 h-6 sm:w-7 sm:h-7 text-indigo-500 filter drop-shadow-[0_0_8px_rgba(99,102,241,0.5)] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                             <polyline points="9 22 9 12 15 12 15 22" />
                         </svg>
-                        <span className="font-heading font-extrabold text-2xl tracking-tight text-white">QUOTRA<span className="text-indigo-500">MAX</span></span>
+                        <span className="font-heading font-extrabold text-xl sm:text-2xl tracking-tight text-white truncate">QUOTRA<span className="text-indigo-500">MAX</span></span>
                     </div>
-                    <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20 uppercase tracking-widest">
+                    <span className="text-[9px] sm:text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 sm:px-3 py-1 rounded-full border border-emerald-500/20 uppercase tracking-widest flex-shrink-0">
                         Quote Issued
                     </span>
                 </div>
             </header>
 
             {/* Main Content */}
-            <main className="flex-grow max-w-5xl w-full mx-auto px-6 py-12">
-                
+            <main className="flex-grow max-w-5xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12">
+
                 {/* Status Alert Bar */}
-                <div className="mb-8 p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm rounded-xl flex items-start gap-3 shadow-lg">
+                <div className="mb-6 sm:mb-8 p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm rounded-xl flex items-start gap-3 shadow-lg">
                     <span className="text-lg">📄</span>
                     <div>
                         <strong>Your Ballpark Estimate Report has been generated!</strong> A copy of the pricing breakdown has been sent to <strong>{lead.email}</strong>.
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                    
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
+
                     {/* Left Column: Overhauled Visual Cost Card */}
                     <div className="lg:col-span-7 space-y-6">
-                        <div className="border border-white/10 rounded-2xl bg-[#0d1222]/80 backdrop-blur-2xl p-8 shadow-2xl overflow-hidden relative before:absolute before:top-0 before:left-0 before:w-full before:height-[4px] before:bg-gradient-to-r before:from-indigo-500 before:to-emerald-400">
+                        <div className="border border-white/10 rounded-2xl bg-[#0d1222]/80 backdrop-blur-2xl p-5 sm:p-8 shadow-2xl overflow-hidden relative before:absolute before:top-0 before:left-0 before:w-full before:height-[4px] before:bg-gradient-to-r before:from-indigo-500 before:to-emerald-400">
                             <span className="text-xs font-bold text-indigo-400 tracking-widest uppercase">Project Cost Valuation</span>
                             <h2 className="text-2xl font-black text-white mt-1 mb-8">Ballpark Estimate Report</h2>
 

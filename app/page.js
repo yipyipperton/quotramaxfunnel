@@ -157,38 +157,39 @@ export default function Home() {
             
             {/* Nav */}
             <header className="border-b border-white/5 bg-[#070a13]/80 backdrop-blur-md sticky top-0 z-50">
-                <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-                    <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => setStep(1)}>
-                        <svg className="w-7 h-7 text-indigo-500 filter drop-shadow-[0_0_8px_rgba(99,102,241,0.5)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center">
+                    <div className="flex items-center gap-2 sm:gap-2.5 cursor-pointer" onClick={() => setStep(1)}>
+                        <svg className="w-6 h-6 sm:w-7 sm:h-7 text-indigo-500 filter drop-shadow-[0_0_8px_rgba(99,102,241,0.5)] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                             <polyline points="9 22 9 12 15 12 15 22" />
                         </svg>
-                        <span className="font-heading font-extrabold text-2xl tracking-tight text-white">QUOTRA<span className="text-indigo-500">MAX</span></span>
+                        <span className="font-heading font-extrabold text-xl sm:text-2xl tracking-tight text-white">QUOTRA<span className="text-indigo-500">MAX</span></span>
                     </div>
-                    <button onClick={() => router.push('/login')} className="text-xs font-semibold text-slate-400 hover:text-white transition-colors bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 rounded-lg">
-                        Contractor Dashboard
+                    <button onClick={() => router.push('/login')} className="text-[11px] sm:text-xs font-semibold text-slate-400 hover:text-white transition-colors bg-white/5 hover:bg-white/10 border border-white/10 px-3 sm:px-4 py-2 rounded-lg flex-shrink-0">
+                        <span className="sm:hidden">Sign In</span>
+                        <span className="hidden sm:inline">Contractor Dashboard</span>
                     </button>
                 </div>
             </header>
 
             {/* Split Screen Container */}
-            <main className="flex-grow max-w-7xl w-full mx-auto px-6 py-12 flex flex-col justify-center">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-                    
+            <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12 flex flex-col justify-center">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+
                     {/* Left Panel: Pitch Copy */}
-                    <div className="lg:col-span-6 flex flex-col justify-center py-4">
+                    <div className="lg:col-span-6 flex flex-col justify-center py-2 sm:py-4">
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 w-fit mb-6 uppercase tracking-widest">
                             ⚡ 2026 Instant Roof Valuation Engine
                         </span>
                         
-                        <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1] text-white mb-6">
+                        <h1 className="font-heading text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1] text-white mb-6">
                             Calculate Your <br />
                             New Roof Cost <br />
                             <span className="bg-gradient-to-r from-indigo-400 via-indigo-500 to-emerald-400 bg-clip-text text-transparent filter drop-shadow-[0_0_12px_rgba(99,102,241,0.2)]">
                                 Instantly Online.
                             </span>
                         </h1>
-                        
+
                         <p className="text-base sm:text-lg text-slate-400 leading-relaxed mb-8 max-w-lg">
                             Answer 5 quick qualification questions about your property and material preferences to generate a 2026 preliminary materials and labor estimate report.
                         </p>
@@ -214,7 +215,7 @@ export default function Home() {
 
                     {/* Right Panel: Premium 5-Step Wizard Card */}
                     <div className="lg:col-span-6 w-full">
-                        <div className="relative border border-white/10 rounded-2xl bg-[#0d1222]/80 backdrop-blur-2xl p-8 shadow-2xl overflow-hidden before:absolute before:top-0 before:left-0 before:w-full before:height-[4px] before:bg-gradient-to-r before:from-indigo-500 before:via-purple-500 before:to-emerald-400">
+                        <div className="relative border border-white/10 rounded-2xl bg-[#0d1222]/80 backdrop-blur-2xl p-5 sm:p-8 shadow-2xl overflow-hidden before:absolute before:top-0 before:left-0 before:w-full before:height-[4px] before:bg-gradient-to-r before:from-indigo-500 before:via-purple-500 before:to-emerald-400">
                             
                             {/* Animated Step Header & Progress bar */}
                             <div className="mb-8">

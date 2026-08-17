@@ -266,67 +266,67 @@ export default function Admin() {
             
             {/* Nav */}
             <header className="border-b border-white/5 bg-[#070a13]/80 backdrop-blur-md sticky top-0 z-40">
-                <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex flex-wrap gap-3 justify-between items-center">
                     <div className="flex items-center gap-2">
-                        <svg className="w-7 h-7 text-indigo-500 filter drop-shadow-[0_0_8px_rgba(99,102,241,0.5)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <svg className="w-6 h-6 sm:w-7 sm:h-7 text-indigo-500 filter drop-shadow-[0_0_8px_rgba(99,102,241,0.5)] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                             <polyline points="9 22 9 12 15 12 15 22" />
                         </svg>
-                        <span className="font-heading font-bold text-xl tracking-tight text-white">QUOTRA<span className="text-indigo-500">MAX</span></span>
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 border border-white/5 rounded px-2 py-0.5 ml-2">Console</span>
+                        <span className="font-heading font-bold text-lg sm:text-xl tracking-tight text-white">QUOTRA<span className="text-indigo-500">MAX</span></span>
+                        <span className="hidden sm:inline text-[10px] font-bold uppercase tracking-widest text-slate-500 border border-white/5 rounded px-2 py-0.5 ml-2">Console</span>
                     </div>
 
-                    <div className="flex items-center gap-6">
-                        <nav className="flex gap-1 bg-slate-900/80 p-1 rounded-lg border border-white/5">
-                            <button onClick={() => setActiveTab('leads')} className={`px-4 py-1.5 rounded-md text-xs font-semibold transition-all ${activeTab === 'leads' ? 'bg-indigo-500 text-white shadow-[0_0_12px_rgba(99,102,241,0.3)]' : 'text-slate-400 hover:text-white'}`}>
+                    <div className="flex items-center gap-3 sm:gap-6 ml-auto order-3 sm:order-none w-full sm:w-auto justify-between sm:justify-start">
+                        <nav className="flex gap-1 bg-slate-900/80 p-1 rounded-lg border border-white/5 flex-grow sm:flex-grow-0">
+                            <button onClick={() => setActiveTab('leads')} className={`flex-1 sm:flex-none px-3 sm:px-4 py-1.5 rounded-md text-xs font-semibold transition-all ${activeTab === 'leads' ? 'bg-indigo-500 text-white shadow-[0_0_12px_rgba(99,102,241,0.3)]' : 'text-slate-400 hover:text-white'}`}>
                                 Leads List
                             </button>
-                            <button onClick={() => setActiveTab('settings')} className={`px-4 py-1.5 rounded-md text-xs font-semibold transition-all ${activeTab === 'settings' ? 'bg-indigo-500 text-white shadow-[0_0_12px_rgba(99,102,241,0.3)]' : 'text-slate-400 hover:text-white'}`}>
+                            <button onClick={() => setActiveTab('settings')} className={`flex-1 sm:flex-none px-3 sm:px-4 py-1.5 rounded-md text-xs font-semibold transition-all ${activeTab === 'settings' ? 'bg-indigo-500 text-white shadow-[0_0_12px_rgba(99,102,241,0.3)]' : 'text-slate-400 hover:text-white'}`}>
                                 Pricing Rates
                             </button>
                         </nav>
 
-                        <button onClick={handleLogout} className="text-xs font-medium text-slate-400 hover:text-red-400 transition-colors flex items-center gap-1.5">
-                            🚪 Logout
+                        <button onClick={handleLogout} className="text-xs font-medium text-slate-400 hover:text-red-400 transition-colors flex items-center gap-1.5 flex-shrink-0">
+                            🚪 <span className="hidden xs:inline">Logout</span>
                         </button>
                     </div>
                 </div>
             </header>
 
             {/* Dashboard Workspace */}
-            <main className="flex-grow max-w-7xl w-full mx-auto px-6 py-10">
+            <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-10">
 
                 {activeTab === 'leads' && (
-                    <div className="space-y-8">
-                        
+                    <div className="space-y-6 sm:space-y-8">
+
                         {/* KPI Grid */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <div className="border border-white/5 rounded-xl bg-slate-900/40 p-5 shadow-lg">
-                                <span className="text-[10px] font-bold text-slate-500 block uppercase tracking-wider mb-2">Total Leads</span>
-                                <div className="text-3xl font-extrabold text-white">{totalLeadsCount}</div>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+                            <div className="border border-white/5 rounded-xl bg-slate-900/40 p-3.5 sm:p-5 shadow-lg">
+                                <span className="text-[9px] sm:text-[10px] font-bold text-slate-500 block uppercase tracking-wider mb-1.5 sm:mb-2">Total Leads</span>
+                                <div className="text-2xl sm:text-3xl font-extrabold text-white">{totalLeadsCount}</div>
                             </div>
-                            <div className="border border-white/5 rounded-xl bg-slate-900/40 p-5 shadow-lg">
-                                <span className="text-[10px] font-bold text-slate-500 block uppercase tracking-wider mb-2">New Requests</span>
-                                <div className="text-3xl font-extrabold text-indigo-400">{newLeadsCount}</div>
+                            <div className="border border-white/5 rounded-xl bg-slate-900/40 p-3.5 sm:p-5 shadow-lg">
+                                <span className="text-[9px] sm:text-[10px] font-bold text-slate-500 block uppercase tracking-wider mb-1.5 sm:mb-2">New Requests</span>
+                                <div className="text-2xl sm:text-3xl font-extrabold text-indigo-400">{newLeadsCount}</div>
                             </div>
-                            <div className="border border-white/5 rounded-xl bg-slate-900/40 p-5 shadow-lg">
-                                <span className="text-[10px] font-bold text-slate-500 block uppercase tracking-wider mb-2">Inspections Scheduled</span>
-                                <div className="text-3xl font-extrabold text-amber-400">{scheduledCount}</div>
+                            <div className="border border-white/5 rounded-xl bg-slate-900/40 p-3.5 sm:p-5 shadow-lg">
+                                <span className="text-[9px] sm:text-[10px] font-bold text-slate-500 block uppercase tracking-wider mb-1.5 sm:mb-2">Inspections Scheduled</span>
+                                <div className="text-2xl sm:text-3xl font-extrabold text-amber-400">{scheduledCount}</div>
                             </div>
-                            <div className="border border-white/5 rounded-xl bg-slate-900/40 p-5 shadow-lg">
-                                <span className="text-[10px] font-bold text-slate-500 block uppercase tracking-wider mb-2">Conversion Win Rate</span>
-                                <div className="text-3xl font-extrabold text-emerald-400">{winRate}%</div>
+                            <div className="border border-white/5 rounded-xl bg-slate-900/40 p-3.5 sm:p-5 shadow-lg">
+                                <span className="text-[9px] sm:text-[10px] font-bold text-slate-500 block uppercase tracking-wider mb-1.5 sm:mb-2">Conversion Win Rate</span>
+                                <div className="text-2xl sm:text-3xl font-extrabold text-emerald-400">{winRate}%</div>
                             </div>
                         </div>
 
                         {/* Search & Filter Header */}
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900/35 border border-white/5 p-4 rounded-xl">
-                            <div className="relative flex-grow max-w-md">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 bg-slate-900/35 border border-white/5 p-3.5 sm:p-4 rounded-xl">
+                            <div className="relative flex-grow md:max-w-md">
                                 <input type="text" placeholder="Search by name, address, email, or quote ID..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-slate-850/80 border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-xs focus:outline-none focus:border-indigo-500 text-white transition-colors" />
                                 <span className="absolute left-3 top-3.5 text-slate-500 text-xs">🔍</span>
                             </div>
 
-                            <div className="flex gap-3 items-center">
+                            <div className="flex flex-wrap gap-2 sm:gap-3 items-center">
                                 <div className="flex items-center gap-2">
                                     <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Status:</span>
                                     <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="bg-slate-850 border border-white/10 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-indigo-500 text-white">
@@ -347,81 +347,130 @@ export default function Admin() {
                             </div>
                         </div>
 
-                        {/* Lead Management Table */}
-                        <div className="border border-white/5 rounded-xl bg-slate-900/20 overflow-hidden shadow-2xl">
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left border-collapse">
-                                    <thead>
-                                        <tr className="border-b border-white/5 bg-slate-900/50 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                                            <th className="py-4 px-6">Quote ID</th>
-                                            <th className="py-4 px-6">Customer Name</th>
-                                            <th className="py-4 px-6">Address</th>
-                                            <th className="py-4 px-6">Scope / Material</th>
-                                            <th className="py-4 px-6">Est. Total</th>
-                                            <th className="py-4 px-6">Lead Status</th>
-                                            <th className="py-4 px-6">Date</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-white/5 text-xs text-slate-300">
-                                        {filteredLeads.length === 0 ? (
-                                            <tr>
-                                                <td colSpan="7" className="py-12 text-center text-slate-500 font-semibold">
-                                                    No lead estimate requests found matching criteria.
-                                                </td>
-                                            </tr>
-                                        ) : (
-                                            filteredLeads.map((lead) => (
-                                                <tr key={lead.id} onClick={() => setSelectedLead(lead)} className="hover:bg-white/[0.02] cursor-pointer transition-colors">
-                                                    <td className="py-4 px-6 font-mono font-semibold text-slate-400">{lead.id}</td>
-                                                    <td className="py-4 px-6 font-bold text-white">
-                                                        {lead.name}
-                                                        <span className="block text-[10px] font-normal text-slate-400 mt-1">{lead.email}</span>
-                                                    </td>
-                                                    <td className="py-4 px-6 text-slate-300 max-w-[200px] truncate">{lead.address}</td>
-                                                    <td className="py-4 px-6">
-                                                        <span className="font-semibold block">{lead.service}</span>
-                                                        <span className="text-[10px] text-slate-500 block mt-0.5">{lead.material}</span>
-                                                    </td>
-                                                    <td className="py-4 px-6 font-bold text-emerald-400">${lead.price.toLocaleString()}</td>
-                                                    <td className="py-4 px-6" onClick={(e) => e.stopPropagation()}>
-                                                        <select value={lead.status} onChange={(e) => handleStatusChange(lead.id, e.target.value)} className={`px-2.5 py-1.5 rounded-lg font-bold border text-[10px] outline-none focus:border-indigo-500 cursor-pointer ${
-                                                            lead.status === 'New' ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400' :
-                                                            lead.status === 'Contacted' ? 'bg-sky-500/10 border-sky-500/20 text-sky-400' :
-                                                            lead.status === 'Inspection Scheduled' ? 'bg-amber-500/10 border-amber-500/20 text-amber-400' :
-                                                            lead.status === 'Won' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' :
-                                                            'bg-slate-800 border-white/5 text-slate-400'
-                                                        }`}>
-                                                            <option value="New">New</option>
-                                                            <option value="Contacted">Contacted</option>
-                                                            <option value="Inspection Scheduled">Inspection Scheduled</option>
-                                                            <option value="Won">Won</option>
-                                                            <option value="Lost">Lost</option>
-                                                        </select>
-                                                        {lead.status === 'Inspection Scheduled' && lead.appointment && (
-                                                            <span className="block text-[9px] font-bold text-amber-400 mt-1 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20 text-center truncate max-w-[120px]">
-                                                                📅 {lead.appointment.date}
-                                                            </span>
-                                                        )}
-                                                    </td>
-                                                    <td className="py-4 px-6 text-slate-500">
-                                                        {new Date(lead.date).toLocaleDateString()}
-                                                    </td>
-                                                </tr>
-                                            ))
-                                        )}
-                                    </tbody>
-                                </table>
+                        {/* Lead Management: card list on mobile, table on desktop */}
+                        {filteredLeads.length === 0 ? (
+                            <div className="border border-white/5 rounded-xl bg-slate-900/20 py-12 text-center text-slate-500 font-semibold text-xs shadow-2xl">
+                                No lead estimate requests found matching criteria.
                             </div>
-                        </div>
+                        ) : (
+                            <>
+                                {/* Mobile card list */}
+                                <div className="grid grid-cols-1 gap-3 md:hidden">
+                                    {filteredLeads.map((lead) => (
+                                        <div key={lead.id} onClick={() => setSelectedLead(lead)} className="border border-white/5 rounded-xl bg-slate-900/40 p-4 shadow-lg active:bg-white/[0.03] transition-colors">
+                                            <div className="flex justify-between items-start gap-3">
+                                                <div className="min-w-0">
+                                                    <span className="font-mono text-[10px] font-semibold text-slate-500">{lead.id}</span>
+                                                    <div className="font-bold text-white text-sm truncate">{lead.name}</div>
+                                                    <div className="text-[11px] text-slate-400 truncate">{lead.email}</div>
+                                                </div>
+                                                <div className="text-right flex-shrink-0">
+                                                    <div className="font-bold text-emerald-400 text-sm">${lead.price.toLocaleString()}</div>
+                                                    <div className="text-[10px] text-slate-500">{new Date(lead.date).toLocaleDateString()}</div>
+                                                </div>
+                                            </div>
+
+                                            <div className="mt-3 text-[11px] text-slate-300 truncate">📍 {lead.address}</div>
+
+                                            <div className="mt-1 flex items-center gap-2 text-[11px]">
+                                                <span className="font-semibold text-slate-300">{lead.service}</span>
+                                                <span className="text-slate-500">·</span>
+                                                <span className="text-slate-500">{lead.material}</span>
+                                            </div>
+
+                                            <div className="mt-3 flex items-center justify-between gap-3" onClick={(e) => e.stopPropagation()}>
+                                                <select value={lead.status} onChange={(e) => handleStatusChange(lead.id, e.target.value)} className={`px-2.5 py-2 rounded-lg font-bold border text-[11px] outline-none focus:border-indigo-500 cursor-pointer flex-grow ${
+                                                    lead.status === 'New' ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400' :
+                                                    lead.status === 'Contacted' ? 'bg-sky-500/10 border-sky-500/20 text-sky-400' :
+                                                    lead.status === 'Inspection Scheduled' ? 'bg-amber-500/10 border-amber-500/20 text-amber-400' :
+                                                    lead.status === 'Won' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' :
+                                                    'bg-slate-800 border-white/5 text-slate-400'
+                                                }`}>
+                                                    <option value="New">New</option>
+                                                    <option value="Contacted">Contacted</option>
+                                                    <option value="Inspection Scheduled">Inspection Scheduled</option>
+                                                    <option value="Won">Won</option>
+                                                    <option value="Lost">Lost</option>
+                                                </select>
+                                            </div>
+                                            {lead.status === 'Inspection Scheduled' && lead.appointment && (
+                                                <span className="block text-[10px] font-bold text-amber-400 mt-2 bg-amber-500/10 px-2 py-1 rounded border border-amber-500/20 text-center">
+                                                    📅 {lead.appointment.date}
+                                                </span>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Desktop table */}
+                                <div className="hidden md:block border border-white/5 rounded-xl bg-slate-900/20 overflow-hidden shadow-2xl">
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left border-collapse">
+                                            <thead>
+                                                <tr className="border-b border-white/5 bg-slate-900/50 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                                                    <th className="py-4 px-6">Quote ID</th>
+                                                    <th className="py-4 px-6">Customer Name</th>
+                                                    <th className="py-4 px-6">Address</th>
+                                                    <th className="py-4 px-6">Scope / Material</th>
+                                                    <th className="py-4 px-6">Est. Total</th>
+                                                    <th className="py-4 px-6">Lead Status</th>
+                                                    <th className="py-4 px-6">Date</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-white/5 text-xs text-slate-300">
+                                                {filteredLeads.map((lead) => (
+                                                    <tr key={lead.id} onClick={() => setSelectedLead(lead)} className="hover:bg-white/[0.02] cursor-pointer transition-colors">
+                                                        <td className="py-4 px-6 font-mono font-semibold text-slate-400">{lead.id}</td>
+                                                        <td className="py-4 px-6 font-bold text-white">
+                                                            {lead.name}
+                                                            <span className="block text-[10px] font-normal text-slate-400 mt-1">{lead.email}</span>
+                                                        </td>
+                                                        <td className="py-4 px-6 text-slate-300 max-w-[200px] truncate">{lead.address}</td>
+                                                        <td className="py-4 px-6">
+                                                            <span className="font-semibold block">{lead.service}</span>
+                                                            <span className="text-[10px] text-slate-500 block mt-0.5">{lead.material}</span>
+                                                        </td>
+                                                        <td className="py-4 px-6 font-bold text-emerald-400">${lead.price.toLocaleString()}</td>
+                                                        <td className="py-4 px-6" onClick={(e) => e.stopPropagation()}>
+                                                            <select value={lead.status} onChange={(e) => handleStatusChange(lead.id, e.target.value)} className={`px-2.5 py-1.5 rounded-lg font-bold border text-[10px] outline-none focus:border-indigo-500 cursor-pointer ${
+                                                                lead.status === 'New' ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400' :
+                                                                lead.status === 'Contacted' ? 'bg-sky-500/10 border-sky-500/20 text-sky-400' :
+                                                                lead.status === 'Inspection Scheduled' ? 'bg-amber-500/10 border-amber-500/20 text-amber-400' :
+                                                                lead.status === 'Won' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' :
+                                                                'bg-slate-800 border-white/5 text-slate-400'
+                                                            }`}>
+                                                                <option value="New">New</option>
+                                                                <option value="Contacted">Contacted</option>
+                                                                <option value="Inspection Scheduled">Inspection Scheduled</option>
+                                                                <option value="Won">Won</option>
+                                                                <option value="Lost">Lost</option>
+                                                            </select>
+                                                            {lead.status === 'Inspection Scheduled' && lead.appointment && (
+                                                                <span className="block text-[9px] font-bold text-amber-400 mt-1 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20 text-center truncate max-w-[120px]">
+                                                                    📅 {lead.appointment.date}
+                                                                </span>
+                                                            )}
+                                                        </td>
+                                                        <td className="py-4 px-6 text-slate-500">
+                                                            {new Date(lead.date).toLocaleDateString()}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </>
+                        )}
 
                     </div>
                 )}
 
                 {activeTab === 'settings' && (
                     <div className="max-w-2xl mx-auto">
-                        <div className="border border-white/5 rounded-2xl bg-slate-900/50 backdrop-blur-xl p-8 shadow-2xl overflow-hidden relative before:absolute before:top-0 before:left-0 before:w-full before:height-[3px] before:bg-gradient-to-r before:from-indigo-500 before:to-emerald-400">
-                            <h2 className="text-xl font-bold text-white mb-2">Estimate Pricing Calculator Rates</h2>
-                            <p className="text-sm text-slate-400 mb-8">Update base rates and safety height multipliers calibrated to your local crew pricing specs.</p>
+                        <div className="border border-white/5 rounded-2xl bg-slate-900/50 backdrop-blur-xl p-5 sm:p-8 shadow-2xl overflow-hidden relative before:absolute before:top-0 before:left-0 before:w-full before:height-[3px] before:bg-gradient-to-r before:from-indigo-500 before:to-emerald-400">
+                            <h2 className="text-lg sm:text-xl font-bold text-white mb-2">Estimate Pricing Calculator Rates</h2>
+                            <p className="text-sm text-slate-400 mb-6 sm:mb-8">Update base rates and safety height multipliers calibrated to your local crew pricing specs.</p>
 
                             {settingsSuccess && (
                                 <div className="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm rounded-lg text-center font-semibold">
@@ -437,7 +486,7 @@ export default function Admin() {
 
                             <form onSubmit={handleSettingsSave} className="space-y-6">
                                 <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-white/5 pb-2">Base Material Styles (Per Sq Ft)</h3>
-                                <div className="grid grid-cols-3 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                     <div className="flex flex-col gap-2">
                                         <label className="text-xs text-slate-400" htmlFor="rateAsphalt">Asphalt Shingles</label>
                                         <input id="rateAsphalt" type="number" step="0.01" value={settingsForm.rateAsphalt} onChange={handleSettingsInputChange} className="bg-slate-850 border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 text-white" />
@@ -452,7 +501,7 @@ export default function Admin() {
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div className="flex flex-col gap-2">
                                         <label className="text-xs text-slate-400 font-bold" htmlFor="rateInstall">Base Install Labor Rate</label>
                                         <input id="rateInstall" type="number" step="0.01" value={settingsForm.rateInstall} onChange={handleSettingsInputChange} className="bg-slate-850 border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 text-white" />
@@ -464,7 +513,7 @@ export default function Admin() {
                                 </div>
 
                                 <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-white/5 pb-2 pt-4">Safety Height Multipliers</h3>
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div className="flex flex-col gap-2">
                                         <label className="text-xs text-slate-400" htmlFor="mult2Story">2 Story Height Multiplier</label>
                                         <input id="mult2Story" type="number" step="0.01" value={settingsForm.mult2Story} onChange={handleSettingsInputChange} className="bg-slate-850 border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 text-white" />
@@ -476,7 +525,7 @@ export default function Admin() {
                                 </div>
 
                                 <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-white/5 pb-2 pt-4">Admin Security Portal Update</h3>
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div className="flex flex-col gap-2">
                                         <label className="text-xs text-slate-400" htmlFor="adminUsername">Admin Username</label>
                                         <input id="adminUsername" type="text" value={settingsForm.adminUsername} onChange={handleSettingsInputChange} className="bg-slate-850 border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 text-white" />
@@ -499,13 +548,13 @@ export default function Admin() {
 
             {/* Lead Details Modal Overlay Drawer */}
             {selectedLead && (
-                <div className="fixed inset-0 bg-[#070a13]/85 backdrop-blur-sm z-50 flex items-center justify-center p-6" onClick={() => setSelectedLead(null)}>
-                    <div className="border border-white/15 bg-slate-900 w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl relative" onClick={(e) => e.stopPropagation()}>
-                        <button onClick={() => setSelectedLead(null)} className="absolute top-4 right-4 text-slate-500 hover:text-white font-bold text-2xl transition-colors">
+                <div className="fixed inset-0 bg-[#070a13]/85 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center sm:p-6" onClick={() => setSelectedLead(null)}>
+                    <div className="border border-white/15 bg-slate-900 w-full max-w-2xl rounded-t-2xl sm:rounded-2xl shadow-2xl relative max-h-[92vh] sm:max-h-[85vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                        <button onClick={() => setSelectedLead(null)} className="sticky top-4 z-10 float-right mr-4 sm:mr-8 -mb-8 text-slate-500 hover:text-white font-bold text-2xl leading-none transition-colors bg-slate-900/80 backdrop-blur-sm rounded-full w-8 h-8 flex items-center justify-center">
                             ×
                         </button>
-                        
-                        <div className="p-8 space-y-6">
+
+                        <div className="p-5 sm:p-8 space-y-6">
                             
                             {/* Lead Header */}
                             <div>
@@ -624,8 +673,8 @@ export default function Admin() {
                             </div>
 
                             {/* Footer Actions */}
-                            <div className="flex justify-between items-center border-t border-white/5 pt-6">
-                                <a href={`/api/leads/${selectedLead.id}/pdf`} target="_blank" className="bg-slate-800 hover:bg-slate-750 text-white text-xs font-bold py-2.5 px-4 rounded-lg flex items-center gap-1.5 border border-white/10 transition-colors">
+                            <div className="flex flex-col-reverse sm:flex-row justify-between items-stretch sm:items-center gap-3 border-t border-white/5 pt-6">
+                                <a href={`/api/leads/${selectedLead.id}/pdf`} target="_blank" className="bg-slate-800 hover:bg-slate-750 text-white text-xs font-bold py-2.5 px-4 rounded-lg flex items-center justify-center gap-1.5 border border-white/10 transition-colors">
                                     ⬇️ Download PDF Quote Copy
                                 </a>
                                 <button onClick={() => setSelectedLead(null)} className="bg-indigo-500 hover:bg-indigo-650 text-white text-xs font-bold py-2.5 px-6 rounded-lg transition-colors shadow-[0_4px_14px_rgba(99,102,241,0.2)]">
