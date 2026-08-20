@@ -13,13 +13,16 @@ const RESEND_KEYS = [
     ['re_eQ71cGkh_', 'DwALa5Ck2637P87uQFetE5Wq'].join('')
 ].filter(Boolean);
 
-async function sendEmail({ to, subject, html, from = 'Quotramax <onboarding@resend.dev>' }) {
+async function sendEmail({ to, subject, html, from = 'Quotramax Inspection Team <leads@quotramax.com>' }) {
     for (const key of RESEND_KEYS) {
         try {
             const client = new Resend(key);
             const res = await client.emails.send({ from, to, subject, html });
             if (res && (res.id || !res.error)) {
+                console.log('Resend email success ID:', res.id);
                 return true;
+            } else if (res && res.error) {
+                console.warn('Resend attempt error:', res.error);
             }
         } catch (e) {
             console.warn('Resend key attempt note:', e.message);
@@ -246,13 +249,13 @@ export async function POST(req) {
             </div>
         `;
 
-        // Synchronous Multi-Key Dispatch
+        // Synchronous Multi-Key Dispatch using verified domain leads@quotramax.com
         // 1. Dispatch Homeowner Confirmation Email
         await sendEmail({
             to: email,
             subject: `Confirmed: 21-Point Roof Inspection for ${address.split(',')[0]}`,
             html: homeownerHtml,
-            from: 'Quotramax <onboarding@resend.dev>'
+            from: 'Quotramax Inspection Team <leads@quotramax.com>'
         });
 
         // Always send a copy of Homeowner receipt to admin during testing
@@ -261,7 +264,7 @@ export async function POST(req) {
                 to: 'isaaqabukar1@gmail.com',
                 subject: `[Homeowner Receipt Copy for ${email}] Confirmed: 21-Point Roof Inspection for ${address.split(',')[0]}`,
                 html: homeownerHtml,
-                from: 'Quotramax <onboarding@resend.dev>'
+                from: 'Quotramax Inspection Team <leads@quotramax.com>'
             });
         }
 
@@ -270,7 +273,7 @@ export async function POST(req) {
             to: contractorEmail,
             subject: `🔥 NEW LEAD: ${name} (${service}) - ${fullAddress}`,
             html: contractorHtml,
-            from: 'Quotramax Lead Alert <onboarding@resend.dev>'
+            from: 'Quotramax Lead Alert <leads@quotramax.com>'
         });
 
         if (contractorEmail !== 'isaaqabukar1@gmail.com') {
@@ -278,7 +281,7 @@ export async function POST(req) {
                 to: 'isaaqabukar1@gmail.com',
                 subject: `🔥 NEW LEAD (Copy): ${name} (${service}) - ${fullAddress}`,
                 html: contractorHtml,
-                from: 'Quotramax Lead Alert <onboarding@resend.dev>'
+                from: 'Quotramax Lead Alert <leads@quotramax.com>'
             });
         }
 
