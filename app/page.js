@@ -89,14 +89,11 @@ export default function Home() {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
-    // Tap-to-advance handler
-    const handleTapToAdvance = (field, value, nextStepTarget) => {
+    // Manual Step Progression
+    const goToStep = (nextStepTarget) => {
         setError('');
-        setFormData(prev => ({ ...prev, [field]: value }));
-        setTimeout(() => {
-            setStep(nextStepTarget);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }, 160);
+        setStep(nextStepTarget);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     // Validation per step
@@ -222,14 +219,14 @@ export default function Home() {
     return (
         <div className="min-h-screen bg-[#040711] text-slate-100 flex flex-col font-sans selection:bg-teal-500 selection:text-white relative overflow-x-hidden">
             
-            {/* Background High-Tech Grid & Glow Overlay */}
+            {/* Background Grid & Glow */}
             <div className="fixed inset-0 bg-[linear-gradient(to_right,#1e293b15_1px,transparent_1px),linear-gradient(to_bottom,#1e293b15_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none z-0"></div>
             <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-teal-500/10 rounded-full blur-[140px] pointer-events-none z-0"></div>
 
-            {/* Futuristic Header */}
+            {/* Header */}
             <header className="border-b border-teal-500/20 bg-[#040711]/90 backdrop-blur-xl sticky top-0 z-40">
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3.5 flex justify-between items-center relative z-10">
-                    <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => setStep(1)}>
+                    <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => goToStep(1)}>
                         <div className="w-8 h-8 rounded-lg bg-teal-500/20 border border-teal-400/40 flex items-center justify-center shadow-[0_0_15px_rgba(20,184,166,0.3)]">
                             <svg className="w-4 h-4 text-teal-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                                 <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
@@ -254,7 +251,7 @@ export default function Home() {
             {/* Main Container */}
             <main className="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-10 flex flex-col justify-center relative z-10">
                 
-                {/* Hero HUD Header */}
+                {/* Hero Title */}
                 <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-8">
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-teal-500/10 border border-teal-500/30 rounded-full text-xs font-semibold text-teal-300 mb-3 uppercase tracking-widest shadow-[0_0_20px_rgba(20,184,166,0.2)]">
                         ⚡ 60-Second High-Intent Qualification Engine
@@ -267,7 +264,7 @@ export default function Home() {
                         {step === 5 && 'Reserve Priority Inspection Slot'}
                     </h1>
                     <p className="text-xs sm:text-sm text-slate-400 mt-2 font-medium">
-                        {step <= 3 && 'Tap any card below to automatically advance to the next step.'}
+                        {step <= 3 && 'Select your option below and click Next to continue.'}
                         {step === 4 && 'Enter property coordinates for automated aerial satellite measurement.'}
                         {step === 5 && 'Select your preferred date & time window for a 21-point on-site check.'}
                     </p>
@@ -311,39 +308,50 @@ export default function Home() {
 
                         {/* STEP 1: PROJECT GOAL */}
                         {step === 1 && (
-                            <div className="space-y-3.5 animate-fadeIn">
-                                {[
-                                    { title: 'Full Roof Replacement', desc: 'Complete teardown and new architectural roof system', icon: '🏗️', val: 'Full Roof Replacement' },
-                                    { title: 'Active Leak / Repair', desc: 'Emergency ceiling leak, flashing, or missing shingles', icon: '💧', val: 'Active Leak / Repair' },
-                                    { title: 'Storm / Hail Inspection', desc: 'Insurance assessment for wind or hail impact damage', icon: '⛈️', val: 'Storm / Hail Damage' },
-                                    { title: 'Preventative Inspection', desc: 'General 21-point check for home purchase or maintenance', icon: '🔍', val: 'Preventative Inspection' }
-                                ].map((item) => (
-                                    <div
-                                        key={item.val}
-                                        onClick={() => handleTapToAdvance('service', item.val, 2)}
-                                        className={`p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between group active:scale-[0.98] ${
-                                            formData.service === item.val
-                                                ? 'bg-teal-500/15 border-teal-400/80 shadow-[0_0_25px_rgba(20,184,166,0.25)] text-white'
-                                                : 'bg-white/[0.02] border-white/10 hover:border-teal-500/40 hover:bg-white/[0.04] text-slate-300'
-                                        }`}>
-                                        <div className="flex items-center gap-3.5">
-                                            <div className="w-11 h-11 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-xl flex-shrink-0 group-hover:scale-110 transition-transform">
-                                                {item.icon}
+                            <div className="space-y-4 animate-fadeIn">
+                                <div className="space-y-3.5">
+                                    {[
+                                        { title: 'Full Roof Replacement', desc: 'Complete teardown and new architectural roof system', icon: '🏗️', val: 'Full Roof Replacement' },
+                                        { title: 'Active Leak / Repair', desc: 'Emergency ceiling leak, flashing, or missing shingles', icon: '💧', val: 'Active Leak / Repair' },
+                                        { title: 'Storm / Hail Inspection', desc: 'Insurance assessment for wind or hail impact damage', icon: '⛈️', val: 'Storm / Hail Damage' },
+                                        { title: 'Preventative Inspection', desc: 'General 21-point check for home purchase or maintenance', icon: '🔍', val: 'Preventative Inspection' }
+                                    ].map((item) => (
+                                        <div
+                                            key={item.val}
+                                            onClick={() => handleChange('service', item.val)}
+                                            className={`p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between group ${
+                                                formData.service === item.val
+                                                    ? 'bg-teal-500/15 border-teal-400/80 shadow-[0_0_25px_rgba(20,184,166,0.25)] text-white'
+                                                    : 'bg-white/[0.02] border-white/10 hover:border-teal-500/40 hover:bg-white/[0.04] text-slate-300'
+                                            }`}>
+                                            <div className="flex items-center gap-3.5">
+                                                <div className="w-11 h-11 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-xl flex-shrink-0 group-hover:scale-110 transition-transform">
+                                                    {item.icon}
+                                                </div>
+                                                <div>
+                                                    <div className="font-bold text-sm sm:text-base text-white group-hover:text-teal-300 transition-colors">{item.title}</div>
+                                                    <div className="text-xs text-slate-400 mt-0.5">{item.desc}</div>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <div className="font-bold text-sm sm:text-base text-white group-hover:text-teal-300 transition-colors">{item.title}</div>
-                                                <div className="text-xs text-slate-400 mt-0.5">{item.desc}</div>
+                                            <div className={`w-6 h-6 rounded-full border flex items-center justify-center flex-shrink-0 ${
+                                                formData.service === item.val
+                                                    ? 'bg-teal-500 border-teal-400 text-slate-950 font-bold text-xs'
+                                                    : 'border-white/20 group-hover:border-teal-400/50'
+                                            }`}>
+                                                {formData.service === item.val ? '✓' : ''}
                                             </div>
                                         </div>
-                                        <div className={`w-6 h-6 rounded-full border flex items-center justify-center flex-shrink-0 ${
-                                            formData.service === item.val
-                                                ? 'bg-teal-500 border-teal-400 text-slate-950 font-bold text-xs'
-                                                : 'border-white/20 group-hover:border-teal-400/50'
-                                        }`}>
-                                            {formData.service === item.val ? '✓' : ''}
-                                        </div>
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
+
+                                <div className="flex justify-end pt-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => goToStep(2)}
+                                        className="w-full sm:w-auto bg-gradient-to-r from-teal-500 to-emerald-400 hover:from-teal-400 hover:to-emerald-300 text-slate-950 font-black text-sm px-8 py-3.5 rounded-xl shadow-[0_0_25px_rgba(20,184,166,0.3)] transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                                        <span>Next: Roof Specs &rarr;</span>
+                                    </button>
+                                </div>
                             </div>
                         )}
 
@@ -379,8 +387,8 @@ export default function Home() {
                                         ].map((mat) => (
                                             <div
                                                 key={mat.val}
-                                                onClick={() => handleTapToAdvance('material', mat.val, 3)}
-                                                className={`p-3.5 sm:p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between group active:scale-[0.98] ${
+                                                onClick={() => handleChange('material', mat.val)}
+                                                className={`p-3.5 sm:p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between group ${
                                                     formData.material === mat.val
                                                         ? 'bg-teal-500/15 border-teal-400/80 shadow-[0_0_20px_rgba(20,184,166,0.2)] text-white'
                                                         : 'bg-white/[0.02] border-white/10 hover:border-teal-500/30 text-slate-300'
@@ -399,12 +407,18 @@ export default function Home() {
                                     </div>
                                 </div>
 
-                                <div className="flex justify-between pt-2">
+                                <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-4">
                                     <button
                                         type="button"
-                                        onClick={() => setStep(1)}
-                                        className="text-xs font-medium text-slate-400 hover:text-white transition-colors">
+                                        onClick={() => goToStep(1)}
+                                        className="text-xs font-medium text-slate-400 hover:text-white transition-colors order-2 sm:order-1">
                                         ← Back
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => goToStep(3)}
+                                        className="w-full sm:w-auto bg-gradient-to-r from-teal-500 to-emerald-400 hover:from-teal-400 hover:to-emerald-300 text-slate-950 font-black text-sm px-8 py-3.5 rounded-xl shadow-[0_0_25px_rgba(20,184,166,0.3)] transition-all active:scale-[0.98] order-1 sm:order-2 flex items-center justify-center gap-2">
+                                        <span>Next: Timeline &amp; Funding &rarr;</span>
                                     </button>
                                 </div>
                             </div>
@@ -453,7 +467,7 @@ export default function Home() {
                                         ].map((pay) => (
                                             <div
                                                 key={pay.val}
-                                                onClick={() => handleTapToAdvance('insurance', pay.val, 4)}
+                                                onClick={() => handleChange('insurance', pay.val)}
                                                 className={`p-3.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between group ${
                                                     formData.insurance === pay.val
                                                         ? 'bg-teal-500/15 border-teal-400/80 text-white'
@@ -473,12 +487,18 @@ export default function Home() {
                                     </div>
                                 </div>
 
-                                <div className="flex justify-between pt-2">
+                                <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-4">
                                     <button
                                         type="button"
-                                        onClick={() => setStep(2)}
-                                        className="text-xs font-medium text-slate-400 hover:text-white transition-colors">
+                                        onClick={() => goToStep(2)}
+                                        className="text-xs font-medium text-slate-400 hover:text-white transition-colors order-2 sm:order-1">
                                         ← Back
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => goToStep(4)}
+                                        className="w-full sm:w-auto bg-gradient-to-r from-teal-500 to-emerald-400 hover:from-teal-400 hover:to-emerald-300 text-slate-950 font-black text-sm px-8 py-3.5 rounded-xl shadow-[0_0_25px_rgba(20,184,166,0.3)] transition-all active:scale-[0.98] order-1 sm:order-2 flex items-center justify-center gap-2">
+                                        <span>Next: Address &amp; Contact &rarr;</span>
                                     </button>
                                 </div>
                             </div>
@@ -567,7 +587,7 @@ export default function Home() {
                                 <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-2">
                                     <button
                                         type="button"
-                                        onClick={() => setStep(3)}
+                                        onClick={() => goToStep(3)}
                                         className="text-xs text-slate-400 hover:text-white order-2 sm:order-1">
                                         ← Back
                                     </button>
@@ -639,7 +659,7 @@ export default function Home() {
                                 <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-2">
                                     <button
                                         type="button"
-                                        onClick={() => setStep(4)}
+                                        onClick={() => goToStep(4)}
                                         className="text-xs text-slate-400 hover:text-white order-2 sm:order-1">
                                         ← Back to Contact Info
                                     </button>
