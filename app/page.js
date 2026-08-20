@@ -237,15 +237,10 @@ export default function Home() {
                     </div>
                     
                     <div className="flex items-center gap-3">
-                        <span className="hidden sm:inline-flex items-center gap-1.5 text-xs text-slate-400 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
+                        <span className="inline-flex items-center gap-1.5 text-xs text-slate-400 bg-white/5 px-3.5 py-1.5 rounded-full border border-white/10">
                             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                            Inspections Available in Your Area
+                            Free 21-Point Roof Inspection Funnel
                         </span>
-                        <button 
-                            onClick={() => router.push('/login')} 
-                            className="text-xs font-semibold text-slate-400 hover:text-white transition-colors bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded-lg">
-                            Contractor Portal
-                        </button>
                     </div>
                 </div>
             </header>
