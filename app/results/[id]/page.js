@@ -114,7 +114,7 @@ Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pendi
     return (
         <div className="min-h-screen bg-[#070a13] text-slate-100 flex flex-col font-sans selection:bg-teal-500 selection:text-white">
             {/* Header */}
-            <header className="border-b border-white/5 bg-[#070a13]/90 backdrop-blur-md sticky top-0 z-50">
+            <header className="border-b border-white/5 bg-[#070a13] sticky top-0 z-50">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
                     <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/')}>
                         <svg className="w-6 h-6 text-teal-400 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -185,7 +185,7 @@ Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pendi
                     
                     {/* Left Column: 3-Step Action Roadmap */}
                     <div className="md:col-span-7 space-y-6">
-                        <div className="border border-white/10 rounded-2xl bg-[#0d1222]/90 backdrop-blur-xl p-5 sm:p-6 shadow-xl">
+                        <div className="border border-white/10 rounded-2xl bg-[#0d1222] p-5 sm:p-6 shadow-xl">
                             <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-5 flex items-center gap-2">
                                 <span>🗺️</span> What Happens Next (Roadmap)
                             </h2>
@@ -230,7 +230,7 @@ Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pendi
 
                     {/* Right Column: Pre-Qualification Scope Dossier */}
                     <div className="md:col-span-5 space-y-6">
-                        <div className="border border-white/10 rounded-2xl bg-[#0d1222]/90 backdrop-blur-xl p-5 sm:p-6 shadow-xl">
+                        <div className="border border-white/10 rounded-2xl bg-[#0d1222] p-5 sm:p-6 shadow-xl">
                             <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">
                                 Property Scope Dossier
                             </h2>

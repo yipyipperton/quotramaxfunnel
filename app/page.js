@@ -203,11 +203,11 @@ export default function Home() {
         <div className="min-h-screen bg-[#040711] text-slate-100 flex flex-col font-sans selection:bg-teal-500 selection:text-white relative overflow-x-hidden">
             
             {/* Background Grid & Glow */}
-            <div className="fixed inset-0 bg-[linear-gradient(to_right,#1e293b15_1px,transparent_1px),linear-gradient(to_bottom,#1e293b15_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none z-0"></div>
-            <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-teal-500/10 rounded-full blur-[140px] pointer-events-none z-0"></div>
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b15_1px,transparent_1px),linear-gradient(to_bottom,#1e293b15_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none z-0"></div>
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-teal-500/10 rounded-full blur-[100px] pointer-events-none z-0"></div>
 
             {/* Header */}
-            <header className="border-b border-teal-500/20 bg-[#040711]/90 backdrop-blur-xl sticky top-0 z-40">
+            <header className="border-b border-teal-500/20 bg-[#040711] sticky top-0 z-40">
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3.5 flex justify-between items-center relative z-10">
                     <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => goToStep(1)}>
                         <div className="w-8 h-8 rounded-lg bg-teal-500/20 border border-teal-400/40 flex items-center justify-center shadow-[0_0_15px_rgba(20,184,166,0.3)]">
@@ -255,7 +255,7 @@ export default function Home() {
 
                 {/* Main Card Container */}
                 <div className="w-full max-w-2xl mx-auto">
-                    <div className="relative border border-teal-500/20 rounded-3xl bg-[#090d1a]/95 backdrop-blur-2xl p-5 sm:p-8 shadow-[0_0_60px_rgba(20,184,166,0.12)] overflow-hidden">
+                    <div className="relative border border-teal-500/20 rounded-3xl bg-[#090d1a] p-5 sm:p-8 shadow-[0_0_60px_rgba(20,184,166,0.12)] overflow-hidden">
                         
                         {/* High-Tech Progress HUD */}
                         <div className="mb-6">
