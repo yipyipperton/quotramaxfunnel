@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 
-export default function Results() {
+function ResultsDetail() {
     const { id } = useParams();
     const router = useRouter();
+    const searchParams = useSearchParams();
     const [lead, setLead] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -25,6 +26,8 @@ export default function Results() {
             })
             .catch(err => {
                 console.warn('API fetch note:', err.message);
+                
+                // 1. Check Session Storage
                 try {
                     const cached = sessionStorage.getItem('qm_lead_' + id) || sessionStorage.getItem('qm_latest_lead');
                     if (cached) {
@@ -34,10 +37,29 @@ export default function Results() {
                     }
                 } catch (e) {}
 
+                // 2. Check URL Search Params Fallback
+                if (searchParams && (searchParams.get('name') || searchParams.get('address'))) {
+                    setLead({
+                        id,
+                        name: searchParams.get('name') || 'Homeowner',
+                        address: searchParams.get('address') || 'Property Location',
+                        phone: searchParams.get('phone') || '',
+                        email: searchParams.get('email') || '',
+                        service: searchParams.get('service') || 'Full Roof Replacement',
+                        material: searchParams.get('material') || 'Architectural Shingles',
+                        appointment: {
+                            date: searchParams.get('date') || '',
+                            time: searchParams.get('time') || 'Morning (8:00 AM - 11:00 AM)'
+                        }
+                    });
+                    setLoading(false);
+                    return;
+                }
+
                 setError('Failed to load inspection confirmation.');
                 setLoading(false);
             });
-    }, [id]);
+    }, [id, searchParams]);
 
     const handleCopyDetails = () => {
         if (!lead) return;
@@ -65,140 +87,140 @@ Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pendi
     if (error || !lead) {
         return (
             <div className="min-h-screen bg-[#070a13] text-slate-100 flex flex-col items-center justify-center font-sans px-6 text-center">
+                <div className="w-16 h-16 bg-rose-500/10 border border-rose-500/20 rounded-full flex items-center justify-center mb-4 text-rose-400 text-2xl font-bold">
+                    ⚠️
+                </div>
                 <h2 className="text-2xl font-bold text-white mb-2">Error Loading Confirmation</h2>
                 <p className="text-sm text-slate-400 mb-6">{error || 'The inspection request could not be found.'}</p>
-                <button onClick={() => router.push('/')} className="bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold px-6 py-3 rounded-xl transition-colors">
-                    Back to Home
+                <button
+                    type="button"
+                    onClick={() => router.push('/')}
+                    className="px-6 py-3 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold rounded-xl text-sm transition-all shadow-lg shadow-teal-500/20">
+                    Return to Funnel Home
                 </button>
             </div>
         );
     }
 
-    const { appointment } = lead;
+    const formattedDate = lead.appointment?.date
+        ? new Date(lead.appointment.date + 'T00:00:00').toLocaleDateString(undefined, {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+          })
+        : null;
 
     return (
         <div className="min-h-screen bg-[#070a13] text-slate-100 flex flex-col font-sans selection:bg-teal-500 selection:text-white">
-            
             {/* Header */}
-            <header className="border-b border-white/5 bg-[#070a13]/80 backdrop-blur-md sticky top-0 z-40">
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
+            <header className="border-b border-white/5 bg-[#070a13]/90 backdrop-blur-md sticky top-0 z-50">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
                     <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/')}>
-                        <svg className="w-6 h-6 text-teal-400 filter drop-shadow-[0_0_8px_rgba(20,184,166,0.5)] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                        <svg className="w-6 h-6 text-teal-400 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                             <polyline points="9 22 9 12 15 12 15 22" />
                         </svg>
-                        <span className="font-extrabold text-lg sm:text-xl tracking-tight text-white">QUOTRA<span className="text-teal-400">MAX</span></span>
+                        <span className="font-extrabold text-lg sm:text-xl tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
+                            QUOTRAMAX
+                        </span>
                     </div>
-                    <span className="text-[10px] sm:text-xs font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20 uppercase tracking-widest flex items-center gap-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                        Inspection Reserved
-                    </span>
+                    <button
+                        type="button"
+                        onClick={handleCopyDetails}
+                        className="px-3.5 py-1.5 bg-white/5 border border-white/10 hover:bg-white/10 text-xs font-semibold text-slate-300 rounded-lg transition-all flex items-center gap-1.5">
+                        {copied ? '✓ Copied!' : '📋 Copy Details'}
+                    </button>
                 </div>
             </header>
 
             {/* Main Content */}
-            <main className="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-10">
+            <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12">
+                
+                {/* Hero Confirmation Card */}
+                <div className="border border-teal-500/30 bg-gradient-to-b from-teal-500/10 via-[#0d1222]/90 to-[#0d1222] rounded-3xl p-6 sm:p-10 shadow-2xl relative overflow-hidden mb-8">
+                    <div className="absolute top-0 right-0 w-72 h-72 bg-teal-500/10 rounded-full filter blur-3xl pointer-events-none"></div>
 
-                {/* Hero Confirmation Banner */}
-                <div className="p-5 sm:p-6 bg-gradient-to-r from-teal-500/10 via-emerald-500/10 to-transparent border border-teal-500/20 rounded-2xl mb-6 shadow-xl text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 rounded-2xl bg-teal-500/20 border border-teal-500/30 flex items-center justify-center text-2xl flex-shrink-0">
-                            ✓
+                    <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 text-center sm:text-left relative z-10">
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-teal-500/20 border-2 border-teal-400 rounded-2xl flex items-center justify-center flex-shrink-0 text-3xl shadow-lg shadow-teal-500/30">
+                            🎉
                         </div>
                         <div>
-                            <span className="text-[11px] font-bold uppercase tracking-wider text-teal-400 font-mono">
-                                Inspection Request #{id}
-                            </span>
-                            <h1 className="text-xl sm:text-2xl font-black text-white mt-0.5">
-                                You&apos;re All Set, {lead.name.split(' ')[0]}!
+                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-teal-500/20 border border-teal-500/30 rounded-full text-xs font-bold text-teal-300 mb-2 uppercase tracking-wider">
+                                ✓ Inspection Dossier Confirmed
+                            </div>
+                            <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+                                Priority Inspection Reserved
                             </h1>
-                            <p className="text-xs sm:text-sm text-slate-300 mt-1">
-                                A confirmation notice has been dispatched to <strong>{lead.email}</strong>.
+                            <p className="text-xs sm:text-sm text-slate-300 mt-2 max-w-xl leading-relaxed">
+                                Great news, <span className="text-white font-bold">{lead.name}</span>! Your property coordinates have been assigned to a certified inspection crew.
                             </p>
                         </div>
                     </div>
 
-                    <button
-                        type="button"
-                        onClick={handleCopyDetails}
-                        className="text-xs font-bold text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2.5 rounded-xl transition-all flex items-center gap-2 flex-shrink-0">
-                        {copied ? '✓ Copied to Clipboard' : '📋 Copy Details'}
-                    </button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-
-                    {/* Left Column: Scheduled Slot & Next Steps */}
-                    <div className="md:col-span-7 space-y-6">
-                        
-                        {/* Appointment Time Box */}
-                        <div className="border border-white/10 rounded-2xl bg-[#0d1222]/90 backdrop-blur-xl p-5 sm:p-6 shadow-xl">
-                            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-3">
-                                📅 Confirmed Appointment Slot
-                            </span>
-                            {appointment && appointment.date ? (
-                                <div className="p-4 bg-teal-500/10 border border-teal-500/20 rounded-xl space-y-2">
-                                    <div className="text-lg sm:text-xl font-extrabold text-white">
-                                        {new Date(appointment.date + 'T00:00:00').toLocaleDateString(undefined, {
-                                            weekday: 'long',
-                                            year: 'numeric',
-                                            month: 'long',
-                                            day: 'numeric'
-                                        })}
-                                    </div>
-                                    <div className="inline-flex items-center gap-2 text-xs font-bold text-teal-300 bg-teal-500/20 px-3 py-1 rounded-lg">
-                                        ⏰ {appointment.time}
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-300 text-xs">
-                                    Our dispatch team is currently assigning the nearest crew for this week.
-                                </div>
-                            )}
-
-                            <div className="mt-4 pt-4 border-t border-white/5 space-y-2 text-xs text-slate-400">
-                                <div className="flex items-center justify-between">
-                                    <span>Inspecting Property:</span>
-                                    <strong className="text-white">{lead.address}</strong>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <span>Primary Phone:</span>
-                                    <strong className="text-white">{lead.phone || 'Provided via form'}</strong>
+                    {/* Appointment Box */}
+                    {formattedDate ? (
+                        <div className="mt-8 p-5 bg-[#070a13]/80 border border-teal-500/30 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <div className="flex items-center gap-3">
+                                <div className="text-2xl">📅</div>
+                                <div>
+                                    <div className="text-[11px] font-bold uppercase tracking-wider text-teal-400">Scheduled Appointment Date</div>
+                                    <div className="text-sm sm:text-base font-bold text-white">{formattedDate}</div>
                                 </div>
                             </div>
+                            <div className="px-4 py-2 bg-teal-500/20 border border-teal-500/30 rounded-xl text-center sm:text-right">
+                                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Time Window</div>
+                                <div className="text-xs sm:text-sm font-bold text-teal-300">{lead.appointment.time}</div>
+                            </div>
                         </div>
+                    ) : (
+                        <div className="mt-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl text-xs text-amber-300 font-medium">
+                            ⏱️ Instant Dispatch: A crew manager is matching an open slot in your area.
+                        </div>
+                    )}
+                </div>
 
-                        {/* What to Expect 3-Step Roadmap */}
-                        <div className="border border-white/10 rounded-2xl bg-[#0d1222]/90 backdrop-blur-xl p-5 sm:p-6 shadow-xl space-y-4">
-                            <h2 className="text-sm font-bold uppercase tracking-wider text-white">
-                                What Happens Next
+                {/* 2-Column Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+                    
+                    {/* Left Column: 3-Step Action Roadmap */}
+                    <div className="md:col-span-7 space-y-6">
+                        <div className="border border-white/10 rounded-2xl bg-[#0d1222]/90 backdrop-blur-xl p-5 sm:p-6 shadow-xl">
+                            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-5 flex items-center gap-2">
+                                <span>🗺️</span> What Happens Next (Roadmap)
                             </h2>
 
-                            <div className="space-y-3">
+                            <div className="space-y-4">
                                 {[
                                     {
-                                        step: '1',
-                                        title: 'Satellite Roofline Scan Prepared',
-                                        desc: 'Our estimator pulls 3D aerial measurements of your roof facets and pitch before arriving.'
+                                        step: '01',
+                                        title: 'Aerial & Satellite Measurement Scan',
+                                        desc: 'Our high-resolution satellite imagery engine calculates roof surface area, pitch angles, and valley lengths before our arrival.',
+                                        status: 'In Progress'
                                     },
                                     {
-                                        step: '2',
-                                        title: 'On-Site 21-Point Physical Check',
-                                        desc: 'A certified roofing technician inspects shingles, flashing, drip edges, and attic moisture.'
+                                        step: '02',
+                                        title: 'Technician Text & Phone Confirmation',
+                                        desc: `A licensed technician will call or text ${lead.phone || 'your phone'} 30 minutes prior to arrival to confirm property access.`,
+                                        status: 'Pending Tech Dispatch'
                                     },
                                     {
-                                        step: '3',
-                                        title: 'Written Property Report & Options',
-                                        desc: 'You receive an itemized condition report, material options, and financing/insurance details.'
+                                        step: '03',
+                                        title: '21-Point On-Site Inspection & Written Report',
+                                        desc: 'We perform a full leak, shingle granular loss, attic ventilation, and decking assessment, providing a physical report on-site.',
+                                        status: 'On Day of Inspection'
                                     }
-                                ].map((item) => (
-                                    <div key={item.step} className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/5">
-                                        <span className="w-6 h-6 rounded-full bg-teal-500/20 border border-teal-500/40 text-teal-400 font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
+                                ].map((item, idx) => (
+                                    <div key={idx} className="flex gap-4 p-3.5 bg-white/[0.02] border border-white/5 rounded-xl">
+                                        <div className="w-8 h-8 rounded-lg bg-teal-500/10 border border-teal-500/20 text-teal-400 font-bold text-xs flex items-center justify-center flex-shrink-0">
                                             {item.step}
-                                        </span>
+                                        </div>
                                         <div>
-                                            <div className="text-xs font-bold text-white">{item.title}</div>
-                                            <div className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">{item.desc}</div>
+                                            <div className="flex items-center gap-2">
+                                                <h3 className="text-xs font-bold text-white">{item.title}</h3>
+                                                <span className="text-[10px] px-2 py-0.5 bg-teal-500/10 text-teal-400 rounded-full font-semibold">{item.status}</span>
+                                            </div>
+                                            <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">{item.desc}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -206,25 +228,21 @@ Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pendi
                         </div>
                     </div>
 
-                    {/* Right Column: Pre-Qualification Scope Summary */}
+                    {/* Right Column: Pre-Qualification Scope Dossier */}
                     <div className="md:col-span-5 space-y-6">
                         <div className="border border-white/10 rounded-2xl bg-[#0d1222]/90 backdrop-blur-xl p-5 sm:p-6 shadow-xl">
                             <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">
-                                Project Scope Dossier
+                                Property Scope Dossier
                             </h2>
 
-                            <div className="space-y-3 text-xs">
+                            <div className="space-y-2.5 text-xs">
+                                <div className="p-2.5 bg-white/[0.02] rounded-lg border border-white/5 flex justify-between items-center">
+                                    <span className="text-slate-400">Property:</span>
+                                    <span className="font-bold text-white truncate max-w-[180px]">{lead.address}</span>
+                                </div>
                                 <div className="p-2.5 bg-white/[0.02] rounded-lg border border-white/5 flex justify-between items-center">
                                     <span className="text-slate-400">Service Goal:</span>
                                     <span className="font-bold text-white">{lead.service || 'Full Roof Replacement'}</span>
-                                </div>
-                                <div className="p-2.5 bg-white/[0.02] rounded-lg border border-white/5 flex justify-between items-center">
-                                    <span className="text-slate-400">Building Height:</span>
-                                    <span className="font-bold text-white">{lead.stories || '1 Story'}</span>
-                                </div>
-                                <div className="p-2.5 bg-white/[0.02] rounded-lg border border-white/5 flex justify-between items-center">
-                                    <span className="text-slate-400">Roof Slope:</span>
-                                    <span className="font-bold text-white">{lead.pitch || 'Standard Pitch'}</span>
                                 </div>
                                 <div className="p-2.5 bg-white/[0.02] rounded-lg border border-white/5 flex justify-between items-center">
                                     <span className="text-slate-400">Preferred Material:</span>
@@ -233,10 +251,6 @@ Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pendi
                                 <div className="p-2.5 bg-white/[0.02] rounded-lg border border-white/5 flex justify-between items-center">
                                     <span className="text-slate-400">Timeline:</span>
                                     <span className="font-bold text-amber-400">{lead.timeline || 'Under 1 month'}</span>
-                                </div>
-                                <div className="p-2.5 bg-white/[0.02] rounded-lg border border-white/5 flex justify-between items-center">
-                                    <span className="text-slate-400">Funding Method:</span>
-                                    <span className="font-bold text-emerald-400">{lead.insurance || 'Cash / Direct Pay'}</span>
                                 </div>
                             </div>
 
@@ -267,5 +281,20 @@ Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pendi
                 &copy; 2026 Quotramax Conversion System. High-Intent Lead Qualification &amp; Booking.
             </footer>
         </div>
+    );
+}
+
+export default function Results() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-[#070a13] text-slate-100 flex flex-col items-center justify-center font-sans">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 border-4 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
+                    <span className="text-sm font-semibold text-slate-400">Loading Inspection Dossier...</span>
+                </div>
+            </div>
+        }>
+            <ResultsDetail />
+        </Suspense>
     );
 }

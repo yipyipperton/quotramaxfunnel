@@ -198,7 +198,17 @@ export default function Home() {
                     sessionStorage.setItem('qm_lead_' + result.leadId, JSON.stringify(leadObj));
                     sessionStorage.setItem('qm_latest_lead', JSON.stringify(leadObj));
                 } catch (e) {}
-                router.push(`/results/${result.leadId}`);
+                const queryParams = new URLSearchParams({
+                    name: payload.name,
+                    address: payload.address,
+                    service: payload.service,
+                    date: payload.appointment?.date || '',
+                    time: payload.appointment?.time || '',
+                    phone: payload.phone,
+                    email: payload.email,
+                    material: payload.material
+                }).toString();
+                router.push(`/results/${result.leadId}?${queryParams}`);
             } else {
                 setError(result.error || 'Failed to submit inspection request.');
                 setSubmitting(false);
