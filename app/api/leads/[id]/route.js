@@ -1,10 +1,21 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
-import { calculateEstimate } from '@/lib/estimate';
 import fs from 'fs';
 import path from 'path';
 
 const LEADS_FILE = path.join(process.cwd(), 'vanilla_backup/data/leads.json');
+
+async function getContractorEmail() {
+    if (supabase) {
+        try {
+            const { data } = await supabase.from('settings').select('contractor_email').eq('id', 1).single();
+            if (data?.contractor_email) return data.contractor_email;
+        } catch (e) {
+            console.error('Error fetching contractor email from settings:', e);
+        }
+    }
+    return 'isaaqabukar1@gmail.com';
+}
 
 async function findLeadById(id) {
     if (supabase) {
@@ -18,7 +29,6 @@ async function findLeadById(id) {
         }
     }
 
-    // Try local filesystem fallback
     try {
         if (fs.existsSync(LEADS_FILE)) {
             const fileData = fs.readFileSync(LEADS_FILE, 'utf8');
@@ -42,36 +52,12 @@ export async function GET(req, { params }) {
             return NextResponse.json({ error: 'Lead not found' }, { status: 404 });
         }
 
-        // Parse serialized wizard fields from motivation if present
         let extraData = {};
         try {
             if (lead.motivation && lead.motivation.startsWith('{')) {
                 extraData = JSON.parse(lead.motivation);
             }
         } catch (e) {}
-
-        // Recalculate estimate if not saved in extraData
-        const stories = lead.stories || '1';
-        const condition = lead.age || 'Good';
-        const material = lead.material || 'Asphalt shingles';
-        const size = lead.size || lead.roof_size || 2000;
-        const propertyType = extraData.propertyType || 'Residential';
-        const service = extraData.service || 'Replacement';
-        const timeline = extraData.timeline || 'Under 1 month';
-        const insurance = extraData.insurance || 'Cash / Direct Financing';
-        const roofAge = extraData.roofAge || lead.age || '10 - 20 years';
-        const pitch = extraData.pitch || 'Standard';
-
-        const estimate = extraData.estimate || calculateEstimate({
-            material,
-            stories,
-            condition,
-            service,
-            property_type: propertyType,
-            roof_size: size,
-            pitch,
-            roof_age: roofAge
-        });
 
         const mappedLead = {
             id: lead.id,
@@ -80,21 +66,17 @@ export async function GET(req, { params }) {
             phone: lead.phone,
             address: lead.address,
             zip: lead.zip || '34652',
-            size,
-            material,
-            price: lead.price || Math.round((estimate.minPrice + estimate.maxPrice) / 2),
-            stories,
-            status: lead.status || 'New',
+            size: lead.size || 2400,
+            material: lead.material || 'Architectural Shingles',
+            stories: lead.stories || '1 Story',
+            status: lead.status || 'New Lead',
             date: lead.date,
-            propertyType,
-            condition,
-            service,
-            timeline,
-            insurance,
-            roofAge,
-            pitch,
-            appointment: extraData.appointment || null,
-            estimate
+            service: extraData.service || lead.age || 'Full Roof Replacement',
+            timeline: extraData.timeline || 'Under 1 month',
+            insurance: extraData.insurance || 'Cash / Direct Payment',
+            roofAge: extraData.roofAge || '10 - 20 years',
+            pitch: extraData.pitch || 'Standard Pitch',
+            appointment: extraData.appointment || null
         };
 
         return NextResponse.json(mappedLead);
@@ -119,7 +101,6 @@ export async function PATCH(req, { params }) {
             updatedStatus = 'Inspection Scheduled';
         }
 
-        // Parse existing motivation metadata to append appointment details
         let extraData = {};
         try {
             if (lead.motivation && lead.motivation.startsWith('{')) {
@@ -128,7 +109,7 @@ export async function PATCH(req, { params }) {
         } catch (e) {}
 
         if (appointment) {
-            extraData.appointment = appointment; // { date, time }
+            extraData.appointment = appointment;
         }
 
         const updatedMotivation = JSON.stringify(extraData);
@@ -148,7 +129,6 @@ export async function PATCH(req, { params }) {
             }
         }
 
-        // Sync or fallback filesystem updates
         try {
             if (fs.existsSync(LEADS_FILE)) {
                 const fileData = fs.readFileSync(LEADS_FILE, 'utf8');
@@ -165,38 +145,41 @@ export async function PATCH(req, { params }) {
             console.error('Local JSON leads patch sync error:', e);
         }
 
-        // Dispatch Resend email alert to contractor if appointment is scheduled
-        if (appointment && success) {
+        // Dispatch Resend email alert using onboarding@resend.dev
+        if (appointment && success && process.env.RESEND_API_KEY) {
             try {
                 const { Resend } = require('resend');
-                const resend = new Resend(process.env.RESEND_API_KEY || '');
+                const resend = new Resend(process.env.RESEND_API_KEY);
                 const contractorEmail = await getContractorEmail();
 
                 const appointmentHtml = `
-                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
-                        <h2 style="color: #6366f1;">📅 Inspection Appointment Scheduled!</h2>
+                    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
+                        <h2 style="color: #0d9488; margin: 0 0 12px 0;">📅 Inspection Appointment Scheduled!</h2>
                         <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-bottom: 20px;">
-                        <p>Homeowner <strong>${lead.name}</strong> has confirmed their inspection date and time slot:</p>
+                        <p style="font-size: 15px; color: #1e293b;">Homeowner <strong>${lead.name}</strong> has confirmed their inspection date and time slot:</p>
                         
-                        <div style="background-color: #f8fafc; padding: 15px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #6366f1;">
-                            <p style="margin: 0; font-weight: bold; color: #0f172a;">Date: ${new Date(appointment.date).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                            <p style="margin: 5px 0 0 0; font-weight: bold; color: #6366f1;">Time Slot: ${appointment.time}</p>
+                        <div style="background-color: #f0fdfa; padding: 16px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #0d9488;">
+                            <p style="margin: 0; font-size: 12px; font-weight: bold; color: #0f766e; text-transform: uppercase;">Confirmed Date &amp; Time Slot:</p>
+                            <h3 style="margin: 4px 0 0 0; color: #115e59; font-size: 18px;">
+                                ${new Date(appointment.date + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                            </h3>
+                            <p style="margin: 4px 0 0 0; font-weight: bold; color: #0d9488; font-size: 14px;">Time Window: ${appointment.time}</p>
                         </div>
 
-                        <h3>Customer Details:</h3>
-                        <ul>
+                        <h3 style="color: #0f172a; font-size: 15px;">Customer Details:</h3>
+                        <ul style="color: #475569; font-size: 14px; line-height: 1.8;">
                             <li><strong>Name:</strong> ${lead.name}</li>
                             <li><strong>Address:</strong> ${lead.address}</li>
-                            <li><strong>Email:</strong> ${lead.email}</li>
-                            <li><strong>Phone:</strong> ${lead.phone || 'Not provided'}</li>
+                            <li><strong>Phone:</strong> <a href="tel:${lead.phone}" style="color: #0d9488;">${lead.phone || 'Not provided'}</a></li>
+                            <li><strong>Email:</strong> <a href="mailto:${lead.email}">${lead.email}</a></li>
                         </ul>
                     </div>
                 `;
 
                 await resend.emails.send({
-                    from: 'Quotramax Scheduling <no-reply@quotramax.com>',
+                    from: 'Quotramax Scheduling <onboarding@resend.dev>',
                     to: contractorEmail,
-                    subject: `📅 Appointment: ${lead.name} - ${appointment.date}`,
+                    subject: `📅 Confirmed Inspection: ${lead.name} - ${appointment.date}`,
                     html: appointmentHtml
                 });
             } catch (e) {

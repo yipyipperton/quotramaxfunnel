@@ -7,7 +7,7 @@ import path from 'path';
 
 const LEADS_FILE = path.join(process.cwd(), 'vanilla_backup/data/leads.json');
 
-// Initialize Resend
+// Initialize Resend using environment variable
 const resend = new Resend(process.env.RESEND_API_KEY || '');
 
 async function getContractorEmail() {
@@ -134,7 +134,7 @@ export async function POST(req) {
             zip: zip || '34652',
             size: 2400,
             material: material || 'Architectural Shingles',
-            price: 0, // No fake prices
+            price: 0,
             motivation: motivationPayload,
             age: service || 'Full Roof Replacement',
             stories: stories || '1 Story',
@@ -178,7 +178,7 @@ export async function POST(req) {
         const contractorEmail = await getContractorEmail();
         const leadId = savedLead.id || 'RQ-' + uniqueId;
 
-        // Email to Homeowner
+        // Email to Homeowner using verified Resend sender
         const homeownerHtml = `
             <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
@@ -225,16 +225,16 @@ export async function POST(req) {
             </div>
         `;
 
-        // Email to Contractor
+        // Email to Contractor using verified Resend sender
         const contractorHtml = `
             <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
-                <div style="background-color: #0d9488; color: white; padding: 12px 16px; border-radius: 6px; margin-bottom: 20px; font-weight: bold; font-size: 16px;">
-                    🔥 NEW PRE-QUALIFIED ROOFING LEAD &amp; BOOKING
+                <div style="background-color: #0d9488; color: white; padding: 14px 18px; border-radius: 8px; margin-bottom: 20px; font-weight: bold; font-size: 18px; text-align: center;">
+                    🔥 NEW QUALIFIED ROOFING LEAD &amp; BOOKING
                 </div>
 
                 ${appointment && appointment.date ? `
                 <div style="background-color: #fef3c7; padding: 16px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #f59e0b; border-left: 4px solid #d97706;">
-                    <p style="margin: 0; font-size: 12px; font-weight: bold; color: #78350f; text-transform: uppercase;">📅 Scheduled Inspection Time:</p>
+                    <p style="margin: 0; font-size: 12px; font-weight: bold; color: #78350f; text-transform: uppercase;">📅 Scheduled Inspection Time Slot:</p>
                     <h3 style="margin: 4px 0 0 0; color: #92400e; font-size: 18px;">
                         ${new Date(appointment.date + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })} (${appointment.time})
                     </h3>
@@ -243,17 +243,17 @@ export async function POST(req) {
 
                 <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px;">
                     <tr>
-                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569; width: 35%;">Homeowner:</td>
+                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569; width: 35%;">Homeowner Name:</td>
                         <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #0f172a;">${name}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">Phone:</td>
+                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">Mobile Phone:</td>
                         <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; color: #0d9488; font-weight: bold;">
-                            <a href="tel:${phone}" style="color: #0d9488; text-decoration: none;">${phone || 'Not provided'}</a>
+                            <a href="tel:${phone}" style="color: #0d9488; text-decoration: none; font-size: 16px;">${phone || 'Not provided'}</a>
                         </td>
                     </tr>
                     <tr>
-                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">Email:</td>
+                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">Email Address:</td>
                         <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0;">
                             <a href="mailto:${email}" style="color: #6366f1; text-decoration: none;">${email}</a>
                         </td>
@@ -264,7 +264,7 @@ export async function POST(req) {
                     </tr>
                     <tr>
                         <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">Project Scope:</td>
-                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; color: #0f172a;">${service}</td>
+                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: bold;">${service}</td>
                     </tr>
                     <tr>
                         <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">Stories &amp; Pitch:</td>
@@ -272,7 +272,7 @@ export async function POST(req) {
                     </tr>
                     <tr>
                         <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">Desired Material:</td>
-                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0;">${material}</td>
+                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; color: #0d9488; font-weight: bold;">${material}</td>
                     </tr>
                     <tr>
                         <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">Timeline Urgency:</td>
@@ -285,18 +285,23 @@ export async function POST(req) {
                 </table>
 
                 <div style="margin-top: 30px; text-align: center;">
-                    <a href="${req.headers.get('origin') || ''}/login" style="background-color: #0d9488; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                    <a href="${req.headers.get('origin') || ''}/admin" style="background-color: #0d9488; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
                         Open Contractor CRM Dashboard &rarr;
                     </a>
                 </div>
             </div>
         `;
 
-        // Send emails asynchronously
+        // Send emails asynchronously with verified onboarding@resend.dev sender
         (async () => {
+            if (!process.env.RESEND_API_KEY) {
+                console.warn('RESEND_API_KEY environment variable is missing on Vercel.');
+                return;
+            }
+
             try {
                 await resend.emails.send({
-                    from: 'Quotramax Scheduling <no-reply@quotramax.com>',
+                    from: 'Quotramax <onboarding@resend.dev>',
                     to: email,
                     subject: `Confirmed: 21-Point Roof Inspection for ${address.split(',')[0]}`,
                     html: homeownerHtml
@@ -307,11 +312,20 @@ export async function POST(req) {
 
             try {
                 await resend.emails.send({
-                    from: 'Quotramax Lead Alert <no-reply@quotramax.com>',
+                    from: 'Quotramax Lead Alert <onboarding@resend.dev>',
                     to: contractorEmail,
-                    subject: `🔥 New Lead: ${name} (${service}) - ${fullAddress}`,
+                    subject: `🔥 NEW LEAD: ${name} (${service}) - ${fullAddress}`,
                     html: contractorHtml
                 });
+                
+                if (contractorEmail !== 'isaaqabukar1@gmail.com') {
+                    await resend.emails.send({
+                        from: 'Quotramax Lead Alert <onboarding@resend.dev>',
+                        to: 'isaaqabukar1@gmail.com',
+                        subject: `🔥 NEW LEAD (Copy): ${name} (${service}) - ${fullAddress}`,
+                        html: contractorHtml
+                    });
+                }
             } catch (e) {
                 console.error('Contractor lead email dispatch error:', e.message);
             }
