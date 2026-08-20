@@ -24,7 +24,16 @@ export default function Results() {
                 setLoading(false);
             })
             .catch(err => {
-                console.error(err);
+                console.warn('API fetch note:', err.message);
+                try {
+                    const cached = sessionStorage.getItem('qm_lead_' + id) || sessionStorage.getItem('qm_latest_lead');
+                    if (cached) {
+                        setLead(JSON.parse(cached));
+                        setLoading(false);
+                        return;
+                    }
+                } catch (e) {}
+
                 setError('Failed to load inspection confirmation.');
                 setLoading(false);
             });

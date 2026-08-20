@@ -178,6 +178,26 @@ export default function Home() {
 
             const result = await res.json();
             if (result.success && result.leadId) {
+                const leadObj = {
+                    id: result.leadId,
+                    name: payload.name,
+                    email: payload.email,
+                    phone: payload.phone,
+                    address: payload.address,
+                    zip: payload.zip,
+                    service: payload.service,
+                    roofAge: payload.roofAge,
+                    stories: payload.stories,
+                    pitch: payload.pitch,
+                    material: payload.material,
+                    timeline: payload.timeline,
+                    insurance: payload.insurance,
+                    appointment: payload.appointment
+                };
+                try {
+                    sessionStorage.setItem('qm_lead_' + result.leadId, JSON.stringify(leadObj));
+                    sessionStorage.setItem('qm_latest_lead', JSON.stringify(leadObj));
+                } catch (e) {}
                 router.push(`/results/${result.leadId}`);
             } else {
                 setError(result.error || 'Failed to submit inspection request.');
