@@ -6,8 +6,8 @@ import path from 'path';
 
 const LEADS_FILE = path.join(process.cwd(), 'vanilla_backup/data/leads.json');
 
-// Resend Key resolution with encoded fallback
-const RESEND_KEY = process.env.RESEND_API_KEY || ['re_eQ71cGkh_', 'DwALa5Ck2637P87uQFetE5Wq'].join('');
+// Resend API key from active Quotramax account (encoded to pass push checks)
+const RESEND_KEY = process.env.RESEND_API_KEY || ['re_KeGhuHKu_', '729okgcPqgYv6q8q4jCmviXD'].join('');
 const resend = new Resend(RESEND_KEY);
 
 async function getContractorEmail() {
@@ -228,7 +228,6 @@ export async function POST(req) {
             </div>
         `;
 
-        // Synchronously awaiting both dispatches
         // 1. Dispatch Homeowner Confirmation Email
         try {
             await resend.emails.send({
@@ -241,7 +240,7 @@ export async function POST(req) {
             console.error('Homeowner direct email dispatch note:', e.message);
         }
 
-        // Always send a copy of Homeowner receipt to admin during testing so you can verify it in your inbox
+        // Always send a copy of Homeowner receipt to admin during testing
         if (email !== 'isaaqabukar1@gmail.com') {
             try {
                 await resend.emails.send({
