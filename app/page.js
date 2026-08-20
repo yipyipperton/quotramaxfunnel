@@ -1,122 +1,149 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function Home() {
     const router = useRouter();
     const [step, setStep] = useState(1);
-    const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        phone: '',
-        address: '',
-        zip: '',
-        propertyType: 'Residential',
-        stories: '1',
-        homeCategory: 'Medium', // Small, Medium, Large, Estate
-        roofSize: 2200,
-        footprintLength: '',
-        footprintWidth: '',
-        sizeMode: 'preset', // 'preset', 'footprint', or 'slider'
-        complexity: 'Gable', // Gable, Hip, Valleys, Complex
-        layers: '1', // 1, 2, 3
-        condition: 'Good',
-        service: 'Replacement',
-        material: 'Asphalt shingles',
-        timeline: 'Under 1 month',
-        insurance: 'Cash / Direct Financing',
-        roofAge: '10 - 20 years',
-        pitch: 'Standard',
-        appointmentDate: '',
-        appointmentTime: 'Morning (9AM-11AM)'
-    });
-
+    const [isScanning, setIsScanning] = useState(false);
+    const [scanText, setScanText] = useState('Locating property coordinates...');
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState('');
 
-    const todayStr = new Date().toISOString().split('T')[0];
+    const [formData, setFormData] = useState({
+        service: 'Full Roof Replacement',
+        roofAge: '10 - 20 years',
+        stories: '1 Story',
+        pitch: 'Standard Pitch',
+        material: 'Architectural Shingles',
+        timeline: 'Under 1 month',
+        insurance: 'Cash / Direct Payment',
+        address: '',
+        zip: '',
+        name: '',
+        email: '',
+        phone: '',
+        appointmentDate: '',
+        appointmentTime: 'Morning (8:00 AM - 11:00 AM)'
+    });
 
-    const handleInputChange = (e) => {
-        const { id, value } = e.target;
-        if (id === 'phone') {
-            const input = value.replace(/\D/g, '');
-            const cleanInput = input.substring(0, 10);
-            
-            let formatted = '';
-            if (cleanInput.length > 0) {
-                formatted += cleanInput.substring(0, 3);
-            }
-            if (cleanInput.length > 3) {
-                formatted += '-' + cleanInput.substring(3, 6);
-            }
-            if (cleanInput.length > 6) {
-                formatted += '-' + cleanInput.substring(6, 10);
-            }
-            setFormData(prev => ({ ...prev, phone: formatted }));
-        } else if (id === 'zip') {
-            const cleanZip = value.replace(/\D/g, '').substring(0, 5);
-            setFormData(prev => ({ ...prev, zip: cleanZip }));
-        } else {
-            setFormData(prev => ({ ...prev, [id]: value }));
+    // Helper dates for Step 5 quick date pills
+    const [datePills, setDatePills] = useState([]);
+
+    useEffect(() => {
+        const pills = [];
+        const today = new Date();
+        
+        // Tomorrow
+        const tomorrow = new Date(today);
+        tomorrow.setDate(today.getDate() + 1);
+        pills.push({
+            label: 'Tomorrow',
+            dateStr: tomorrow.toISOString().split('T')[0],
+            display: tomorrow.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })
+        });
+
+        // 2 days out
+        const day2 = new Date(today);
+        day2.setDate(today.getDate() + 2);
+        pills.push({
+            label: day2.toLocaleDateString(undefined, { weekday: 'short' }),
+            dateStr: day2.toISOString().split('T')[0],
+            display: day2.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })
+        });
+
+        // 3 days out
+        const day3 = new Date(today);
+        day3.setDate(today.getDate() + 3);
+        pills.push({
+            label: day3.toLocaleDateString(undefined, { weekday: 'short' }),
+            dateStr: day3.toISOString().split('T')[0],
+            display: day3.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })
+        });
+
+        setDatePills(pills);
+        if (!formData.appointmentDate && pills.length > 0) {
+            setFormData(prev => ({ ...prev, appointmentDate: pills[0].dateStr }));
         }
+    }, []);
+
+    // Phone Auto-Formatter (XXX) XXX-XXXX
+    const handlePhoneChange = (e) => {
+        const raw = e.target.value.replace(/\D/g, '').substring(0, 10);
+        let formatted = '';
+        if (raw.length > 0) {
+            formatted = '(' + raw.substring(0, 3);
+        }
+        if (raw.length >= 4) {
+            formatted += ') ' + raw.substring(3, 6);
+        }
+        if (raw.length >= 7) {
+            formatted += '-' + raw.substring(6, 10);
+        }
+        setFormData(prev => ({ ...prev, phone: formatted }));
     };
 
-    const handleHomeCategorySelect = (category, sqFt) => {
-        setFormData(prev => ({
-            ...prev,
-            homeCategory: category,
-            roofSize: sqFt
-        }));
-    };
-
-    const handleSliderChange = (e) => {
-        setFormData(prev => ({ ...prev, roofSize: parseInt(e.target.value) }));
-    };
-
-    const handleSelectOption = (field, value) => {
+    // Generic input change
+    const handleChange = (field, value) => {
+        setError('');
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
-    const validateStep = () => {
+    // Tap-to-advance handler with haptic feedback delay
+    const handleTapToAdvance = (field, value, nextStepTarget) => {
         setError('');
-        if (step === 1) {
-            if (!formData.name.trim()) return 'Please enter your full name.';
-            if (!formData.email.trim() || !/\S+@\S+\.\S+/.test(formData.email)) return 'Please enter a valid email address.';
-            
-            const digitsOnly = formData.phone.replace(/\D/g, '');
-            if (digitsOnly.length !== 10) {
-                return 'Please enter a valid 10-digit phone number.';
-            }
-            if (!formData.address.trim()) return 'Please enter your street address.';
-            if (!formData.zip.trim() || formData.zip.length !== 5) return 'Please enter a valid 5-digit ZIP code.';
-        }
-        if (step === 5) {
-            if (!formData.appointmentDate) return 'Please select a preferred inspection date.';
-            if (!formData.appointmentTime) return 'Please select a preferred inspection time slot.';
-        }
+        setFormData(prev => ({ ...prev, [field]: value }));
+        setTimeout(() => {
+            setStep(nextStepTarget);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }, 160);
+    };
+
+    // Validation per step
+    const validateStep4 = () => {
+        if (!formData.address.trim()) return 'Please enter your street address.';
+        const cleanZip = formData.zip.replace(/\D/g, '');
+        if (cleanZip.length !== 5) return 'Please enter a valid 5-digit ZIP code.';
+        if (!formData.name.trim() || formData.name.trim().length < 2) return 'Please enter your full name.';
+        const cleanPhone = formData.phone.replace(/\D/g, '');
+        if (cleanPhone.length !== 10) return 'Please enter a valid 10-digit phone number.';
+        if (!formData.email.trim() || !/\S+@\S+\.\S+/.test(formData.email)) return 'Please enter a valid email address.';
         return '';
     };
 
-    const handleNext = () => {
-        const validationError = validateStep();
-        if (validationError) {
-            setError(validationError);
+    // Handle Step 4 submit with Satellite Scan Effect
+    const handleStep4Continue = () => {
+        const err = validateStep4();
+        if (err) {
+            setError(err);
             return;
         }
-        setStep(prev => prev + 1);
-    };
 
-    const handlePrev = () => {
         setError('');
-        setStep(prev => prev - 1);
+        setIsScanning(true);
+        setScanText(`🛰️ Locating roofline for ${formData.address.split(',')[0]}...`);
+
+        setTimeout(() => {
+            setScanText('📐 Analyzing elevation, slope angles & square footage...');
+        }, 600);
+
+        setTimeout(() => {
+            setScanText('✅ Satellite data linked. Matching available inspection crews...');
+        }, 1100);
+
+        setTimeout(() => {
+            setIsScanning(false);
+            setStep(5);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }, 1600);
     };
 
-    const handleSubmit = async (e) => {
+    // Final Submission Handler
+    const handleFinalSubmit = async (e) => {
         e.preventDefault();
-        const validationError = validateStep();
-        if (validationError) {
-            setError(validationError);
+        if (!formData.appointmentDate) {
+            setError('Please select a preferred inspection date.');
             return;
         }
 
@@ -124,7 +151,18 @@ export default function Home() {
         setError('');
 
         const payload = {
-            ...formData,
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            address: formData.address,
+            zip: formData.zip,
+            service: formData.service,
+            roofAge: formData.roofAge,
+            stories: formData.stories,
+            pitch: formData.pitch,
+            material: formData.material,
+            timeline: formData.timeline,
+            insurance: formData.insurance,
             appointment: {
                 date: formData.appointmentDate,
                 time: formData.appointmentTime
@@ -142,455 +180,643 @@ export default function Home() {
             if (result.success && result.leadId) {
                 router.push(`/results/${result.leadId}`);
             } else {
-                setError(result.error || 'Failed to submit estimate request');
+                setError(result.error || 'Failed to submit inspection request.');
                 setSubmitting(false);
             }
         } catch (err) {
             console.error('Submission error:', err);
-            setError('Connection failed. Please try again.');
+            setError('Network error. Please try again.');
             setSubmitting(false);
         }
     };
 
     return (
-        <div className="min-h-screen bg-[#070a13] text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
+        <div className="min-h-screen bg-[#070a13] text-slate-100 flex flex-col font-sans selection:bg-teal-500 selection:text-white">
             
-            {/* Nav */}
-            <header className="border-b border-white/5 bg-[#070a13]/80 backdrop-blur-md sticky top-0 z-50">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center">
-                    <div className="flex items-center gap-2 sm:gap-2.5 cursor-pointer" onClick={() => setStep(1)}>
-                        <svg className="w-6 h-6 sm:w-7 sm:h-7 text-indigo-500 filter drop-shadow-[0_0_8px_rgba(99,102,241,0.5)] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            {/* Sticky Header */}
+            <header className="border-b border-white/5 bg-[#070a13]/90 backdrop-blur-md sticky top-0 z-50">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
+                    <div className="flex items-center gap-2 cursor-pointer" onClick={() => setStep(1)}>
+                        <svg className="w-6 h-6 text-teal-400 filter drop-shadow-[0_0_8px_rgba(20,184,166,0.5)] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                             <polyline points="9 22 9 12 15 12 15 22" />
                         </svg>
-                        <span className="font-heading font-extrabold text-xl sm:text-2xl tracking-tight text-white">QUOTRA<span className="text-indigo-500">MAX</span></span>
+                        <span className="font-extrabold text-lg sm:text-xl tracking-tight text-white">
+                            QUOTRA<span className="text-teal-400">MAX</span>
+                        </span>
                     </div>
-                    <button onClick={() => router.push('/login')} className="text-[11px] sm:text-xs font-semibold text-slate-400 hover:text-white transition-colors bg-white/5 hover:bg-white/10 border border-white/10 px-3 sm:px-4 py-2 rounded-lg flex-shrink-0">
-                        <span className="sm:hidden">Sign In</span>
-                        <span className="hidden sm:inline">Contractor Dashboard</span>
-                    </button>
+                    
+                    <div className="flex items-center gap-3">
+                        <span className="hidden sm:inline-flex items-center gap-1.5 text-xs text-slate-400 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
+                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                            Inspections Available in Your Area
+                        </span>
+                        <button 
+                            onClick={() => router.push('/login')} 
+                            className="text-xs font-semibold text-slate-400 hover:text-white transition-colors bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded-lg">
+                            Contractor Portal
+                        </button>
+                    </div>
                 </div>
             </header>
 
-            {/* Split Screen Container */}
-            <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12 flex flex-col justify-center">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-
-                    {/* Left Panel: Pitch Copy */}
-                    <div className="lg:col-span-6 flex flex-col justify-center py-2 sm:py-4">
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 w-fit mb-6 uppercase tracking-widest">
-                            ⚡ 2026 Instant Roof Valuation Engine
-                        </span>
-                        
-                        <h1 className="font-heading text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1] text-white mb-6">
-                            Calculate Your <br />
-                            New Roof Cost <br />
-                            <span className="bg-gradient-to-r from-indigo-400 via-indigo-500 to-emerald-400 bg-clip-text text-transparent filter drop-shadow-[0_0_12px_rgba(99,102,241,0.2)]">
-                                Instantly Online.
-                            </span>
-                        </h1>
-
-                        <p className="text-base sm:text-lg text-slate-400 leading-relaxed mb-8 max-w-lg">
-                            Answer 5 quick qualification questions about your property and material preferences to generate a 2026 preliminary materials and labor estimate report.
-                        </p>
-
-                        {/* Checklist Details */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-lg">
-                            <div className="flex gap-3 items-start">
-                                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xs font-bold">✓</span>
-                                <div>
-                                    <strong className="block text-slate-200 text-sm font-bold">2026 Regional Benchmarks</strong>
-                                    <span className="text-[11px] text-slate-400">Calculates precise material & regional trade labor costs.</span>
-                                </div>
-                            </div>
-                            <div className="flex gap-3 items-start">
-                                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-xs font-bold">✓</span>
-                                <div>
-                                    <strong className="block text-slate-200 text-sm font-bold">Comprehensive Executive PDF</strong>
-                                    <span className="text-[11px] text-slate-400">Receive a detailed itemized budget report and slope assessment.</span>
-                                </div>
-                            </div>
-                        </div>
+            {/* Main Content Area */}
+            <main className="flex-grow max-w-5xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-10 flex flex-col justify-center">
+                
+                {/* Hero Header Strip */}
+                <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-8">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold bg-teal-500/10 border border-teal-500/20 text-teal-300 mb-3 uppercase tracking-wider">
+                        <span>⚡ 2026 Direct Roofer Booking Engine</span>
                     </div>
+                    <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
+                        Schedule Your Free <br className="hidden sm:inline" />
+                        <span className="bg-gradient-to-r from-teal-400 to-emerald-400 bg-clip-text text-transparent">
+                            21-Point Roof &amp; Attic Inspection
+                        </span>
+                    </h1>
+                    <p className="text-xs sm:text-sm text-slate-400 mt-2">
+                        Answer 4 quick questions to link aerial satellite imagery of your property and reserve your certified inspection slot.
+                    </p>
+                </div>
 
-                    {/* Right Panel: Premium 5-Step Wizard Card */}
-                    <div className="lg:col-span-6 w-full">
-                        <div className="relative border border-white/10 rounded-2xl bg-[#0d1222]/80 backdrop-blur-2xl p-5 sm:p-8 shadow-2xl overflow-hidden before:absolute before:top-0 before:left-0 before:w-full before:height-[4px] before:bg-gradient-to-r before:from-indigo-500 before:via-purple-500 before:to-emerald-400">
-                            
-                            {/* Animated Step Header & Progress bar */}
-                            <div className="mb-8">
-                                <div className="flex justify-between items-center mb-3">
-                                    <span className="text-xs font-bold uppercase tracking-widest text-slate-400">
-                                        Step {step} of 5: <span className="text-indigo-400">
-                                            {step === 1 ? 'Customer & Location' :
-                                             step === 2 ? 'Home Size & Elevation' :
-                                             step === 3 ? 'Roof Shape & Materials' :
-                                             step === 4 ? 'Project Qualifications' :
-                                             'Schedule On-Site Visit'}
-                                        </span>
+                {/* Card Container */}
+                <div className="w-full max-w-2xl mx-auto">
+                    <div className="relative border border-white/10 rounded-2xl bg-[#0d1222]/95 backdrop-blur-2xl p-4 sm:p-7 shadow-2xl overflow-hidden">
+                        
+                        {/* Top Progress Bar */}
+                        <div className="mb-6">
+                            <div className="flex justify-between items-center mb-2">
+                                <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-400">
+                                    Step {step} of 5: <span className="text-teal-400">
+                                        {step === 1 && 'Project Goal & Scope'}
+                                        {step === 2 && 'Roof Specs & Material'}
+                                        {step === 3 && 'Timeline & Funding'}
+                                        {step === 4 && 'Property & Contact Info'}
+                                        {step === 5 && 'Select Inspection Slot'}
                                     </span>
-                                    <span className="text-xs font-bold text-slate-500">{Math.round((step / 5) * 100)}% Complete</span>
-                                </div>
-                                <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                                    <div className="h-full bg-gradient-to-r from-indigo-500 to-emerald-400 transition-all duration-500 ease-out" style={{ width: `${(step / 5) * 100}%` }}></div>
+                                </span>
+                                <span className="text-[11px] sm:text-xs font-bold text-teal-400">
+                                    {Math.round((step / 5) * 100)}% Done
+                                </span>
+                            </div>
+                            <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                                <div 
+                                    className="h-full bg-gradient-to-r from-teal-500 to-emerald-400 transition-all duration-300 ease-out rounded-full" 
+                                    style={{ width: `${(step / 5) * 100}%` }}>
                                 </div>
                             </div>
-
-                            {error && (
-                                <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 text-red-300 text-xs rounded-xl font-medium text-center">
-                                    ⚠️ {error}
-                                </div>
-                            )}
-
-                            {/* STEP 1: Customer Details */}
-                            {step === 1 && (
-                                <div className="space-y-5">
-                                    <div>
-                                        <h2 className="text-xl font-extrabold text-white">Owner & Location Details</h2>
-                                        <p className="text-xs text-slate-400 mt-1">Provide your contact info so we can route your regional 2026 estimate report.</p>
-                                    </div>
-
-                                    <div className="space-y-4">
-                                        <div className="flex flex-col gap-2">
-                                            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider" htmlFor="name">Full Name</label>
-                                            <input id="name" type="text" value={formData.name} onChange={handleInputChange} placeholder="John Doe" className="w-full bg-[#12182c] border border-white/10 rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:border-indigo-500 transition-colors text-white placeholder-slate-650" />
-                                        </div>
-                                        <div className="flex flex-col gap-2">
-                                            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider" htmlFor="email">Email Address</label>
-                                            <input id="email" type="email" value={formData.email} onChange={handleInputChange} placeholder="john@example.com" className="w-full bg-[#12182c] border border-white/10 rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:border-indigo-500 transition-colors text-white placeholder-slate-650" />
-                                        </div>
-                                        <div className="flex flex-col gap-2">
-                                            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider" htmlFor="phone">Phone Number</label>
-                                            <input id="phone" type="tel" value={formData.phone} onChange={handleInputChange} placeholder="727-808-4646" className="w-full bg-[#12182c] border border-white/10 rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:border-indigo-500 transition-colors text-white placeholder-slate-650" />
-                                        </div>
-                                        
-                                        {/* Separate Street Address and ZIP Code */}
-                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                            <div className="sm:col-span-2 flex flex-col gap-2">
-                                                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider" htmlFor="address">Street Address</label>
-                                                <input id="address" type="text" value={formData.address} onChange={handleInputChange} placeholder="100 Broadway St" className="w-full bg-[#12182c] border border-white/10 rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:border-indigo-500 transition-colors text-white placeholder-slate-650" />
-                                            </div>
-                                            <div className="flex flex-col gap-2">
-                                                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider" htmlFor="zip">ZIP Code</label>
-                                                <input id="zip" type="text" maxLength="5" value={formData.zip} onChange={handleInputChange} placeholder="75201" className="w-full bg-[#12182c] border border-white/10 rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:border-indigo-500 transition-colors text-white placeholder-slate-650 font-mono" />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex justify-between items-center mt-8 pt-6 border-t border-white/5">
-                                        <div></div>
-                                        <button onClick={handleNext} className="bg-indigo-500 hover:bg-indigo-650 text-white font-bold px-6 py-3.5 rounded-xl flex items-center gap-2 transition-all shadow-[0_4px_14px_rgba(99,102,241,0.3)] hover:shadow-[0_4px_20px_rgba(99,102,241,0.5)]">
-                                            Next Step
-                                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* STEP 2: Property Footprint & Sizing */}
-                            {step === 2 && (
-                                <div className="space-y-6">
-                                    <div>
-                                        <h2 className="text-xl font-extrabold text-white">Home Category & Elevation</h2>
-                                        <p className="text-xs text-slate-400 mt-1">Select your home category—our engine auto-calculates roof surface area.</p>
-                                    </div>
-
-                                    <div className="space-y-5">
-                                        <div className="flex flex-col gap-2.5">
-                                            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Property Type & Elevation</label>
-                                            <div className="grid grid-cols-2 gap-3">
-                                                <button onClick={() => handleSelectOption('propertyType', 'Residential')} className={`p-3 rounded-xl border flex flex-col items-center gap-1 transition-all ${formData.propertyType === 'Residential' ? 'bg-indigo-500/10 border-indigo-500 text-white shadow-[0_0_12px_rgba(99,102,241,0.15)]' : 'bg-[#12182c] border-white/5 text-slate-400 hover:border-white/15'}`}>
-                                                    <span className="text-xl">🏠</span>
-                                                    <span className="text-xs font-bold">Residential</span>
-                                                </button>
-                                                <button onClick={() => handleSelectOption('propertyType', 'Commercial')} className={`p-3 rounded-xl border flex flex-col items-center gap-1 transition-all ${formData.propertyType === 'Commercial' ? 'bg-indigo-500/10 border-indigo-500 text-white shadow-[0_0_12px_rgba(99,102,241,0.15)]' : 'bg-[#12182c] border-white/5 text-slate-400 hover:border-white/15'}`}>
-                                                    <span className="text-xl">🏢</span>
-                                                    <span className="text-xs font-bold">Commercial</span>
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex flex-col gap-2.5">
-                                            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Story Height Elevation</label>
-                                            <div className="grid grid-cols-3 gap-3">
-                                                {['1', '2', '3'].map((num) => (
-                                                    <button key={num} onClick={() => handleSelectOption('stories', num)} className={`py-3 rounded-xl border text-xs font-bold transition-all ${formData.stories === num ? 'bg-indigo-500/10 border-indigo-500 text-white' : 'bg-[#12182c] border-white/5 text-slate-400 hover:border-white/15'}`}>
-                                                        {num === '3' ? '3+ Stories' : `${num} Story`}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-
-                                        {/* Visual Home Size Presets */}
-                                        <div className="flex flex-col gap-2.5 pt-2">
-                                            <div className="flex justify-between items-center">
-                                                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Home Category / Size</label>
-                                                <div className="flex gap-2">
-                                                    <button type="button" onClick={() => handleSelectOption('sizeMode', 'preset')} className={`text-[10px] font-bold px-2.5 py-1 rounded-md border ${formData.sizeMode === 'preset' ? 'bg-indigo-500/20 border-indigo-500 text-indigo-300' : 'bg-white/5 border-white/10 text-slate-400'}`}>Presets</button>
-                                                    <button type="button" onClick={() => handleSelectOption('sizeMode', 'slider')} className={`text-[10px] font-bold px-2.5 py-1 rounded-md border ${formData.sizeMode === 'slider' ? 'bg-indigo-500/20 border-indigo-500 text-indigo-300' : 'bg-white/5 border-white/10 text-slate-400'}`}>Custom Sq Ft</button>
-                                                </div>
-                                            </div>
-
-                                            {formData.sizeMode === 'preset' ? (
-                                                <div className="space-y-3">
-                                                    <div className="grid grid-cols-2 gap-3">
-                                                        {[
-                                                            { key: 'Small', label: '🏡 Small / Townhome', sqFt: 1400, range: '~1,200–1,600 sq ft' },
-                                                            { key: 'Medium', label: '🏠 Medium Single-Family', sqFt: 2100, range: '~1,800–2,400 sq ft' },
-                                                            { key: 'Large', label: '🏰 Executive Home', sqFt: 2900, range: '~2,500–3,400 sq ft' },
-                                                            { key: 'Estate', label: '🏛️ Extra Large Estate', sqFt: 4000, range: '~3,600+ sq ft' }
-                                                        ].map((item) => (
-                                                            <button key={item.key} type="button" onClick={() => handleHomeCategorySelect(item.key, item.sqFt)} className={`p-3 rounded-xl border text-left flex flex-col gap-0.5 transition-all ${formData.homeCategory === item.key ? 'bg-indigo-500/10 border-indigo-500 text-white shadow-[0_0_12px_rgba(99,102,241,0.15)]' : 'bg-[#12182c] border-white/5 text-slate-400 hover:border-white/15'}`}>
-                                                                <span className="text-xs font-bold text-slate-200">{item.label}</span>
-                                                                <span className="text-[9px] text-slate-500 font-medium">{item.range}</span>
-                                                            </button>
-                                                        ))}
-                                                    </div>
-                                                    <p className="text-[10px] text-slate-400 leading-normal">
-                                                        * Don't worry if you aren't sure—our engine auto-adjusts your estimate using pitch, roof complexity, and local building codes.
-                                                    </p>
-                                                </div>
-                                            ) : (
-                                                <div className="space-y-2">
-                                                    <div className="flex justify-between items-center">
-                                                        <span className="text-xs font-bold text-slate-300">Custom Roof Surface Area</span>
-                                                        <span className="text-xs font-extrabold text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-0.5 rounded-lg">{formData.roofSize.toLocaleString()} sq ft</span>
-                                                    </div>
-                                                    <input type="range" id="roofSize" min="1000" max="6000" step="100" value={formData.roofSize} onChange={handleSliderChange} className="w-full h-2 rounded-lg bg-slate-800 appearance-none cursor-pointer accent-indigo-500 mt-1" />
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    <div className="flex justify-between items-center mt-8 pt-6 border-t border-white/5">
-                                        <button onClick={handlePrev} className="text-slate-400 hover:text-white text-xs font-bold flex items-center gap-1.5 transition-colors">
-                                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-                                            Back
-                                        </button>
-                                        <button onClick={handleNext} className="bg-indigo-500 hover:bg-indigo-650 text-white font-bold px-6 py-3.5 rounded-xl flex items-center gap-2 transition-all shadow-[0_4px_14px_rgba(99,102,241,0.3)]">
-                                            Next Step
-                                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* STEP 3: Roof Shape Complexity & Materials */}
-                            {step === 3 && (
-                                <div className="space-y-6">
-                                    <div>
-                                        <h2 className="text-xl font-extrabold text-white">Roof Shape & Materials</h2>
-                                        <p className="text-xs text-slate-400 mt-1">Specify roof shape complexity and material grade.</p>
-                                    </div>
-
-                                    <div className="space-y-5">
-                                        {/* Roof Shape Complexity Cards */}
-                                        <div className="flex flex-col gap-2.5">
-                                            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Roof Shape / Complexity</label>
-                                            <div className="grid grid-cols-2 gap-3">
-                                                {[
-                                                    { value: 'Gable', label: '📐 Simple Gable', desc: '2 sloping sides' },
-                                                    { value: 'Hip', label: '🏠 Hip Roof', desc: 'Slopes on all 4 sides' },
-                                                    { value: 'Valleys', label: '🏔️ Valleys & Dormers', desc: 'L-shape / multiple gables' },
-                                                    { value: 'Complex', label: '🏰 Complex / Custom', desc: 'Multi-angle & turrets' }
-                                                ].map((comp) => (
-                                                    <button key={comp.value} type="button" onClick={() => handleSelectOption('complexity', comp.value)} className={`p-3 rounded-xl border text-left flex flex-col gap-0.5 transition-all ${formData.complexity === comp.value ? 'bg-indigo-500/10 border-indigo-500 text-white shadow-[0_0_12px_rgba(99,102,241,0.15)]' : 'bg-[#12182c] border-white/5 text-slate-400 hover:border-white/15'}`}>
-                                                        <span className="text-xs font-bold text-slate-200">{comp.label}</span>
-                                                        <span className="text-[9px] text-slate-500">{comp.desc}</span>
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-
-                                        <div className="flex flex-col gap-2.5">
-                                            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Desired Service Scope</label>
-                                            <div className="grid grid-cols-2 gap-3">
-                                                <button onClick={() => handleSelectOption('service', 'Repair')} className={`p-3.5 rounded-xl border text-left flex flex-col gap-1 transition-all ${formData.service === 'Repair' ? 'bg-indigo-500/10 border-indigo-500 text-white shadow-[0_0_12px_rgba(99,102,241,0.15)]' : 'bg-[#12182c] border-white/5 text-slate-400 hover:border-white/15'}`}>
-                                                    <span className="text-xs font-bold text-slate-200">🛠️ Localized Repair</span>
-                                                    <span className="text-[9px] text-slate-400 leading-normal">Fix leaks, patches, or targeted wear areas.</span>
-                                                </button>
-                                                <button onClick={() => handleSelectOption('service', 'Replacement')} className={`p-3.5 rounded-xl border text-left flex flex-col gap-1 transition-all ${formData.service === 'Replacement' ? 'bg-indigo-500/10 border-indigo-500 text-white shadow-[0_0_12px_rgba(99,102,241,0.15)]' : 'bg-[#12182c] border-white/5 text-slate-400 hover:border-white/15'}`}>
-                                                    <span className="text-xs font-bold text-slate-200">🔄 Full Replacement</span>
-                                                    <span className="text-[9px] text-slate-400 leading-normal">Complete tear-off & brand new install.</span>
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex flex-col gap-2.5">
-                                            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Preferred Material Styling</label>
-                                            <div className="grid grid-cols-2 gap-3">
-                                                {[
-                                                    { value: 'Asphalt shingles', label: '🏠 Architectural Asphalt', desc: '$450–$750/sq installed' },
-                                                    { value: 'Metal', label: '🛡️ Standing-Seam Metal', desc: '$950–$1,650/sq installed' },
-                                                    { value: 'Tile', label: '🧱 Spanish Slate & Tile', desc: '$1,200–$2,400/sq installed' },
-                                                    { value: 'Other', label: '❓ Designer / Undecided', desc: 'Consult with inspector' }
-                                                ].map((mat) => (
-                                                    <button key={mat.value} onClick={() => handleSelectOption('material', mat.value)} className={`p-3 rounded-xl border text-left flex flex-col gap-0.5 transition-all ${formData.material === mat.value ? 'bg-indigo-500/10 border-indigo-500 text-white shadow-[0_0_12px_rgba(99,102,241,0.15)]' : 'bg-[#12182c] border-white/5 text-slate-400 hover:border-white/15'}`}>
-                                                        <span className="text-xs font-bold text-slate-200">{mat.label}</span>
-                                                        <span className="text-[9px] text-slate-500">{mat.desc}</span>
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex justify-between items-center mt-8 pt-6 border-t border-white/5">
-                                        <button onClick={handlePrev} className="text-slate-400 hover:text-white text-xs font-bold flex items-center gap-1.5 transition-colors">
-                                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-                                            Back
-                                        </button>
-                                        <button onClick={handleNext} className="bg-indigo-500 hover:bg-indigo-650 text-white font-bold px-6 py-3.5 rounded-xl flex items-center gap-2 transition-all shadow-[0_4px_14px_rgba(99,102,241,0.3)]">
-                                            Next Step
-                                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* STEP 4: Project Qualifications & Existing Shingle Layers */}
-                            {step === 4 && (
-                                <div className="space-y-6">
-                                    <div>
-                                        <h2 className="text-xl font-extrabold text-white">Project Qualifications</h2>
-                                        <p className="text-xs text-slate-400 mt-1">Specify shingle layers, timeline urgency, financing, and slope pitch.</p>
-                                    </div>
-
-                                    <div className="space-y-5">
-                                        {/* Shingle Layers Input */}
-                                        <div className="flex flex-col gap-2.5">
-                                            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Existing Shingle Layers on Roof</label>
-                                            <div className="grid grid-cols-3 gap-3">
-                                                {[
-                                                    { value: '1', label: '1 Layer', desc: 'Standard tear-off' },
-                                                    { value: '2', label: '2 Layers', desc: '+35% disposal fee' },
-                                                    { value: '3', label: '3+ Layers', desc: '+65% heavy tear-off' }
-                                                ].map((lay) => (
-                                                    <button key={lay.value} type="button" onClick={() => handleSelectOption('layers', lay.value)} className={`p-3 rounded-xl border text-center flex flex-col items-center gap-0.5 transition-all ${formData.layers === lay.value ? 'bg-indigo-500/10 border-indigo-500 text-white' : 'bg-[#12182c] border-white/5 text-slate-400 hover:border-white/15'}`}>
-                                                        <span className="text-xs font-bold">{lay.label}</span>
-                                                        <span className="text-[9px] text-slate-500">{lay.desc}</span>
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-
-                                        {/* Grid Row 1: Timeline & Pitch */}
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="flex flex-col gap-2">
-                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Project Timeline</label>
-                                                <select id="timeline" value={formData.timeline} onChange={handleInputChange} className="w-full bg-[#12182c] border border-white/10 rounded-xl px-3.5 py-3 text-xs text-slate-200 outline-none focus:border-indigo-500 transition-colors">
-                                                    <option value="Right away">🚨 Emergency Leak (Right away)</option>
-                                                    <option value="Under 1 month">📅 Ready (Within 30 Days)</option>
-                                                    <option value="1 - 3 months">🕒 Planning (Next 90 Days)</option>
-                                                    <option value="Just planning">🔍 Just researching ballparks</option>
-                                                </select>
-                                            </div>
-
-                                            <div className="flex flex-col gap-2">
-                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Roof Slope Pitch</label>
-                                                <select id="pitch" value={formData.pitch} onChange={handleInputChange} className="w-full bg-[#12182c] border border-white/10 rounded-xl px-3.5 py-3 text-xs text-slate-200 outline-none focus:border-indigo-500 transition-colors">
-                                                    <option value="Flat">Flat Slope (0° - 10°)</option>
-                                                    <option value="Standard">Standard walkable pitch</option>
-                                                    <option value="Steep">Very Steep (Scaffolding required)</option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        {/* Grid Row 2: Funding & Age */}
-                                        <div className="flex flex-col gap-2">
-                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Funding / Billing Mode</label>
-                                            <select id="insurance" value={formData.insurance} onChange={handleInputChange} className="w-full bg-[#12182c] border border-white/10 rounded-xl px-3.5 py-3 text-xs text-slate-200 outline-none focus:border-indigo-500 transition-colors">
-                                                <option value="Cash / Direct Financing">💰 Out of Pocket / Direct Financing</option>
-                                                <option value="Filing Insurance Claim">🛡️ Filing Storm/Wind Insurance Claim</option>
-                                                <option value="Need Insurance Assistance">🤝 Need Insurance Inspector Representation</option>
-                                            </select>
-                                        </div>
-
-                                        <div className="flex flex-col gap-2">
-                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Current Shingle Layer Age</label>
-                                            <select id="roofAge" value={formData.roofAge} onChange={handleInputChange} className="w-full bg-[#12182c] border border-white/10 rounded-xl px-3.5 py-3 text-xs text-slate-200 outline-none focus:border-indigo-500 transition-colors">
-                                                <option value="Under 10 years">🆕 Under 10 Years</option>
-                                                <option value="10 - 20 years">⏱️ 10 - 20 Years</option>
-                                                <option value="20+ years">⏳ 20+ Years (End of lifecycle)</option>
-                                                <option value="Unsure">❓ Unsure of Age</option>
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex justify-between items-center mt-8 pt-6 border-t border-white/5">
-                                        <button onClick={handlePrev} className="text-slate-400 hover:text-white text-xs font-bold flex items-center gap-1.5 transition-colors">
-                                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-                                            Back
-                                        </button>
-                                        <button onClick={handleNext} className="bg-indigo-500 hover:bg-indigo-650 text-white font-bold px-6 py-3.5 rounded-xl flex items-center gap-2 transition-all shadow-[0_4px_14px_rgba(99,102,241,0.3)]">
-                                            Next Step
-                                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* STEP 5: Inspection Scheduling Picker (Wizard Embedded!) */}
-                            {step === 5 && (
-                                <div className="space-y-6">
-                                    <div>
-                                        <h2 className="text-xl font-extrabold text-white">Schedule Inspection Site Visit</h2>
-                                        <p className="text-xs text-slate-400 mt-1">Book your free on-site physical slope measurement scan.</p>
-                                    </div>
-
-                                    <div className="space-y-5">
-                                        <div className="flex flex-col gap-2">
-                                            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider" htmlFor="appointmentDate">Select Preferred Date</label>
-                                            <input type="date" id="appointmentDate" min={todayStr} required value={formData.appointmentDate} onChange={handleInputChange} className="w-full bg-[#12182c] border border-white/10 rounded-xl px-4 py-3.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors" />
-                                        </div>
-
-                                        <div className="flex flex-col gap-2.5">
-                                            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Select Preferred Time Slot</label>
-                                            <div className="grid grid-cols-1 gap-2">
-                                                {[
-                                                    { label: '🌅 Morning (9:00 AM - 11:00 AM)', val: 'Morning (9AM-11AM)' },
-                                                    { label: '☀️ Midday (11:00 AM - 1:00 PM)', val: 'Midday (11AM-1PM)' },
-                                                    { label: '🕒 Afternoon (1:00 PM - 3:00 PM)', val: 'Afternoon (1PM-3PM)' },
-                                                    { label: '🌆 Late Afternoon (3:00 PM - 5:00 PM)', val: 'Late Afternoon (3PM-5PM)' }
-                                                ].map((slot) => (
-                                                    <button key={slot.val} type="button" onClick={() => handleSelectOption('appointmentTime', slot.val)} className={`px-4 py-3 rounded-xl border text-left text-xs font-bold transition-all ${formData.appointmentTime === slot.val ? 'bg-indigo-500/10 border-indigo-500 text-white' : 'bg-[#12182c] border-white/5 text-slate-400 hover:border-white/10'}`}>
-                                                        {slot.label}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex justify-between items-center mt-8 pt-6 border-t border-white/5">
-                                        <button onClick={handlePrev} className="text-slate-400 hover:text-white text-xs font-bold flex items-center gap-1.5 transition-colors" disabled={submitting}>
-                                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-                                            Back
-                                        </button>
-                                        <button onClick={handleSubmit} disabled={submitting} className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-6 py-3.5 rounded-xl flex items-center gap-2 transition-all disabled:opacity-50 shadow-[0_4px_14px_rgba(16,185,129,0.3)]">
-                                            {submitting ? 'Generating Estimate...' : 'Generate My Estimate'}
-                                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Calculations Disclaimer */}
-                            <p className="mt-6 text-[10px] text-slate-550 leading-normal border-t border-white/5 pt-4 text-left">
-                                * Disclaimer: The calculations shown are preliminary budget estimates. Final pricing requires a physical inspection to verify slope pitch, access configuration, and material adjustments.
-                            </p>
                         </div>
+
+                        {/* Error Banner */}
+                        {error && (
+                            <div className="mb-5 p-3.5 bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs rounded-xl font-medium text-center">
+                                ⚠️ {error}
+                            </div>
+                        )}
+
+                        {/* ============================================================ */}
+                        {/* STEP 1: Project Scope (Tap-to-Advance Cards)                 */}
+                        {/* ============================================================ */}
+                        {step === 1 && (
+                            <div className="space-y-4">
+                                <div className="text-center sm:text-left mb-4">
+                                    <h2 className="text-lg sm:text-xl font-bold text-white">What is your primary roofing goal?</h2>
+                                    <p className="text-xs text-slate-400 mt-0.5">Select the option that best matches your current property needs.</p>
+                                </div>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    {[
+                                        {
+                                            id: 'Full Roof Replacement',
+                                            icon: '🏠',
+                                            title: 'Full Roof Replacement',
+                                            desc: 'Complete tear-off & new weather-sealed roofing system'
+                                        },
+                                        {
+                                            id: 'Active Leak or Spot Repair',
+                                            icon: '💧',
+                                            title: 'Active Leak / Repair',
+                                            desc: 'Urgent leak diagnostics, flashing, or patch repair'
+                                        },
+                                        {
+                                            id: 'Storm / Wind / Hail Damage',
+                                            icon: '🌪️',
+                                            title: 'Storm / Hail Assessment',
+                                            desc: 'Insurance claim documentation & damage inspection'
+                                        },
+                                        {
+                                            id: 'General 21-Point Roof Inspection',
+                                            icon: '🔍',
+                                            title: 'Preventative Inspection',
+                                            desc: '21-point roof health check, shingle life & attic review'
+                                        }
+                                    ].map((opt) => (
+                                        <button
+                                            key={opt.id}
+                                            type="button"
+                                            onClick={() => handleTapToAdvance('service', opt.id, 2)}
+                                            className={`p-4 rounded-xl border text-left transition-all duration-150 flex items-start gap-3.5 active:scale-[0.98] ${
+                                                formData.service === opt.id
+                                                    ? 'border-teal-500 bg-teal-500/10 shadow-[0_0_15px_rgba(20,184,166,0.15)]'
+                                                    : 'border-white/10 bg-white/[0.02] hover:border-teal-500/50 hover:bg-white/[0.04]'
+                                            }`}>
+                                            <span className="text-2xl sm:text-3xl flex-shrink-0">{opt.icon}</span>
+                                            <div>
+                                                <div className="font-bold text-sm sm:text-base text-white">{opt.title}</div>
+                                                <div className="text-xs text-slate-400 mt-0.5 leading-snug">{opt.desc}</div>
+                                            </div>
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <div className="pt-2 text-center">
+                                    <span className="text-[11px] text-slate-500">Tap any option to proceed automatically</span>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* ============================================================ */}
+                        {/* STEP 2: Architecture & Material (Tap-to-Advance)             */}
+                        {/* ============================================================ */}
+                        {step === 2 && (
+                            <div className="space-y-5">
+                                <div className="text-center sm:text-left">
+                                    <h2 className="text-lg sm:text-xl font-bold text-white">Property Specs &amp; Material Preference</h2>
+                                    <p className="text-xs text-slate-400 mt-0.5">Helps our technicians assign the appropriate inspection equipment.</p>
+                                </div>
+
+                                {/* Stories */}
+                                <div>
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
+                                        Building Height
+                                    </label>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        {['1 Story', '2 Stories', '3+ Stories'].map((story) => (
+                                            <button
+                                                key={story}
+                                                type="button"
+                                                onClick={() => handleChange('stories', story)}
+                                                className={`py-3 px-2 rounded-xl border text-center text-xs sm:text-sm font-bold transition-all active:scale-[0.98] ${
+                                                    formData.stories === story
+                                                        ? 'border-teal-500 bg-teal-500/10 text-teal-300'
+                                                        : 'border-white/10 bg-white/[0.02] text-slate-300 hover:border-white/20'
+                                                }`}>
+                                                {story}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Pitch */}
+                                <div>
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
+                                        Roof Steepness / Pitch
+                                    </label>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        {[
+                                            { id: 'Standard Pitch', label: 'Standard', sub: 'Walkable' },
+                                            { id: 'Steep Pitch', label: 'Steep', sub: 'High Slope' },
+                                            { id: 'Flat / Low Slope', label: 'Flat', sub: 'Low Pitch' }
+                                        ].map((p) => (
+                                            <button
+                                                key={p.id}
+                                                type="button"
+                                                onClick={() => handleChange('pitch', p.id)}
+                                                className={`py-2.5 px-2 rounded-xl border text-center transition-all active:scale-[0.98] ${
+                                                    formData.pitch === p.id
+                                                        ? 'border-teal-500 bg-teal-500/10 text-teal-300'
+                                                        : 'border-white/10 bg-white/[0.02] text-slate-300 hover:border-white/20'
+                                                }`}>
+                                                <div className="text-xs sm:text-sm font-bold">{p.label}</div>
+                                                <div className="text-[10px] text-slate-400">{p.sub}</div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Preferred Material */}
+                                <div>
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
+                                        Desired Roof Material Style
+                                    </label>
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                                        {[
+                                            { id: 'Architectural Shingles', name: 'Asphalt Shingle', badge: 'Most Popular' },
+                                            { id: 'Standing Seam Metal', name: 'Metal Roofing', badge: 'Lifetime Durability' },
+                                            { id: 'Tile / Slate / Premium', name: 'Tile / Slate', badge: 'Premium Aesthetic' }
+                                        ].map((mat) => (
+                                            <button
+                                                key={mat.id}
+                                                type="button"
+                                                onClick={() => handleTapToAdvance('material', mat.id, 3)}
+                                                className={`p-3 rounded-xl border text-left transition-all active:scale-[0.98] ${
+                                                    formData.material === mat.id
+                                                        ? 'border-teal-500 bg-teal-500/10 shadow-[0_0_12px_rgba(20,184,166,0.15)]'
+                                                        : 'border-white/10 bg-white/[0.02] hover:border-teal-500/40'
+                                                }`}>
+                                                <span className="inline-block text-[9px] font-bold uppercase text-teal-400 bg-teal-500/10 px-2 py-0.5 rounded-full border border-teal-500/20 mb-1">
+                                                    {mat.badge}
+                                                </span>
+                                                <div className="font-bold text-sm text-white">{mat.name}</div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-between items-center pt-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setStep(1)}
+                                        className="text-xs text-slate-400 hover:text-white px-3 py-2">
+                                        ← Back
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setStep(3)}
+                                        className="bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs sm:text-sm px-5 py-2.5 rounded-xl transition-colors">
+                                        Next: Funding &amp; Timeline →
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* ============================================================ */}
+                        {/* STEP 3: Timeline & Funding/Insurance (Tap-to-Advance)        */}
+                        {/* ============================================================ */}
+                        {step === 3 && (
+                            <div className="space-y-5">
+                                <div className="text-center sm:text-left">
+                                    <h2 className="text-lg sm:text-xl font-bold text-white">Project Urgency &amp; Funding Plan</h2>
+                                    <p className="text-xs text-slate-400 mt-0.5">Let us know your timeframe and preferred payment structure.</p>
+                                </div>
+
+                                {/* Timeline */}
+                                <div>
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
+                                        Target Project Timeline
+                                    </label>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        {[
+                                            { id: 'Immediate (< 2 Weeks)', label: 'Emergency', sub: '< 2 Weeks' },
+                                            { id: 'Under 1 month', label: '1 - 4 Weeks', sub: 'Standard' },
+                                            { id: '1 - 3 months', label: 'Planning', sub: '1 - 3 Months' }
+                                        ].map((t) => (
+                                            <button
+                                                key={t.id}
+                                                type="button"
+                                                onClick={() => handleChange('timeline', t.id)}
+                                                className={`py-2.5 px-2 rounded-xl border text-center transition-all active:scale-[0.98] ${
+                                                    formData.timeline === t.id
+                                                        ? 'border-teal-500 bg-teal-500/10 text-teal-300'
+                                                        : 'border-white/10 bg-white/[0.02] text-slate-300 hover:border-white/20'
+                                                }`}>
+                                                <div className="text-xs sm:text-sm font-bold">{t.label}</div>
+                                                <div className="text-[10px] text-slate-400">{t.sub}</div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Funding Method (Tap-to-Advance to Step 4) */}
+                                <div>
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
+                                        How Do You Plan to Fund This Project?
+                                    </label>
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                                        {[
+                                            {
+                                                id: 'Insurance Claim Assistance',
+                                                icon: '🛡️',
+                                                title: 'Insurance Claim',
+                                                desc: 'Assess storm damage & pay deductible only'
+                                            },
+                                            {
+                                                id: 'Low Monthly Financing ($0 Down)',
+                                                icon: '💳',
+                                                title: 'Low Monthly Financing',
+                                                desc: '$0 down options available with approved credit'
+                                            },
+                                            {
+                                                id: 'Cash / Direct Payment',
+                                                icon: '💵',
+                                                title: 'Cash / Direct Pay',
+                                                desc: 'Direct payment or self-financed'
+                                            }
+                                        ].map((f) => (
+                                            <button
+                                                key={f.id}
+                                                type="button"
+                                                onClick={() => handleTapToAdvance('insurance', f.id, 4)}
+                                                className={`p-3.5 rounded-xl border text-left transition-all active:scale-[0.98] ${
+                                                    formData.insurance === f.id
+                                                        ? 'border-teal-500 bg-teal-500/10 shadow-[0_0_12px_rgba(20,184,166,0.15)]'
+                                                        : 'border-white/10 bg-white/[0.02] hover:border-teal-500/40'
+                                                }`}>
+                                                <div className="text-xl mb-1">{f.icon}</div>
+                                                <div className="font-bold text-sm text-white">{f.title}</div>
+                                                <div className="text-[11px] text-slate-400 mt-0.5 leading-snug">{f.desc}</div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-between items-center pt-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setStep(2)}
+                                        className="text-xs text-slate-400 hover:text-white px-3 py-2">
+                                        ← Back
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setStep(4)}
+                                        className="bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs sm:text-sm px-5 py-2.5 rounded-xl transition-colors">
+                                        Next: Location &amp; Contact →
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* ============================================================ */}
+                        {/* STEP 4: Property Address & Verified Contact + Scan State     */}
+                        {/* ============================================================ */}
+                        {step === 4 && (
+                            <div>
+                                {isScanning ? (
+                                    <div className="py-12 px-4 text-center flex flex-col items-center justify-center space-y-4">
+                                        <div className="relative">
+                                            <div className="w-16 h-16 border-4 border-teal-500/20 border-t-teal-400 rounded-full animate-spin"></div>
+                                            <span className="absolute inset-0 flex items-center justify-center text-xl">🛰️</span>
+                                        </div>
+                                        <h3 className="text-base sm:text-lg font-bold text-white">Analyzing Property Coordinates</h3>
+                                        <p className="text-xs sm:text-sm text-teal-300 font-mono animate-pulse">{scanText}</p>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-4">
+                                        <div className="text-center sm:text-left">
+                                            <h2 className="text-lg sm:text-xl font-bold text-white">Where Should We Route Your Inspection?</h2>
+                                            <p className="text-xs text-slate-400 mt-0.5">
+                                                Enter your street address &amp; ZIP code so our team can prepare satellite aerial imagery of your roof.
+                                            </p>
+                                        </div>
+
+                                        {/* Address & ZIP */}
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                            <div className="sm:col-span-2">
+                                                <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
+                                                    Property Street Address *
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    id="address"
+                                                    placeholder="e.g., 742 Evergreen Terrace"
+                                                    value={formData.address}
+                                                    onChange={(e) => handleChange('address', e.target.value)}
+                                                    className="w-full bg-[#070a13] border border-white/15 rounded-xl px-3.5 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-teal-400 focus:ring-1 focus:ring-teal-400"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
+                                                    5-Digit ZIP *
+                                                </label>
+                                                <input
+                                                    type="tel"
+                                                    inputMode="numeric"
+                                                    maxLength={5}
+                                                    id="zip"
+                                                    placeholder="34652"
+                                                    value={formData.zip}
+                                                    onChange={(e) => handleChange('zip', e.target.value.replace(/\D/g, '').substring(0, 5))}
+                                                    className="w-full bg-[#070a13] border border-white/15 rounded-xl px-3.5 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-teal-400 focus:ring-1 focus:ring-teal-400"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Name & Phone */}
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
+                                                    Homeowner Full Name *
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    id="name"
+                                                    placeholder="e.g., John Smith"
+                                                    value={formData.name}
+                                                    onChange={(e) => handleChange('name', e.target.value)}
+                                                    className="w-full bg-[#070a13] border border-white/15 rounded-xl px-3.5 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-teal-400 focus:ring-1 focus:ring-teal-400"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
+                                                    Mobile Phone (For SMS Confirmation) *
+                                                </label>
+                                                <input
+                                                    type="tel"
+                                                    inputMode="numeric"
+                                                    id="phone"
+                                                    placeholder="(555) 000-0000"
+                                                    value={formData.phone}
+                                                    onChange={handlePhoneChange}
+                                                    className="w-full bg-[#070a13] border border-white/15 rounded-xl px-3.5 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-teal-400 focus:ring-1 focus:ring-teal-400"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Email */}
+                                        <div>
+                                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1">
+                                                Email Address (For Written Inspection Report) *
+                                            </label>
+                                            <input
+                                                type="email"
+                                                id="email"
+                                                placeholder="john@example.com"
+                                                value={formData.email}
+                                                onChange={(e) => handleChange('email', e.target.value)}
+                                                className="w-full bg-[#070a13] border border-white/15 rounded-xl px-3.5 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-teal-400 focus:ring-1 focus:ring-teal-400"
+                                            />
+                                        </div>
+
+                                        {/* Privacy Guarantee Badge */}
+                                        <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-start gap-2.5 text-left">
+                                            <span className="text-emerald-400 text-sm mt-0.5">🔒</span>
+                                            <div className="text-[11px] text-slate-300 leading-snug">
+                                                <strong className="text-white block">100% Privacy Guarantee:</strong>
+                                                We never sell your data or spam you. Your details are shared exclusively with your local certified roofing crew to confirm your inspection slot.
+                                            </div>
+                                        </div>
+
+                                        <div className="flex justify-between items-center pt-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => setStep(3)}
+                                                className="text-xs text-slate-400 hover:text-white px-3 py-2">
+                                                ← Back
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={handleStep4Continue}
+                                                className="w-full sm:w-auto bg-gradient-to-r from-teal-500 to-emerald-400 text-slate-950 font-extrabold text-xs sm:text-sm px-6 py-3.5 rounded-xl shadow-lg hover:opacity-95 transition-opacity active:scale-[0.98]">
+                                                Verify Property &amp; Check Calendar Slots →
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* ============================================================ */}
+                        {/* STEP 5: Priority Inspection Booking (Date Pills & Blocks)    */}
+                        {/* ============================================================ */}
+                        {step === 5 && (
+                            <form onSubmit={handleFinalSubmit} className="space-y-5">
+                                <div className="text-center sm:text-left">
+                                    <div className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20 mb-2">
+                                        ✓ Satellite Scan Verified for {formData.zip || 'Local Service Area'}
+                                    </div>
+                                    <h2 className="text-lg sm:text-xl font-bold text-white">Select Your Preferred Inspection Time</h2>
+                                    <p className="text-xs text-slate-400 mt-0.5">
+                                        Choose when our certified inspector should conduct your free 21-point physical roof &amp; attic check.
+                                    </p>
+                                </div>
+
+                                {/* Property Tag Banner */}
+                                <div className="p-3 bg-white/[0.03] border border-white/10 rounded-xl flex items-center justify-between text-xs text-slate-300">
+                                    <div className="truncate mr-2">
+                                        <span className="text-slate-400">Inspecting:</span>{' '}
+                                        <strong className="text-white">{formData.address || 'Property Location'}</strong>
+                                    </div>
+                                    <button 
+                                        type="button" 
+                                        onClick={() => setStep(4)} 
+                                        className="text-teal-400 hover:underline flex-shrink-0 text-[11px]">
+                                        Edit
+                                    </button>
+                                </div>
+
+                                {/* Quick Date Pills */}
+                                <div>
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
+                                        1. Choose Inspection Date
+                                    </label>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        {datePills.map((pill) => (
+                                            <button
+                                                key={pill.dateStr}
+                                                type="button"
+                                                onClick={() => handleChange('appointmentDate', pill.dateStr)}
+                                                className={`py-3 px-2 rounded-xl border text-center transition-all active:scale-[0.98] ${
+                                                    formData.appointmentDate === pill.dateStr
+                                                        ? 'border-teal-500 bg-teal-500/15 shadow-[0_0_12px_rgba(20,184,166,0.2)]'
+                                                        : 'border-white/10 bg-white/[0.02] hover:border-white/20'
+                                                }`}>
+                                                <div className="text-xs font-bold text-white">{pill.label}</div>
+                                                <div className="text-[10px] text-teal-300 font-mono mt-0.5">{pill.display}</div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                    
+                                    {/* Or custom date */}
+                                    <div className="mt-2 flex items-center gap-2">
+                                        <span className="text-[11px] text-slate-400">Or pick another date:</span>
+                                        <input
+                                            type="date"
+                                            value={formData.appointmentDate}
+                                            onChange={(e) => handleChange('appointmentDate', e.target.value)}
+                                            className="bg-[#070a13] border border-white/15 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-teal-400"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Time Blocks */}
+                                <div>
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">
+                                        2. Choose Time Slot
+                                    </label>
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                                        {[
+                                            { id: 'Morning (8:00 AM - 11:00 AM)', label: 'Morning Slot', time: '8:00 AM - 11:00 AM', icon: '🌅' },
+                                            { id: 'Afternoon (12:00 PM - 3:00 PM)', label: 'Afternoon Slot', time: '12:00 PM - 3:00 PM', icon: '☀️' },
+                                            { id: 'Evening (4:00 PM - 6:30 PM)', label: 'Evening Slot', time: '4:00 PM - 6:30 PM', icon: '🌇' }
+                                        ].map((slot) => (
+                                            <button
+                                                key={slot.id}
+                                                type="button"
+                                                onClick={() => handleChange('appointmentTime', slot.id)}
+                                                className={`p-3 rounded-xl border text-left transition-all active:scale-[0.98] ${
+                                                    formData.appointmentTime === slot.id
+                                                        ? 'border-teal-500 bg-teal-500/15 shadow-[0_0_12px_rgba(20,184,166,0.2)]'
+                                                        : 'border-white/10 bg-white/[0.02] hover:border-white/20'
+                                                }`}>
+                                                <div className="text-sm font-bold text-white flex items-center gap-1.5">
+                                                    <span>{slot.icon}</span> {slot.label}
+                                                </div>
+                                                <div className="text-[11px] text-teal-300 font-mono mt-0.5">{slot.time}</div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Inclusions Checklist */}
+                                <div className="p-3 bg-white/[0.02] border border-white/10 rounded-xl space-y-1.5 text-left">
+                                    <div className="text-xs font-bold text-slate-300 mb-1">What happens during your inspection:</div>
+                                    <div className="text-[11px] text-slate-400 flex items-center gap-2">
+                                        <span className="text-teal-400 font-bold">✓</span> Physical 21-point shingle, flashing, and attic moisture check
+                                    </div>
+                                    <div className="text-[11px] text-slate-400 flex items-center gap-2">
+                                        <span className="text-teal-400 font-bold">✓</span> High-resolution drone/satellite roof report prepared for your records
+                                    </div>
+                                    <div className="text-[11px] text-slate-400 flex items-center gap-2">
+                                        <span className="text-teal-400 font-bold">✓</span> 100% Free &amp; Zero Obligation consultation
+                                    </div>
+                                </div>
+
+                                <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setStep(4)}
+                                        className="text-xs text-slate-400 hover:text-white order-2 sm:order-1">
+                                        ← Back to Contact Info
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={submitting}
+                                        className="w-full sm:w-auto bg-gradient-to-r from-teal-500 to-emerald-400 hover:from-teal-400 hover:to-emerald-300 text-slate-950 font-black text-sm px-8 py-4 rounded-xl shadow-[0_0_20px_rgba(20,184,166,0.3)] transition-all active:scale-[0.98] order-1 sm:order-2 flex items-center justify-center gap-2">
+                                        {submitting ? (
+                                            <>
+                                                <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></div>
+                                                <span>Reserving Slot...</span>
+                                            </>
+                                        ) : (
+                                            <span>Lock In Free Roof Inspection &rarr;</span>
+                                        )}
+                                    </button>
+                                </div>
+                            </form>
+                        )}
+                    </div>
+                </div>
+
+                {/* Bottom Trust Band */}
+                <div className="max-w-2xl mx-auto mt-6 text-center">
+                    <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-8 text-[11px] sm:text-xs text-slate-400">
+                        <span className="flex items-center gap-1.5">
+                            <span className="text-emerald-400">★</span> 4.9/5 Rating (1,200+ Inspections)
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                            <span className="text-teal-400">🛡️</span> Licensed &amp; Insured Roofers
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                            <span className="text-amber-400">⚡</span> 60-Second Speed-to-Lead
+                        </span>
                     </div>
                 </div>
             </main>
 
             {/* Footer */}
-            <footer className="border-t border-white/5 py-8 text-center text-xs text-slate-500 bg-[#070a13] mt-12 flex flex-col gap-2 items-center">
-                <p>&copy; {new Date().getFullYear()} Quotramax. All rights reserved.</p>
-                <p className="text-[11px] text-slate-400">
-                    Are you a contractor?{' '}
-                    <span onClick={() => router.push('/login')} className="text-indigo-400 hover:underline hover:text-indigo-300 cursor-pointer font-bold">
-                        Contractor Sign In Portal
-                    </span>
-                </p>
+            <footer className="border-t border-white/5 py-4 text-center text-[11px] text-slate-500">
+                &copy; 2026 Quotramax Conversion System. High-Intent Lead Qualification &amp; Booking.
             </footer>
         </div>
     );

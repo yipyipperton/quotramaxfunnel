@@ -8,95 +8,46 @@ export default function Results() {
     const router = useRouter();
     const [lead, setLead] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [scheduling, setScheduling] = useState(false);
-    const [scheduled, setScheduled] = useState(false);
-    const [contractor, setContractor] = useState(null);
     const [error, setError] = useState('');
-
-    // Date/Time Scheduler States
-    const [showScheduler, setShowScheduler] = useState(false);
-    const [selectedDate, setSelectedDate] = useState('');
-    const [selectedTime, setSelectedTime] = useState('');
-    const [appointmentDetails, setAppointmentDetails] = useState(null);
-
-    // Get today's date formatted as YYYY-MM-DD for the min date attribute
-    const todayStr = new Date().toISOString().split('T')[0];
+    const [copied, setCopied] = useState(false);
 
     useEffect(() => {
         if (!id) return;
 
-        // Fetch lead and settings concurrently in parallel
-        Promise.all([
-            fetch(`/api/leads/${id}`).then(res => {
-                if (!res.ok) throw new Error('Estimate not found');
+        fetch(`/api/leads/${id}`)
+            .then(res => {
+                if (!res.ok) throw new Error('Inspection request not found');
                 return res.json();
-            }),
-            fetch('/api/settings').then(res => res.json()).catch(() => null)
-        ])
-        .then(([leadData, settingsData]) => {
-            if (leadData) {
+            })
+            .then(leadData => {
                 setLead(leadData);
-                if (leadData.status === 'Inspection Scheduled' || leadData.appointment) {
-                    setScheduled(true);
-                    if (leadData.appointment) {
-                        setAppointmentDetails(leadData.appointment);
-                    }
-                }
-            }
-            if (settingsData) {
-                setContractor(settingsData);
-            }
-            setLoading(false);
-        })
-        .catch(err => {
-            console.error(err);
-            setError('Failed to load estimate details.');
-            setLoading(false);
-        });
+                setLoading(false);
+            })
+            .catch(err => {
+                console.error(err);
+                setError('Failed to load inspection confirmation.');
+                setLoading(false);
+            });
     }, [id]);
 
-    const handleDownloadPDF = () => {
-        window.open(`/api/leads/${id}/pdf`, '_blank');
-    };
-
-    const handleConfirmAppointment = async (e) => {
-        e.preventDefault();
-        if (!selectedDate || !selectedTime) {
-            alert('Please select both a date and time slot.');
-            return;
-        }
-
-        setScheduling(true);
-        const appointmentObj = { date: selectedDate, time: selectedTime };
-
-        try {
-            const res = await fetch(`/api/leads/${id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ appointment: appointmentObj })
-            });
-            const result = await res.json();
-            if (result.success) {
-                setScheduled(true);
-                setAppointmentDetails(appointmentObj);
-                setShowScheduler(false);
-            } else {
-                alert('Failed to schedule appointment. Please try again.');
-            }
-        } catch (e) {
-            console.error('Error scheduling inspection:', e);
-            alert('Connection failed. Please check network.');
-        } finally {
-            setScheduling(false);
-        }
+    const handleCopyDetails = () => {
+        if (!lead) return;
+        const text = `Roof Inspection Confirmation:
+Address: ${lead.address}
+Contact: ${lead.name} (${lead.phone})
+Service: ${lead.service || 'Full Roof Replacement'}
+Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pending'})`;
+        navigator.clipboard.writeText(text);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
     };
 
     if (loading) {
         return (
             <div className="min-h-screen bg-[#070a13] text-slate-100 flex flex-col items-center justify-center font-sans">
                 <div className="flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-                    <span className="text-sm font-semibold text-slate-400">Loading Your Estimate Report...</span>
+                    <div className="w-12 h-12 border-4 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
+                    <span className="text-sm font-semibold text-slate-400">Loading Your Inspection Confirmation...</span>
                 </div>
             </div>
         );
@@ -105,273 +56,206 @@ export default function Results() {
     if (error || !lead) {
         return (
             <div className="min-h-screen bg-[#070a13] text-slate-100 flex flex-col items-center justify-center font-sans px-6 text-center">
-                <h2 className="text-2xl font-bold text-white mb-2">Error Loading Report</h2>
-                <p className="text-sm text-slate-400 mb-6">{error || 'The estimate request could not be found.'}</p>
-                <button onClick={() => router.push('/')} className="bg-indigo-500 hover:bg-indigo-650 text-white font-bold px-6 py-3 rounded-lg transition-colors">
+                <h2 className="text-2xl font-bold text-white mb-2">Error Loading Confirmation</h2>
+                <p className="text-sm text-slate-400 mb-6">{error || 'The inspection request could not be found.'}</p>
+                <button onClick={() => router.push('/')} className="bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold px-6 py-3 rounded-xl transition-colors">
                     Back to Home
                 </button>
             </div>
         );
     }
 
-    const { estimate } = lead;
-    const avgPrice = Math.round((estimate.minPrice + estimate.maxPrice) / 2);
-
-    // Calculate percentages for custom progress bar breakdown
-    const totalParts = estimate.breakdown.materials + estimate.breakdown.labor + estimate.breakdown.fees;
-    const pctMat = Math.round((estimate.breakdown.materials / totalParts) * 100);
-    const pctLab = Math.round((estimate.breakdown.labor / totalParts) * 100);
-    const pctFee = Math.round((estimate.breakdown.fees / totalParts) * 100);
+    const { appointment } = lead;
 
     return (
-        <div className="min-h-screen bg-[#070a13] text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
+        <div className="min-h-screen bg-[#070a13] text-slate-100 flex flex-col font-sans selection:bg-teal-500 selection:text-white">
             
             {/* Header */}
             <header className="border-b border-white/5 bg-[#070a13]/80 backdrop-blur-md sticky top-0 z-40">
-                <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center gap-3">
-                    <div className="flex items-center gap-2 sm:gap-2.5 cursor-pointer min-w-0" onClick={() => router.push('/')}>
-                        <svg className="w-6 h-6 sm:w-7 sm:h-7 text-indigo-500 filter drop-shadow-[0_0_8px_rgba(99,102,241,0.5)] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
+                    <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/')}>
+                        <svg className="w-6 h-6 text-teal-400 filter drop-shadow-[0_0_8px_rgba(20,184,166,0.5)] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                             <polyline points="9 22 9 12 15 12 15 22" />
                         </svg>
-                        <span className="font-heading font-extrabold text-xl sm:text-2xl tracking-tight text-white truncate">QUOTRA<span className="text-indigo-500">MAX</span></span>
+                        <span className="font-extrabold text-lg sm:text-xl tracking-tight text-white">QUOTRA<span className="text-teal-400">MAX</span></span>
                     </div>
-                    <span className="text-[9px] sm:text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 sm:px-3 py-1 rounded-full border border-emerald-500/20 uppercase tracking-widest flex-shrink-0">
-                        Quote Issued
+                    <span className="text-[10px] sm:text-xs font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20 uppercase tracking-widest flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Inspection Reserved
                     </span>
                 </div>
             </header>
 
             {/* Main Content */}
-            <main className="flex-grow max-w-5xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12">
+            <main className="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-10">
 
-                {/* Status Alert Bar */}
-                <div className="mb-6 sm:mb-8 p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm rounded-xl flex items-start gap-3 shadow-lg">
-                    <span className="text-lg">📄</span>
-                    <div>
-                        <strong>Your Ballpark Estimate Report has been generated!</strong> A copy of the pricing breakdown has been sent to <strong>{lead.email}</strong>.
+                {/* Hero Confirmation Banner */}
+                <div className="p-5 sm:p-6 bg-gradient-to-r from-teal-500/10 via-emerald-500/10 to-transparent border border-teal-500/20 rounded-2xl mb-6 shadow-xl text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                        <div className="w-14 h-14 rounded-2xl bg-teal-500/20 border border-teal-500/30 flex items-center justify-center text-2xl flex-shrink-0">
+                            ✓
+                        </div>
+                        <div>
+                            <span className="text-[11px] font-bold uppercase tracking-wider text-teal-400 font-mono">
+                                Inspection Request #{id}
+                            </span>
+                            <h1 className="text-xl sm:text-2xl font-black text-white mt-0.5">
+                                You&apos;re All Set, {lead.name.split(' ')[0]}!
+                            </h1>
+                            <p className="text-xs sm:text-sm text-slate-300 mt-1">
+                                A confirmation notice has been dispatched to <strong>{lead.email}</strong>.
+                            </p>
+                        </div>
                     </div>
+
+                    <button
+                        type="button"
+                        onClick={handleCopyDetails}
+                        className="text-xs font-bold text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2.5 rounded-xl transition-all flex items-center gap-2 flex-shrink-0">
+                        {copied ? '✓ Copied to Clipboard' : '📋 Copy Details'}
+                    </button>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
 
-                    {/* Left Column: Overhauled Visual Cost Card */}
-                    <div className="lg:col-span-7 space-y-6">
-                        <div className="border border-white/10 rounded-2xl bg-[#0d1222]/80 backdrop-blur-2xl p-5 sm:p-8 shadow-2xl overflow-hidden relative before:absolute before:top-0 before:left-0 before:w-full before:height-[4px] before:bg-gradient-to-r before:from-indigo-500 before:to-emerald-400">
-                            <span className="text-xs font-bold text-indigo-400 tracking-widest uppercase">Project Cost Valuation</span>
-                            <h2 className="text-2xl font-black text-white mt-1 mb-8">Ballpark Estimate Report</h2>
-
-                            {/* Circular Cost Ring Gauge Showcase */}
-                            <div className="flex flex-col items-center justify-center p-6 border border-white/5 bg-[#12182c]/40 rounded-2xl mb-8 relative">
-                                <div className="absolute inset-0 bg-radial-gradient from-indigo-500/5 to-transparent rounded-2xl pointer-events-none"></div>
-                                <div className="w-48 h-48 rounded-full border-4 border-indigo-500/10 border-t-indigo-500 border-r-emerald-400 flex flex-col items-center justify-center text-center shadow-[0_0_30px_rgba(99,102,241,0.1)] relative">
-                                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Avg Budget</span>
-                                    <span className="text-3xl font-black text-white mt-1">${avgPrice.toLocaleString()}</span>
-                                    <span className="text-[9px] text-slate-400 mt-2 px-4 uppercase tracking-wider">{lead.material}</span>
-                                </div>
-                                <div className="text-center mt-6">
-                                    <span className="text-xs font-bold text-slate-400 block mb-1">PRELIMINARY PRICE RANGE</span>
-                                    <div className="text-2xl font-black text-emerald-400 select-all tracking-tight">
-                                        ${estimate.minPrice.toLocaleString()} - ${estimate.maxPrice.toLocaleString()}
+                    {/* Left Column: Scheduled Slot & Next Steps */}
+                    <div className="md:col-span-7 space-y-6">
+                        
+                        {/* Appointment Time Box */}
+                        <div className="border border-white/10 rounded-2xl bg-[#0d1222]/90 backdrop-blur-xl p-5 sm:p-6 shadow-xl">
+                            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-3">
+                                📅 Confirmed Appointment Slot
+                            </span>
+                            {appointment && appointment.date ? (
+                                <div className="p-4 bg-teal-500/10 border border-teal-500/20 rounded-xl space-y-2">
+                                    <div className="text-lg sm:text-xl font-extrabold text-white">
+                                        {new Date(appointment.date + 'T00:00:00').toLocaleDateString(undefined, {
+                                            weekday: 'long',
+                                            year: 'numeric',
+                                            month: 'long',
+                                            day: 'numeric'
+                                        })}
                                     </div>
-                                </div>
-                            </div>
-
-                            {/* Cost Breakdown Progress Bars Graph */}
-                            <div className="space-y-5 mb-8">
-                                <h3 className="text-xs font-bold text-slate-455 uppercase tracking-widest border-b border-white/5 pb-2">Ballpark Itemized Breakdown</h3>
-                                
-                                <div className="space-y-2">
-                                    <div className="flex justify-between items-center text-xs">
-                                        <span className="text-slate-400">Premium Materials Cost</span>
-                                        <span className="font-bold text-slate-200">${estimate.breakdown.materials.toLocaleString()} ({pctMat}%)</span>
-                                    </div>
-                                    <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
-                                        <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${pctMat}%` }}></div>
+                                    <div className="inline-flex items-center gap-2 text-xs font-bold text-teal-300 bg-teal-500/20 px-3 py-1 rounded-lg">
+                                        ⏰ {appointment.time}
                                     </div>
                                 </div>
-
-                                <div className="space-y-2">
-                                    <div className="flex justify-between items-center text-xs">
-                                        <span className="text-slate-400">Crew Rigging & Installation Labor</span>
-                                        <span className="font-bold text-slate-200">${estimate.breakdown.labor.toLocaleString()} ({pctLab}%)</span>
-                                    </div>
-                                    <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
-                                        <div className="h-full bg-purple-500 rounded-full" style={{ width: `${pctLab}%` }}></div>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <div className="flex justify-between items-center text-xs">
-                                        <span className="text-slate-400">Permits, Safety, & Disposal Fees</span>
-                                        <span className="font-bold text-slate-200">${estimate.breakdown.fees.toLocaleString()} ({pctFee}%)</span>
-                                    </div>
-                                    <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
-                                        <div className="h-full bg-emerald-400 rounded-full" style={{ width: `${pctFee}%` }}></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* 2026 Assumptions & Exclusions Card */}
-                            {estimate.assumptions && (
-                                <div className="mb-8 p-5 bg-[#12182c]/60 border border-white/5 rounded-xl space-y-4 text-xs">
-                                    <h4 className="font-bold text-indigo-300 uppercase tracking-wider text-[11px] flex items-center gap-2">
-                                        <span>📋</span> Assumptions Used For This 2026 Valuation
-                                    </h4>
-                                    <ul className="space-y-1.5 text-slate-400">
-                                        {estimate.assumptions.map((asm, i) => (
-                                            <li key={i} className="flex items-start gap-2">
-                                                <span className="text-indigo-400 font-bold">•</span>
-                                                <span>{asm}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-
-                                    <div className="pt-3 border-t border-white/5 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        <div>
-                                            <strong className="block text-emerald-400 font-bold text-[10px] uppercase mb-1">✓ Inclusions Included:</strong>
-                                            <ul className="space-y-1 text-[10px] text-slate-400">
-                                                {estimate.inclusions?.map((inc, i) => (
-                                                    <li key={i}>• {inc}</li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                        <div>
-                                            <strong className="block text-amber-400 font-bold text-[10px] uppercase mb-1">⚠️ Exclusions (May Require On-Site Allowance):</strong>
-                                            <ul className="space-y-1 text-[10px] text-slate-400">
-                                                {estimate.exclusions?.map((exc, i) => (
-                                                    <li key={i}>• {exc}</li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    </div>
+                            ) : (
+                                <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-300 text-xs">
+                                    Our dispatch team is currently assigning the nearest crew for this week.
                                 </div>
                             )}
 
-                            {/* Results Core CTAs */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-white/5 pt-6">
-                                <button onClick={handleDownloadPDF} className="w-full bg-[#12182c] hover:bg-[#161e38] text-white font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 border border-white/10 transition-colors text-sm">
-                                    ⬇️ Download Cost PDF
-                                </button>
-                                
-                                {scheduled ? (
-                                    <div className="flex flex-col gap-1 w-full">
-                                        <button disabled className="w-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold py-3.5 px-4 rounded-xl flex flex-col items-center justify-center gap-0.5 cursor-not-allowed">
-                                            <span className="text-xs font-bold">✓ Inspection Scheduled!</span>
-                                            {appointmentDetails && (
-                                                <span className="text-[9px] font-medium text-emerald-300">
-                                                    {new Date(appointmentDetails.date + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} @ {appointmentDetails.time}
-                                                </span>
-                                            )}
-                                        </button>
-                                        <button onClick={() => setShowScheduler(true)} className="text-[10px] text-slate-500 hover:text-white underline text-center mt-1.5 transition-colors">
-                                            Reschedule appointment time slot
-                                        </button>
+                            <div className="mt-4 pt-4 border-t border-white/5 space-y-2 text-xs text-slate-400">
+                                <div className="flex items-center justify-between">
+                                    <span>Inspecting Property:</span>
+                                    <strong className="text-white">{lead.address}</strong>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span>Primary Phone:</span>
+                                    <strong className="text-white">{lead.phone || 'Provided via form'}</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* What to Expect 3-Step Roadmap */}
+                        <div className="border border-white/10 rounded-2xl bg-[#0d1222]/90 backdrop-blur-xl p-5 sm:p-6 shadow-xl space-y-4">
+                            <h2 className="text-sm font-bold uppercase tracking-wider text-white">
+                                What Happens Next
+                            </h2>
+
+                            <div className="space-y-3">
+                                {[
+                                    {
+                                        step: '1',
+                                        title: 'Satellite Roofline Scan Prepared',
+                                        desc: 'Our estimator pulls 3D aerial measurements of your roof facets and pitch before arriving.'
+                                    },
+                                    {
+                                        step: '2',
+                                        title: 'On-Site 21-Point Physical Check',
+                                        desc: 'A certified roofing technician inspects shingles, flashing, drip edges, and attic moisture.'
+                                    },
+                                    {
+                                        step: '3',
+                                        title: 'Written Property Report & Options',
+                                        desc: 'You receive an itemized condition report, material options, and financing/insurance details.'
+                                    }
+                                ].map((item) => (
+                                    <div key={item.step} className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/5">
+                                        <span className="w-6 h-6 rounded-full bg-teal-500/20 border border-teal-500/40 text-teal-400 font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
+                                            {item.step}
+                                        </span>
+                                        <div>
+                                            <div className="text-xs font-bold text-white">{item.title}</div>
+                                            <div className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">{item.desc}</div>
+                                        </div>
                                     </div>
-                                ) : (
-                                    <button onClick={() => setShowScheduler(true)} className="w-full bg-indigo-500 hover:bg-indigo-650 text-white font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors text-sm shadow-[0_4px_14px_rgba(99,102,241,0.2)]">
-                                        📆 Schedule Site Inspection
-                                    </button>
-                                )}
+                                ))}
                             </div>
                         </div>
                     </div>
 
-                    {/* Right Column: Parameters and Scheduler Modal */}
-                    <div className="lg:col-span-5 space-y-6">
-                        
-                        {/* Interactive Scheduler Card inline toggle */}
-                        {showScheduler && (
-                            <div className="border border-indigo-500/30 rounded-2xl bg-[#0f1428] p-6 shadow-2xl relative overflow-hidden before:absolute before:top-0 before:left-0 before:w-full before:height-[3px] before:bg-indigo-500">
-                                <div className="flex justify-between items-center mb-4">
-                                    <h3 className="text-sm font-bold text-white uppercase tracking-wider">Select Inspection Date & Time</h3>
-                                    <button onClick={() => setShowScheduler(false)} className="text-slate-500 hover:text-white font-bold text-lg">×</button>
+                    {/* Right Column: Pre-Qualification Scope Summary */}
+                    <div className="md:col-span-5 space-y-6">
+                        <div className="border border-white/10 rounded-2xl bg-[#0d1222]/90 backdrop-blur-xl p-5 sm:p-6 shadow-xl">
+                            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">
+                                Project Scope Dossier
+                            </h2>
+
+                            <div className="space-y-3 text-xs">
+                                <div className="p-2.5 bg-white/[0.02] rounded-lg border border-white/5 flex justify-between items-center">
+                                    <span className="text-slate-400">Service Goal:</span>
+                                    <span className="font-bold text-white">{lead.service || 'Full Roof Replacement'}</span>
                                 </div>
-
-                                <form onSubmit={handleConfirmAppointment} className="space-y-4">
-                                    <div className="flex flex-col gap-2">
-                                        <label className="text-xs font-bold text-slate-400 uppercase tracking-wider" htmlFor="selectedDate">Choose Date</label>
-                                        <input type="date" id="selectedDate" min={todayStr} required value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} className="w-full bg-[#161c33] border border-white/10 rounded-xl px-3.5 py-3 text-xs text-white focus:outline-none focus:border-indigo-500 transition-colors" />
-                                    </div>
-
-                                    <div className="flex flex-col gap-2">
-                                        <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Choose Time Slot</label>
-                                        <div className="grid grid-cols-1 gap-2">
-                                            {[
-                                                { label: '🌅 Morning (9:00 AM - 11:00 AM)', val: 'Morning (9AM-11AM)' },
-                                                { label: '☀️ Midday (11:00 AM - 1:00 PM)', val: 'Midday (11AM-1PM)' },
-                                                { label: '🕒 Afternoon (1:00 PM - 3:00 PM)', val: 'Afternoon (1PM-3PM)' },
-                                                { label: '🌆 Late Afternoon (3:00 PM - 5:00 PM)', val: 'Late Afternoon (3PM-5PM)' }
-                                            ].map((slot) => (
-                                                <button key={slot.val} type="button" onClick={() => setSelectedTime(slot.val)} className={`px-4 py-2.5 rounded-xl border text-left text-xs font-semibold transition-all ${selectedTime === slot.val ? 'bg-indigo-500/10 border-indigo-500 text-white' : 'bg-[#161c33] border-white/5 text-slate-400 hover:border-white/10'}`}>
-                                                    {slot.label}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    <button type="submit" disabled={scheduling} className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors text-xs shadow-[0_4px_12px_rgba(16,185,129,0.2)] mt-2">
-                                        {scheduling ? 'Scheduling...' : 'Confirm Appointment Slot'}
-                                    </button>
-                                </form>
+                                <div className="p-2.5 bg-white/[0.02] rounded-lg border border-white/5 flex justify-between items-center">
+                                    <span className="text-slate-400">Building Height:</span>
+                                    <span className="font-bold text-white">{lead.stories || '1 Story'}</span>
+                                </div>
+                                <div className="p-2.5 bg-white/[0.02] rounded-lg border border-white/5 flex justify-between items-center">
+                                    <span className="text-slate-400">Roof Slope:</span>
+                                    <span className="font-bold text-white">{lead.pitch || 'Standard Pitch'}</span>
+                                </div>
+                                <div className="p-2.5 bg-white/[0.02] rounded-lg border border-white/5 flex justify-between items-center">
+                                    <span className="text-slate-400">Preferred Material:</span>
+                                    <span className="font-bold text-teal-400">{lead.material || 'Architectural Shingles'}</span>
+                                </div>
+                                <div className="p-2.5 bg-white/[0.02] rounded-lg border border-white/5 flex justify-between items-center">
+                                    <span className="text-slate-400">Timeline:</span>
+                                    <span className="font-bold text-amber-400">{lead.timeline || 'Under 1 month'}</span>
+                                </div>
+                                <div className="p-2.5 bg-white/[0.02] rounded-lg border border-white/5 flex justify-between items-center">
+                                    <span className="text-slate-400">Funding Method:</span>
+                                    <span className="font-bold text-emerald-400">{lead.insurance || 'Cash / Direct Pay'}</span>
+                                </div>
                             </div>
-                        )}
 
-                        {/* Project Context Parameters */}
-                        <div className="border border-white/10 rounded-2xl bg-[#0d1222]/80 backdrop-blur-2xl p-6 shadow-2xl">
-                            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-white/5 pb-2 mb-4">Project Parameters</h3>
-                            <ul className="space-y-3.5 text-xs">
-                                <li className="flex justify-between items-center">
-                                    <span className="text-slate-450">Estimated Area:</span>
-                                    <span className="font-bold text-slate-200">{lead.size.toLocaleString()} sq ft</span>
-                                </li>
-                                <li className="flex justify-between items-center">
-                                    <span className="text-slate-450">Stories Elevation:</span>
-                                    <span className="font-bold text-slate-200">{lead.stories} Story</span>
-                                </li>
-                                <li className="flex justify-between items-center">
-                                    <span className="text-slate-450">Condition Profile:</span>
-                                    <span className="font-bold text-slate-200">{lead.condition}</span>
-                                </li>
-                                <li className="flex justify-between items-center">
-                                    <span className="text-slate-450">Material Style:</span>
-                                    <span className="font-bold text-slate-200">{lead.material}</span>
-                                </li>
-                                <li className="flex justify-between items-center">
-                                    <span className="text-slate-450">Target Service:</span>
-                                    <span className="font-bold text-slate-200">{lead.service}</span>
-                                </li>
-                            </ul>
+                            <div className="mt-5 p-3.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-center">
+                                <span className="text-emerald-400 font-bold text-xs block mb-1">
+                                    🛡️ 100% Free &amp; Zero Obligation
+                                </span>
+                                <p className="text-[11px] text-slate-300 leading-snug">
+                                    Your inspection is guaranteed free of charge with no purchase required.
+                                </p>
+                            </div>
                         </div>
 
-                        {/* Technical Factors explanation */}
-                        <div className="border border-white/10 rounded-2xl bg-[#0d1222]/80 backdrop-blur-2xl p-6 shadow-2xl">
-                            <h3 className="text-xs font-bold text-slate-450 uppercase tracking-widest border-b border-white/5 pb-2 mb-4">Pricing Factors Detected</h3>
-                            <ul className="space-y-3">
-                                {estimate.factors.map((factor, idx) => (
-                                    <li key={idx} className="text-[11px] text-slate-400 leading-relaxed flex gap-2 items-start">
-                                        <span className="text-indigo-400 mt-0.5">•</span>
-                                        {factor}
-                                    </li>
-                                ))}
-                            </ul>
+                        <div className="text-center">
+                            <button
+                                type="button"
+                                onClick={() => router.push('/')}
+                                className="text-xs text-slate-400 hover:text-white transition-colors">
+                                ← Submit Another Property
+                            </button>
                         </div>
-
-
-
                     </div>
                 </div>
             </main>
 
-            {/* persistent footer login links */}
-            <footer className="border-t border-white/5 py-8 text-center text-xs text-slate-500 bg-[#070a13] mt-12 flex flex-col gap-2 items-center">
-                <p>&copy; {new Date().getFullYear()} Quotramax. All rights reserved.</p>
-                <p className="text-[11px] text-slate-400">
-                    Are you a contractor?{' '}
-                    <span onClick={() => router.push('/login')} className="text-indigo-400 hover:underline hover:text-indigo-300 cursor-pointer font-bold">
-                        Contractor Sign In Portal
-                    </span>
-                </p>
+            {/* Footer */}
+            <footer className="border-t border-white/5 py-4 text-center text-[11px] text-slate-500">
+                &copy; 2026 Quotramax Conversion System. High-Intent Lead Qualification &amp; Booking.
             </footer>
         </div>
     );

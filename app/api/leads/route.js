@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { checkAuth } from '@/lib/auth';
-import { calculateEstimate } from '@/lib/estimate';
 import { Resend } from 'resend';
 import fs from 'fs';
 import path from 'path';
@@ -37,7 +36,6 @@ export async function GET(req) {
                 const { data, error } = await supabase.from('leads').select('*').order('date', { ascending: false });
                 if (!error && data) {
                     leads = data.map(row => {
-                        // Parse serialized wizard fields from motivation if present
                         let extraData = {};
                         try {
                             if (row.motivation && row.motivation.startsWith('{')) {
@@ -54,19 +52,14 @@ export async function GET(req) {
                             zip: row.zip,
                             size: row.size || row.roof_size,
                             material: row.material,
-                            price: row.price,
                             stories: row.stories,
                             status: row.status || 'New',
                             date: row.date,
-                            // Extracted properties
-                            propertyType: extraData.propertyType || 'Residential',
-                            condition: row.age || 'Good',
-                            service: extraData.service || 'Replacement',
-                            timeline: extraData.timeline || 'Under 1 month',
-                            insurance: extraData.insurance || 'Cash / Direct Financing',
+                            service: extraData.service || row.age || 'Full Roof Replacement',
                             roofAge: extraData.roofAge || '10 - 20 years',
-                            pitch: extraData.pitch || 'Standard',
-                            estimateDetails: extraData.estimate || null,
+                            pitch: extraData.pitch || 'Standard Pitch',
+                            timeline: extraData.timeline || 'Under 1 month',
+                            insurance: extraData.insurance || 'Cash / Direct Payment',
                             appointment: extraData.appointment || null
                         };
                     });
@@ -98,51 +91,39 @@ export async function GET(req) {
 export async function POST(req) {
     try {
         const body = await req.json();
-        const { name, email, phone, address, zip, propertyType, stories, roofSize, footprintLength, footprintWidth, complexity, layers, condition, service, material, timeline, insurance, roofAge, pitch, appointment } = body;
-
-        const fullAddress = zip ? `${address}, ${zip}` : address;
+        const { 
+            name, 
+            email, 
+            phone, 
+            address, 
+            zip, 
+            service, 
+            roofAge, 
+            stories, 
+            pitch, 
+            material, 
+            timeline, 
+            insurance, 
+            appointment 
+        } = body;
 
         // Validation
-        if (!name || !email || !address || (!roofSize && (!footprintLength || !footprintWidth)) || !material) {
+        if (!name || !email || !address) {
             return NextResponse.json({ success: false, error: 'Required fields are missing' }, { status: 400 });
         }
 
-        // Calculate estimate with 2026 pricing engine
-        const estimateResult = calculateEstimate({
-            name,
-            address: fullAddress,
-            material,
-            stories,
-            condition,
-            service,
-            property_type: propertyType,
-            roof_size: roofSize,
-            footprintLength,
-            footprintWidth,
-            complexity,
-            layers,
-            pitch,
-            roof_age: roofAge
-        });
-
-        const meanPrice = Math.round((estimateResult.minPrice + estimateResult.maxPrice) / 2);
+        const fullAddress = zip && !address.includes(zip) ? `${address}, ${zip}` : address;
         const uniqueId = Math.random().toString(36).substring(2, 8).toUpperCase();
         
-        // Serialize extra parameters to remain fully compatible with existing DB table schema
         const motivationPayload = JSON.stringify({
-            propertyType,
-            zip,
-            footprintLength,
-            footprintWidth,
-            complexity,
-            layers,
-            service,
-            timeline,
-            insurance,
-            roofAge,
-            pitch,
-            appointment,
-            estimate: estimateResult
+            service: service || 'Full Roof Replacement',
+            roofAge: roofAge || '10 - 20 years',
+            stories: stories || '1 Story',
+            pitch: pitch || 'Standard Pitch',
+            timeline: timeline || 'Under 1 month',
+            insurance: insurance || 'Cash / Direct Payment',
+            zip: zip || '',
+            appointment: appointment || null
         });
 
         const leadData = {
@@ -151,13 +132,13 @@ export async function POST(req) {
             phone: phone || '',
             address: fullAddress,
             zip: zip || '34652',
-            size: parseInt(roofSize || 2200),
-            material,
-            price: meanPrice,
-            motivation: motivationPayload, // holds extra json metadata
-            age: condition,                 // holds condition value
-            stories: stories.toString(),
-            status: appointment && appointment.date ? 'Inspection Scheduled' : 'New',
+            size: 2400,
+            material: material || 'Architectural Shingles',
+            price: 0, // No fake prices
+            motivation: motivationPayload,
+            age: service || 'Full Roof Replacement',
+            stories: stories || '1 Story',
+            status: appointment && appointment.date ? 'Inspection Scheduled' : 'New Lead',
             date: new Date().toISOString()
         };
 
@@ -190,157 +171,152 @@ export async function POST(req) {
                 savedLead = leadData;
             } catch (e) {
                 console.error('Local leads caching write error:', e);
-                savedLead = leadData; // carry on to email even if storage write failed
+                savedLead = leadData;
             }
         }
 
         const contractorEmail = await getContractorEmail();
         const leadId = savedLead.id || 'RQ-' + uniqueId;
 
-        // Email templates
+        // Email to Homeowner
         const homeownerHtml = `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
-                <h2 style="color: #6366f1;">QUOTRAMAX</h2>
-                <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-bottom: 20px;">
-                <p>Hello <strong>${name}</strong>,</p>
-                <p>Thank you for requesting an estimate. We have processed your roof parameters and generated your preliminary calculation.</p>
-                
-                <div style="background-color: #f8fafc; padding: 15px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #10b981;">
-                    <span style="font-size: 0.9rem; color: #64748b;">Estimated Project Price Range</span>
-                    <h3 style="margin: 5px 0 0 0; color: #0f172a; font-size: 1.5rem;">$${estimateResult.minPrice.toLocaleString()} - $${estimateResult.maxPrice.toLocaleString()}</h3>
-                    <p style="margin: 5px 0 0 0; font-size: 0.8rem; color: #64748b;">* This is a preliminary estimate, not a final quote. Final pricing requires an in-person physical inspection.</p>
+            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
+                    <h2 style="color: #0d9488; margin: 0; font-size: 22px;">QUOTRAMAX</h2>
                 </div>
+                <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-bottom: 20px;">
+                <p style="font-size: 16px; color: #1e293b;">Hello <strong>${name}</strong>,</p>
+                <p style="font-size: 15px; color: #475569; line-height: 1.6;">
+                    Thank you for requesting your <strong>21-Point Roof &amp; Attic Inspection</strong> for <strong>${fullAddress}</strong>. Our local inspection crew has received your property details.
+                </p>
+                
+                ${appointment && appointment.date ? `
+                <div style="background-color: #f0fdfa; padding: 18px; border-radius: 8px; margin: 24px 0; border-left: 4px solid #0d9488;">
+                    <p style="margin: 0; font-size: 13px; font-weight: bold; color: #0f766e; text-transform: uppercase; letter-spacing: 0.05em;">📅 Confirmed Inspection Slot:</p>
+                    <h3 style="margin: 6px 0 2px 0; color: #115e59; font-size: 18px;">
+                        ${new Date(appointment.date + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                    </h3>
+                    <p style="margin: 0; font-size: 14px; color: #0d9488; font-weight: 600;">Time Window: ${appointment.time}</p>
+                </div>
+                ` : ''}
 
-                <h3>Project Details Summary:</h3>
-                <ul>
-                    <li><strong>Address:</strong> ${address}</li>
-                    <li><strong>Service Type:</strong> ${service}</li>
-                    <li><strong>Roof Material:</strong> ${material}</li>
-                    <li><strong>Stories:</strong> ${stories} Story</li>
+                <h3 style="color: #0f172a; font-size: 16px; margin-top: 24px;">Project Scope Summary:</h3>
+                <ul style="color: #475569; font-size: 14px; line-height: 1.8; padding-left: 20px;">
+                    <li><strong>Service Goal:</strong> ${service || 'Full Roof Replacement'}</li>
+                    <li><strong>Building Specs:</strong> ${stories || '1 Story'} &bull; ${pitch || 'Standard Pitch'}</li>
+                    <li><strong>Desired Material:</strong> ${material || 'Architectural Shingles'}</li>
+                    <li><strong>Timeline / Urgency:</strong> ${timeline || 'Under 1 month'}</li>
+                    <li><strong>Funding Preference:</strong> ${insurance || 'Cash / Direct Payment'}</li>
                 </ul>
 
-                <p>Our roofing professionals have been notified and will reach out to you shortly to schedule your free physical slope measurement check.</p>
-                <p>Best regards,<br>The Quotramax Estimator Team</p>
+                <div style="margin-top: 24px; padding: 16px; background-color: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <h4 style="margin: 0 0 8px 0; color: #0f172a; font-size: 14px;">Next Steps:</h4>
+                    <p style="margin: 0; font-size: 13px; color: #64748b; line-height: 1.5;">
+                        1. Our team is pulling satellite aerial roof measurements.<br>
+                        2. A licensed technician will contact you via text/phone at <strong>${phone || 'your phone'}</strong> to confirm access.<br>
+                        3. You will receive a written physical property condition report on-site.
+                    </p>
+                </div>
+
+                <p style="margin-top: 24px; font-size: 14px; color: #64748b;">
+                    Best regards,<br>
+                    <strong>Your Certified Roofing Inspection Team</strong>
+                </p>
             </div>
         `;
 
-        const appointmentDetailsHtml = appointment && appointment.date ? `
-            <div style="background-color: #fef3c7; padding: 15px; border-radius: 6px; margin: 20px 0; border: 1px solid #f59e0b; border-left: 4px solid #d97706;">
-                <p style="margin: 0; font-weight: bold; color: #78350f; font-size: 0.95rem;">📅 Scheduled On-Site Inspection Visit:</p>
-                <p style="margin: 5px 0 0 0; font-weight: bold; color: #b45309; font-size: 1.1rem;">
-                    ${new Date(appointment.date + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                </p>
-                <p style="margin: 3px 0 0 0; font-size: 0.85rem; color: #d97706; font-weight: bold;">Preferred Time Slot: ${appointment.time}</p>
-            </div>
-        ` : '';
-
+        // Email to Contractor
         const contractorHtml = `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
-                <h2 style="color: #6366f1;">QUOTRAMAX: New Lead Alert!</h2>
-                <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-bottom: 20px;">
-                
-                ${appointmentDetailsHtml}
+            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
+                <div style="background-color: #0d9488; color: white; padding: 12px 16px; border-radius: 6px; margin-bottom: 20px; font-weight: bold; font-size: 16px;">
+                    🔥 NEW PRE-QUALIFIED ROOFING LEAD &amp; BOOKING
+                </div>
 
-                <p>A new pre-qualified homeowner has completed your estimator funnel:</p>
+                ${appointment && appointment.date ? `
+                <div style="background-color: #fef3c7; padding: 16px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #f59e0b; border-left: 4px solid #d97706;">
+                    <p style="margin: 0; font-size: 12px; font-weight: bold; color: #78350f; text-transform: uppercase;">📅 Scheduled Inspection Time:</p>
+                    <h3 style="margin: 4px 0 0 0; color: #92400e; font-size: 18px;">
+                        ${new Date(appointment.date + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })} (${appointment.time})
+                    </h3>
+                </div>
+                ` : ''}
 
-                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px;">
                     <tr>
-                        <td style="padding: 8px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; width: 40%;">Name:</td>
-                        <td style="padding: 8px 0; border-bottom: 1px solid #e2e8f0;">${name}</td>
+                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569; width: 35%;">Homeowner:</td>
+                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #0f172a;">${name}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 8px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold;">Email:</td>
-                        <td style="padding: 8px 0; border-bottom: 1px solid #e2e8f0;"><a href="mailto:${email}">${email}</a></td>
+                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">Phone:</td>
+                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; color: #0d9488; font-weight: bold;">
+                            <a href="tel:${phone}" style="color: #0d9488; text-decoration: none;">${phone || 'Not provided'}</a>
+                        </td>
                     </tr>
                     <tr>
-                        <td style="padding: 8px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold;">Phone:</td>
-                        <td style="padding: 8px 0; border-bottom: 1px solid #e2e8f0;">${phone || 'Not provided'}</td>
+                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">Email:</td>
+                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0;">
+                            <a href="mailto:${email}" style="color: #6366f1; text-decoration: none;">${email}</a>
+                        </td>
                     </tr>
                     <tr>
-                        <td style="padding: 8px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold;">Address:</td>
-                        <td style="padding: 8px 0; border-bottom: 1px solid #e2e8f0;">${address}</td>
+                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">Property Address:</td>
+                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #0f172a;">${fullAddress}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 8px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold;">Est. Roof Size:</td>
-                        <td style="padding: 8px 0; border-bottom: 1px solid #e2e8f0;">${roofSize.toLocaleString()} sq ft</td>
+                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">Project Scope:</td>
+                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; color: #0f172a;">${service}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 8px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold;">Material Style:</td>
-                        <td style="padding: 8px 0; border-bottom: 1px solid #e2e8f0;">${material}</td>
+                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">Stories &amp; Pitch:</td>
+                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0;">${stories} &bull; ${pitch}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 8px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold;">Condition & Stories:</td>
-                        <td style="padding: 8px 0; border-bottom: 1px solid #e2e8f0;">${condition} / ${stories} Story</td>
+                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">Desired Material:</td>
+                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0;">${material}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 8px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold;">Generated Range:</td>
-                        <td style="padding: 8px 0; border-bottom: 1px solid #e2e8f0; color: #10b981; font-weight: bold;">$${estimateResult.minPrice.toLocaleString()} - $${estimateResult.maxPrice.toLocaleString()}</td>
-                    </tr>
-                </table>
-
-                <table style="width: 100%; border-collapse: collapse; margin-top: 20px; border-top: 2px solid #e2e8f0;">
-                    <tr>
-                        <td style="padding: 8px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; width: 40%;">Project Timeline:</td>
-                        <td style="padding: 8px 0; border-bottom: 1px solid #e2e8f0; color: #6366f1; font-weight: bold;">${timeline}</td>
+                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">Timeline Urgency:</td>
+                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; color: #d97706; font-weight: bold;">${timeline}</td>
                     </tr>
                     <tr>
-                        <td style="padding: 8px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold;">Funding / Insurance:</td>
-                        <td style="padding: 8px 0; border-bottom: 1px solid #e2e8f0;">${insurance}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 8px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold;">Current Roof Age:</td>
-                        <td style="padding: 8px 0; border-bottom: 1px solid #e2e8f0;">${roofAge}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 8px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold;">Slope Pitch:</td>
-                        <td style="padding: 8px 0; border-bottom: 1px solid #e2e8f0;">${pitch} Slope</td>
+                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">Funding Intent:</td>
+                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; color: #059669; font-weight: bold;">${insurance}</td>
                     </tr>
                 </table>
 
                 <div style="margin-top: 30px; text-align: center;">
-                    <a href="${req.headers.get('origin') || ''}/login" style="background-color: #6366f1; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Open Contractor Dashboard</a>
+                    <a href="${req.headers.get('origin') || ''}/login" style="background-color: #0d9488; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                        Open Contractor CRM Dashboard &rarr;
+                    </a>
                 </div>
             </div>
         `;
 
-        // Send emails asynchronously in the background without blocking the HTTP response
+        // Send emails asynchronously
         (async () => {
             try {
                 await resend.emails.send({
-                    from: 'Quotramax Onboarding <no-reply@quotramax.com>',
-                    to: email, // Homeowner
-                    subject: 'Your Preliminary Roof Estimate Summary - Quotramax',
+                    from: 'Quotramax Scheduling <no-reply@quotramax.com>',
+                    to: email,
+                    subject: `Confirmed: 21-Point Roof Inspection for ${address.split(',')[0]}`,
                     html: homeownerHtml
                 });
             } catch (e) {
-                console.warn('Failed sending directly to homeowner:', e.message);
-            }
-
-            try {
-                // Also send a copy of the homeowner template to the contractor
-                await resend.emails.send({
-                    from: 'Quotramax Onboarding <no-reply@quotramax.com>',
-                    to: contractorEmail,
-                    subject: `[Homeowner Preview Copy] Your Preliminary Roof Estimate Summary - Quotramax`,
-                    html: homeownerHtml
-                });
-            } catch (e) {
-                console.error('Failed sending homeowner preview to contractor:', e.message);
+                console.warn('Homeowner email dispatch note:', e.message);
             }
 
             try {
                 await resend.emails.send({
                     from: 'Quotramax Lead Alert <no-reply@quotramax.com>',
                     to: contractorEmail,
-                    subject: `New Lead: ${name} - ${address}`,
+                    subject: `🔥 New Lead: ${name} (${service}) - ${fullAddress}`,
                     html: contractorHtml
                 });
             } catch (e) {
-                console.error('Failed sending lead alert to contractor:', e.message);
+                console.error('Contractor lead email dispatch error:', e.message);
             }
         })();
 
-        // Return HTTP 200 immediately (< 100ms response time)
         return NextResponse.json({ success: true, leadId });
     } catch (e) {
         console.error('Leads POST API error:', e);

@@ -1,24 +1,13 @@
-import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
-
-const outfit = Outfit({
-  variable: "--font-outfit",
-  subsets: ["latin"],
-});
-
 export const metadata = {
-  title: "Quotramax - Instant Preliminary Roof Estimates",
-  description: "Convert website visitors and ad traffic into estimate requests with our frictionless, 60-second ballpark calculator.",
+  title: "Quotramax - 21-Point Roof Assessment & Priority Inspection Booking",
+  description: "High-converting pre-qualification funnel and direct calendar booking engine for residential roofers.",
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${inter.variable} ${outfit.variable} h-full antialiased`}>
+    <html lang="en" className="h-full antialiased">
       <body className="min-h-full flex flex-col bg-[#070a13] text-slate-100 font-sans">{children}</body>
     </html>
   );
