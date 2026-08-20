@@ -6,8 +6,6 @@ import { useRouter } from 'next/navigation';
 export default function Home() {
     const router = useRouter();
     const [step, setStep] = useState(1);
-    const [isScanning, setIsScanning] = useState(false);
-    const [scanText, setScanText] = useState('Locating property coordinates...');
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState('');
 
@@ -108,7 +106,7 @@ export default function Home() {
         return '';
     };
 
-    // Handle Step 4 submit with High-Tech Satellite Scan Effect
+    // Handle Step 4 submit
     const handleStep4Continue = () => {
         const err = validateStep4();
         if (err) {
@@ -117,22 +115,7 @@ export default function Home() {
         }
 
         setError('');
-        setIsScanning(true);
-        setScanText(`🛰️ Locking orbital camera on ${formData.address.split(',')[0]}...`);
-
-        setTimeout(() => {
-            setScanText('📐 AI Calculating surface area, pitch & valley angles...');
-        }, 700);
-
-        setTimeout(() => {
-            setScanText('✅ Satellite telemetry verified. Matching licensed inspection crews...');
-        }, 1300);
-
-        setTimeout(() => {
-            setIsScanning(false);
-            setStep(5);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }, 1900);
+        goToStep(5);
     };
 
     // Final Submission Handler
@@ -697,27 +680,6 @@ export default function Home() {
                     </div>
                 </div>
             </main>
-
-            {/* High-Tech Satellite Scan HUD Modal */}
-            {isScanning && (
-                <div className="fixed inset-0 bg-[#040711]/95 backdrop-blur-2xl z-50 flex flex-col items-center justify-center p-6 text-center animate-fadeIn">
-                    <div className="relative mb-8">
-                        <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-2 border-teal-500/40 flex items-center justify-center relative">
-                            <div className="absolute inset-0 rounded-full border border-teal-400 animate-ping opacity-40"></div>
-                            <span className="text-4xl sm:text-5xl animate-bounce">🛰️</span>
-                        </div>
-                    </div>
-                    <div className="text-xs font-mono font-bold text-teal-400 uppercase tracking-widest mb-2">
-                        ORBITAL SATELLITE SCANNER ACTIVE
-                    </div>
-                    <h2 className="text-lg sm:text-2xl font-black text-white max-w-md leading-tight mb-3">
-                        {scanText}
-                    </h2>
-                    <div className="w-64 h-1.5 bg-slate-900 rounded-full overflow-hidden border border-white/10">
-                        <div className="h-full bg-teal-400 animate-pulse rounded-full w-3/4"></div>
-                    </div>
-                </div>
-            )}
 
             {/* Footer */}
             <footer className="border-t border-teal-500/10 py-4 text-center text-[11px] text-slate-500 relative z-10">

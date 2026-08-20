@@ -137,6 +137,7 @@ export async function PATCH(req, { params }) {
                 if (leadIndex !== -1) {
                     leads[leadIndex].status = updatedStatus;
                     leads[leadIndex].motivation = updatedMotivation;
+                    fs.mkdirSync(path.dirname(LEADS_FILE), { recursive: true });
                     fs.writeFileSync(LEADS_FILE, JSON.stringify(leads, null, 2), 'utf8');
                     success = true;
                 }

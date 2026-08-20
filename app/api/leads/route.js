@@ -6,27 +6,23 @@ import path from 'path';
 
 const LEADS_FILE = path.join(process.cwd(), 'vanilla_backup/data/leads.json');
 
-// Array of API keys for robust fallback delivery
-const RESEND_KEYS = [
-    process.env.RESEND_API_KEY,
-    ['re_KeGhuHKu_', '729okgcPqgYv6q8q4jCmviXD'].join(''),
-    ['re_eQ71cGkh_', 'DwALa5Ck2637P87uQFetE5Wq'].join('')
-].filter(Boolean);
-
 async function sendEmail({ to, subject, html, from = 'Quotramax Inspection Team <leads@quotramax.com>' }) {
-    for (const key of RESEND_KEYS) {
-        try {
-            const client = new Resend(key);
-            const res = await client.emails.send({ from, to, subject, html });
-            if (res && (res.id || !res.error)) {
-                console.log('Resend email success ID:', res.id);
-                return true;
-            } else if (res && res.error) {
-                console.warn('Resend attempt error:', res.error);
-            }
-        } catch (e) {
-            console.warn('Resend key attempt note:', e.message);
+    if (!process.env.RESEND_API_KEY) {
+        console.warn('RESEND_API_KEY not configured; skipping email send');
+        return false;
+    }
+    try {
+        const client = new Resend(process.env.RESEND_API_KEY);
+        const res = await client.emails.send({ from, to, subject, html });
+        if (res && (res.id || !res.error)) {
+            console.log('Resend email success ID:', res.id);
+            return true;
         }
+        if (res && res.error) {
+            console.warn('Resend send error:', res.error);
+        }
+    } catch (e) {
+        console.warn('Resend send exception:', e.message);
     }
     return false;
 }
@@ -126,6 +122,7 @@ export async function POST(req) {
                     localLeads = JSON.parse(data);
                 }
                 localLeads.unshift(leadData);
+                fs.mkdirSync(path.dirname(LEADS_FILE), { recursive: true });
                 fs.writeFileSync(LEADS_FILE, JSON.stringify(localLeads, null, 2), 'utf8');
                 savedLead = leadData;
             } catch (e) {
@@ -249,41 +246,43 @@ export async function POST(req) {
             </div>
         `;
 
-        // Synchronous Multi-Key Dispatch using verified domain leads@quotramax.com
-        // 1. Dispatch Homeowner Confirmation Email
-        await sendEmail({
-            to: email,
-            subject: `Confirmed: 21-Point Roof Inspection for ${address.split(',')[0]}`,
-            html: homeownerHtml,
-            from: 'Quotramax Inspection Team <leads@quotramax.com>'
-        });
+        // Dispatch all notification emails concurrently instead of one-by-one,
+        // so submission latency is bounded by the slowest single send, not their sum.
+        const emailJobs = [
+            sendEmail({
+                to: email,
+                subject: `Confirmed: 21-Point Roof Inspection for ${address.split(',')[0]}`,
+                html: homeownerHtml,
+                from: 'Quotramax Inspection Team <leads@quotramax.com>'
+            }),
+            sendEmail({
+                to: contractorEmail,
+                subject: `🔥 NEW LEAD: ${name} (${service}) - ${fullAddress}`,
+                html: contractorHtml,
+                from: 'Quotramax Lead Alert <leads@quotramax.com>'
+            })
+        ];
 
-        // Always send a copy of Homeowner receipt to admin during testing
+        // Testing copy of the homeowner receipt to admin
         if (email !== 'isaaqabukar1@gmail.com') {
-            await sendEmail({
+            emailJobs.push(sendEmail({
                 to: 'isaaqabukar1@gmail.com',
                 subject: `[Homeowner Receipt Copy for ${email}] Confirmed: 21-Point Roof Inspection for ${address.split(',')[0]}`,
                 html: homeownerHtml,
                 from: 'Quotramax Inspection Team <leads@quotramax.com>'
-            });
+            }));
         }
 
-        // 2. Dispatch Contractor Lead Alert Email
-        await sendEmail({
-            to: contractorEmail,
-            subject: `🔥 NEW LEAD: ${name} (${service}) - ${fullAddress}`,
-            html: contractorHtml,
-            from: 'Quotramax Lead Alert <leads@quotramax.com>'
-        });
-
         if (contractorEmail !== 'isaaqabukar1@gmail.com') {
-            await sendEmail({
+            emailJobs.push(sendEmail({
                 to: 'isaaqabukar1@gmail.com',
                 subject: `🔥 NEW LEAD (Copy): ${name} (${service}) - ${fullAddress}`,
                 html: contractorHtml,
                 from: 'Quotramax Lead Alert <leads@quotramax.com>'
-            });
+            }));
         }
+
+        await Promise.allSettled(emailJobs);
 
         return NextResponse.json({ success: true, leadId });
     } catch (e) {
