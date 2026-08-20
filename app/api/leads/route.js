@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
-import { checkAuth } from '@/lib/auth';
 import { Resend } from 'resend';
 import fs from 'fs';
 import path from 'path';
@@ -24,69 +23,7 @@ async function getContractorEmail() {
 }
 
 export async function GET(req) {
-    try {
-        const authenticated = await checkAuth();
-        if (!authenticated) {
-            return NextResponse.json({ error: 'Unauthorized session' }, { status: 401 });
-        }
-
-        let leads = [];
-
-        if (supabase) {
-            try {
-                const { data, error } = await supabase.from('leads').select('*').order('date', { ascending: false });
-                if (!error && data) {
-                    leads = data.map(row => {
-                        let extraData = {};
-                        try {
-                            if (row.motivation && row.motivation.startsWith('{')) {
-                                extraData = JSON.parse(row.motivation);
-                            }
-                        } catch (e) {}
-
-                        return {
-                            id: row.id,
-                            name: row.name,
-                            email: row.email,
-                            phone: row.phone,
-                            address: row.address,
-                            zip: row.zip,
-                            size: row.size || row.roof_size,
-                            material: row.material,
-                            stories: row.stories,
-                            status: row.status || 'New',
-                            date: row.date,
-                            service: extraData.service || row.age || 'Full Roof Replacement',
-                            roofAge: extraData.roofAge || '10 - 20 years',
-                            pitch: extraData.pitch || 'Standard Pitch',
-                            timeline: extraData.timeline || 'Under 1 month',
-                            insurance: extraData.insurance || 'Cash / Direct Payment',
-                            appointment: extraData.appointment || null
-                        };
-                    });
-                    return NextResponse.json(leads);
-                }
-            } catch (e) {
-                console.error('Supabase fetch leads error:', e);
-            }
-        }
-
-        // Local filesystem fallback
-        try {
-            if (fs.existsSync(LEADS_FILE)) {
-                const fileData = fs.readFileSync(LEADS_FILE, 'utf8');
-                leads = JSON.parse(fileData);
-                return NextResponse.json(leads);
-            }
-        } catch (e) {
-            console.error('File fallback read leads error:', e);
-        }
-
-        return NextResponse.json([]);
-    } catch (e) {
-        console.error('Leads GET API error:', e);
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-    }
+    return NextResponse.json({ error: 'Endpoint restricted' }, { status: 403 });
 }
 
 export async function POST(req) {
@@ -179,7 +116,7 @@ export async function POST(req) {
         const contractorEmail = await getContractorEmail();
         const leadId = savedLead.id || 'RQ-' + uniqueId;
 
-        // Email to Homeowner using verified Resend sender
+        // 1. Email HTML for Homeowner (Customer Inspection Receipt)
         const homeownerHtml = `
             <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
@@ -226,7 +163,7 @@ export async function POST(req) {
             </div>
         `;
 
-        // Email to Contractor using verified Resend sender
+        // 2. Email HTML for Contractor (Instant Lead Dispatch Alert)
         const contractorHtml = `
             <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
                 <div style="background-color: #0d9488; color: white; padding: 14px 18px; border-radius: 8px; margin-bottom: 20px; font-weight: bold; font-size: 18px; text-align: center;">
@@ -285,15 +222,14 @@ export async function POST(req) {
                     </tr>
                 </table>
 
-                <div style="margin-top: 30px; text-align: center;">
-                    <a href="${req.headers.get('origin') || ''}/admin" style="background-color: #0d9488; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
-                        Open Contractor CRM Dashboard &rarr;
-                    </a>
+                <div style="margin-top: 24px; text-align: center; background-color: #f0fdfa; padding: 14px; border-radius: 8px; border: 1px solid #ccfbf1;">
+                    <span style="color: #0f766e; font-weight: bold; font-size: 14px;">⚡ Immediate Action: Call or text homeowner at <a href="tel:${phone}" style="color: #0d9488;">${phone}</a></span>
                 </div>
             </div>
         `;
 
-        // Synchronously awaiting dispatch to guarantee email execution before serverless response terminates
+        // Synchronously awaiting both dispatches
+        // 1. Dispatch Homeowner Confirmation Email
         try {
             await resend.emails.send({
                 from: 'Quotramax <onboarding@resend.dev>',
@@ -302,9 +238,22 @@ export async function POST(req) {
                 html: homeownerHtml
             });
         } catch (e) {
-            console.error('Homeowner email dispatch error:', e);
+            console.error('Homeowner direct email dispatch note:', e.message);
         }
 
+        // Always send a copy of Homeowner receipt to admin during testing so you can verify it in your inbox
+        if (email !== 'isaaqabukar1@gmail.com') {
+            try {
+                await resend.emails.send({
+                    from: 'Quotramax <onboarding@resend.dev>',
+                    to: 'isaaqabukar1@gmail.com',
+                    subject: `[Homeowner Receipt Copy] Confirmed: 21-Point Roof Inspection for ${address.split(',')[0]}`,
+                    html: homeownerHtml
+                });
+            } catch (e) {}
+        }
+
+        // 2. Dispatch Contractor Lead Alert Email
         try {
             await resend.emails.send({
                 from: 'Quotramax Lead Alert <onboarding@resend.dev>',
@@ -322,7 +271,7 @@ export async function POST(req) {
                 });
             }
         } catch (e) {
-            console.error('Contractor lead email dispatch error:', e);
+            console.error('Contractor lead email dispatch error:', e.message);
         }
 
         return NextResponse.json({ success: true, leadId });
