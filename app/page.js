@@ -394,7 +394,7 @@ export default function Home() {
                                     type="button"
                                     onClick={() => goToStep(2)}
                                     className="w-full sm:w-auto bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-sm px-7 py-3 rounded-xl transition-all flex items-center justify-center gap-2">
-                                    <span>Next: Home Specs &rarr;</span>
+                                    <span>Next: Home Specs →</span>
                                 </button>
                             </div>
                         </div>
@@ -450,7 +450,7 @@ export default function Home() {
 
                             <div className="flex justify-between items-center pt-3">
                                 <button type="button" onClick={() => goToStep(1)} className="text-xs font-semibold text-slate-400 hover:text-white">← Back</button>
-                                <button type="button" onClick={() => goToStep(3)} className="bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-sm px-6 py-3 rounded-xl transition-all">Next: Timeline &rarr;</button>
+                                <button type="button" onClick={() => goToStep(3)} className="bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-sm px-6 py-3 rounded-xl transition-all">Next: Timeline →</button>
                             </div>
                         </div>
                     )}
@@ -508,7 +508,7 @@ export default function Home() {
 
                             <div className="flex justify-between items-center pt-3">
                                 <button type="button" onClick={() => goToStep(2)} className="text-xs font-semibold text-slate-400 hover:text-white">← Back</button>
-                                <button type="button" onClick={() => goToStep(4)} className="bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-sm px-6 py-3 rounded-xl transition-all">Next: Property Location &rarr;</button>
+                                <button type="button" onClick={() => goToStep(4)} className="bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-sm px-6 py-3 rounded-xl transition-all">Next: Property Location →</button>
                             </div>
                         </div>
                     )}
@@ -590,7 +590,7 @@ export default function Home() {
 
                             <div className="flex justify-between items-center pt-3">
                                 <button type="button" onClick={() => goToStep(3)} className="text-xs font-semibold text-slate-400 hover:text-white">← Back</button>
-                                <button type="button" onClick={handleStep4Continue} className="bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-sm px-6 py-3 rounded-xl transition-all">Select Date &rarr;</button>
+                                <button type="button" onClick={handleStep4Continue} className="bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-sm px-6 py-3 rounded-xl transition-all">Select Date →</button>
                             </div>
                         </div>
                     )}
@@ -644,7 +644,7 @@ export default function Home() {
                                     type="submit"
                                     disabled={submitting}
                                     className="bg-gradient-to-r from-teal-500 to-emerald-400 hover:from-teal-400 hover:to-emerald-300 text-slate-950 font-black text-sm px-7 py-3.5 rounded-xl transition-all shadow-lg shadow-teal-500/20">
-                                    {submitting ? 'Confirming...' : 'Claim My Free Roof Inspection &rarr;'}
+                                    {submitting ? 'Confirming...' : 'Claim My Free Roof Inspection →'}
                                 </button>
                             </div>
                         </form>
