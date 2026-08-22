@@ -91,6 +91,29 @@ const TIME_BLOCKS = [
     { time: 'Late Afternoon Arrival (3:30 PM - 6:00 PM)', tag: 'Flexible' }
 ];
 
+const FAQS = [
+    {
+        q: "Is the 21-Point Roof Inspection really 100% free with zero obligation?",
+        a: "Yes, 100% free. A licensed local roofer conducts a thorough walk-through of your shingles, attic ventilation, gutters, and flashing. You receive a written physical condition report with zero pressure or obligation to buy."
+    },
+    {
+        q: "How does the Satellite Aerial Scan work?",
+        a: "We use high-resolution orbital satellite photography to measure your roof's surface area, ridge line length, and slope pitch angles automatically before the inspector arrives on site."
+    },
+    {
+        q: "Will I get spammed with annoying phone calls?",
+        a: "No. Your information is kept strictly confidential and is only used to coordinate your scheduled inspection arrival window with your assigned local crew."
+    },
+    {
+        q: "Can you help me navigate my insurance claim for storm or hail damage?",
+        a: "Yes! Our certified inspectors document storm impact damage, hail bruises, and wind lift with photos to support your official insurance claim submission."
+    },
+    {
+        q: "What if I need low monthly payment options?",
+        a: "We partner with top lenders to offer flexible monthly financing plans starting as low as $119/month with approved credit, as well as zero-down payment options."
+    }
+];
+
 // Calculate date pills synchronously for 0ms render latency
 function getInitialDatePills() {
     const pills = [];
@@ -115,7 +138,7 @@ function getInitialDatePills() {
     const day3 = new Date(today);
     day3.setDate(today.getDate() + 3);
     pills.push({
-        label: day3.toLocaleDateString(undefined, { weekday: 'short' }),
+        label: 'In 3 Days',
         dateStr: day3.toISOString().split('T')[0],
         display: day3.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })
     });
@@ -128,6 +151,7 @@ export default function Home() {
     const [step, setStep] = useState(1);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState('');
+    const [openFaq, setOpenFaq] = useState(null);
     const datePills = getInitialDatePills();
 
     const [formData, setFormData] = useState({
@@ -625,6 +649,40 @@ export default function Home() {
                             </div>
                         </form>
                     )}
+                </div>
+
+                {/* FAQ Section */}
+                <div className="mt-10 border border-teal-500/20 rounded-2xl bg-[#090d1a] p-5 sm:p-6 shadow-xl">
+                    <div className="text-center mb-5">
+                        <span className="text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-1 bg-teal-500/10 text-teal-400 rounded-md border border-teal-500/20">
+                            Got Questions?
+                        </span>
+                        <h2 className="text-lg sm:text-xl font-bold text-white mt-2">Frequently Asked Questions</h2>
+                        <p className="text-xs text-slate-400 mt-1">Everything you need to know about your free 21-point roof inspection.</p>
+                    </div>
+
+                    <div className="space-y-3">
+                        {FAQS.map((faq, idx) => (
+                            <div 
+                                key={idx}
+                                className="border border-white/10 rounded-xl overflow-hidden bg-white/[0.01] transition-all">
+                                <button
+                                    type="button"
+                                    onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                                    className="w-full px-4 py-3.5 text-left text-xs sm:text-sm font-bold text-white flex justify-between items-center hover:bg-white/[0.02]">
+                                    <span>{faq.q}</span>
+                                    <span className="text-teal-400 text-base font-mono flex-shrink-0 ml-2">
+                                        {openFaq === idx ? '−' : '+'}
+                                    </span>
+                                </button>
+                                {openFaq === idx && (
+                                    <div className="px-4 pb-3.5 text-xs text-slate-300 leading-relaxed border-t border-white/5 pt-2.5 animate-fadeIn">
+                                        {faq.a}
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </main>
 
