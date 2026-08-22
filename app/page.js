@@ -163,10 +163,13 @@ export default function Home() {
         timeline: 'Under 1 month',
         insurance: 'Cash / Direct Payment',
         address: '',
+        city: '',
+        state: '',
         zip: '',
         name: '',
         email: '',
         phone: '',
+        website_hp: '', // Honeypot field for bot spam detection
         appointmentDate: datePills[0]?.dateStr || '',
         appointmentTime: 'Morning Arrival (8:00 AM - 11:00 AM)'
     });
@@ -200,14 +203,17 @@ export default function Home() {
         window.scrollTo(0, 0);
     };
 
-    // Validation for contact info
+    // Validation for contact info + City & State + Anti-spam validation
     const validateStep4 = () => {
         if (!formData.address.trim()) return 'Please enter your street address.';
+        if (!formData.city.trim()) return 'Please enter your city.';
+        if (!formData.state.trim() || formData.state.trim().length < 2) return 'Please enter a 2-letter state code (e.g. FL).';
         const cleanZip = formData.zip.replace(/\D/g, '');
         if (cleanZip.length !== 5) return 'Please enter a valid 5-digit ZIP code.';
         if (!formData.name.trim() || formData.name.trim().length < 2) return 'Please enter your full name.';
         const cleanPhone = formData.phone.replace(/\D/g, '');
         if (cleanPhone.length !== 10) return 'Please enter a valid 10-digit phone number.';
+        if (['0000000000', '1234567890', '1111111111', '9999999999'].includes(cleanPhone)) return 'Please enter a real phone number.';
         if (!formData.email.trim() || !/\S+@\S+\.\S+/.test(formData.email)) return 'Please enter a valid email address.';
         return '';
     };
@@ -222,7 +228,7 @@ export default function Home() {
         goToStep(5);
     };
 
-    // Final Submission Handler (Instant Optimistic Navigation)
+    // Final Submission Handler (Instant Optimistic Navigation + Anti-Spam Trap)
     const handleFinalSubmit = async (e) => {
         e.preventDefault();
         if (!formData.appointmentDate) {
@@ -233,12 +239,17 @@ export default function Home() {
         setSubmitting(true);
         setError('');
 
+        const fullLocationAddress = `${formData.address}, ${formData.city}, ${formData.state.toUpperCase()} ${formData.zip}`;
+
         const payload = {
             name: formData.name,
             email: formData.email,
             phone: formData.phone,
             address: formData.address,
+            city: formData.city,
+            state: formData.state.toUpperCase(),
             zip: formData.zip,
+            fullAddress: fullLocationAddress,
             service: formData.service,
             roofAge: formData.roofAge,
             stories: formData.stories,
@@ -246,6 +257,7 @@ export default function Home() {
             material: formData.material,
             timeline: formData.timeline,
             insurance: formData.insurance,
+            website_hp: formData.website_hp,
             appointment: {
                 date: formData.appointmentDate,
                 time: formData.appointmentTime
@@ -265,7 +277,7 @@ export default function Home() {
 
         const queryParams = new URLSearchParams({
             name: payload.name,
-            address: payload.address,
+            address: fullLocationAddress,
             service: payload.service,
             date: payload.appointment?.date || '',
             time: payload.appointment?.time || '',
@@ -274,7 +286,7 @@ export default function Home() {
             material: payload.material
         }).toString();
 
-        // Background API sync
+        // Background API sync with honeypot trap
         fetch('/api/leads', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -330,7 +342,7 @@ export default function Home() {
                         {step === 1 && 'Select your primary roof concern below to get started.'}
                         {step === 2 && 'Helps our satellite aerial scanner calculate surface area & pitch.'}
                         {step === 3 && 'Choose the scheduling and funding options that fit your budget.'}
-                        {step === 4 && 'Enter property address to match local licensed inspection crews.'}
+                        {step === 4 && 'Enter property location to match local licensed inspection crews.'}
                         {step === 5 && 'Lock in your 21-point physical roof & attic condition check.'}
                     </p>
                 </div>
@@ -515,11 +527,23 @@ export default function Home() {
 
                     {/* STEP 4: PROPERTY LOCATION & CONTACT */}
                     {step === 4 && (
-                        <div className="space-y-3.5">
+                        <div className="space-y-3.5 animate-fadeIn">
                             <div className="p-3 bg-teal-500/10 border border-teal-500/30 rounded-xl flex items-center gap-2.5 text-xs text-teal-300">
                                 <span className="text-base">🛰️</span>
                                 <span><strong>Satellite Aerial Scanner Ready:</strong> Enter property location to calculate roof surface area and pitch.</span>
                             </div>
+
+                            {/* Invisible Honeypot Anti-Spam Field */}
+                            <input
+                                type="text"
+                                name="website_hp"
+                                value={formData.website_hp}
+                                onChange={(e) => handleChange('website_hp', e.target.value)}
+                                tabIndex={-1}
+                                autoComplete="off"
+                                className="hidden"
+                                aria-hidden="true"
+                            />
 
                             <div>
                                 <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Street Address *</label>
@@ -530,6 +554,30 @@ export default function Home() {
                                     onChange={(e) => handleChange('address', e.target.value)}
                                     className="w-full bg-[#040711] border border-white/15 focus:border-teal-400 rounded-xl px-3.5 py-2.5 text-sm text-white outline-none"
                                 />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">City *</label>
+                                    <input
+                                        type="text"
+                                        placeholder="e.g. Tampa"
+                                        value={formData.city}
+                                        onChange={(e) => handleChange('city', e.target.value)}
+                                        className="w-full bg-[#040711] border border-white/15 focus:border-teal-400 rounded-xl px-3.5 py-2.5 text-sm text-white outline-none"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">State *</label>
+                                    <input
+                                        type="text"
+                                        maxLength={2}
+                                        placeholder="FL"
+                                        value={formData.state}
+                                        onChange={(e) => handleChange('state', e.target.value.toUpperCase())}
+                                        className="w-full bg-[#040711] border border-white/15 focus:border-teal-400 rounded-xl px-3.5 py-2.5 text-sm text-white outline-none uppercase font-mono"
+                                    />
+                                </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-3">
