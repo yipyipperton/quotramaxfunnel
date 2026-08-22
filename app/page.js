@@ -3,39 +3,95 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-// Memoized static option datasets outside component render cycle
+// Direct-response homeowner-centric option datasets
 const SERVICES = [
-    { title: 'Full Roof Replacement', desc: 'Complete teardown and new architectural roof system', icon: '🏗️', val: 'Full Roof Replacement' },
-    { title: 'Active Leak / Repair', desc: 'Emergency ceiling leak, flashing, or missing shingles', icon: '💧', val: 'Active Leak / Repair' },
-    { title: 'Storm / Hail Inspection', desc: 'Insurance assessment for wind or hail impact damage', icon: '⛈️', val: 'Storm / Hail Damage' },
-    { title: 'Preventative Inspection', desc: 'General 21-point check for home purchase or maintenance', icon: '🔍', val: 'Preventative Inspection' }
+    { 
+        title: 'Full Roof Replacement', 
+        desc: 'My roof is old, worn out, or needs a complete teardown and new installation.', 
+        icon: '🏗️', 
+        val: 'Full Roof Replacement' 
+    },
+    { 
+        title: 'Active Leak or Repair Emergency', 
+        desc: 'Water dripping, ceiling stains, missing shingles, or emergency flashing repair.', 
+        icon: '💧', 
+        val: 'Active Leak / Repair' 
+    },
+    { 
+        title: 'Storm & Hail Damage Claim', 
+        desc: 'I suspect wind, hail, or tree damage and need an official inspection for insurance.', 
+        icon: '⛈️', 
+        val: 'Storm / Hail Damage' 
+    },
+    { 
+        title: 'Preventative 21-Point Inspection', 
+        desc: 'I am buying, selling, or maintaining my home and want a thorough roof check.', 
+        icon: '🔍', 
+        val: 'Preventative Inspection' 
+    }
 ];
 
 const MATERIALS = [
-    { name: 'Architectural Shingles', desc: 'Most popular 30-year dimensional asphalt shingle', val: 'Architectural Shingles' },
-    { name: 'Standing Seam Metal', desc: 'Ultra-durable 50+ year architectural steel/aluminum', val: 'Standing Seam Metal' },
-    { name: 'Clay Tile / Slate', desc: 'Premium heavy-duty tile or natural slate', val: 'Clay Tile / Slate' }
+    { 
+        name: 'Architectural Shingles', 
+        desc: 'Most popular 30-year dimensional asphalt shingles (Durable & Cost-Effective)', 
+        val: 'Architectural Shingles' 
+    },
+    { 
+        name: 'Standing Seam Metal Roofing', 
+        desc: 'Ultra-durable 50+ year architectural steel or aluminum (Maximum Storm Protection)', 
+        val: 'Standing Seam Metal' 
+    },
+    { 
+        name: 'Clay Tile or Natural Slate', 
+        desc: 'Premium heavy-duty Spanish tile or natural slate (Luxury Long-Term System)', 
+        val: 'Clay Tile / Slate' 
+    }
 ];
 
 const TIMELINES = [
-    { title: 'Under 2 weeks (Urgent)', desc: 'Immediate leak or active property issue', val: 'Under 2 weeks' },
-    { title: '1 - 4 weeks', desc: 'Standard project scheduling', val: '1 - 4 weeks' },
-    { title: 'Planning / 1-3 months', desc: 'Gathering specifications & budget options', val: '1 - 3 months' }
+    { 
+        title: 'Emergency / Urgent (Under 2 Weeks)', 
+        desc: 'Active leak or structural damage needing immediate attention.', 
+        val: 'Under 2 weeks' 
+    },
+    { 
+        title: 'Standard Scheduling (1 to 4 Weeks)', 
+        desc: 'Planning replacement or repair within the next 30 days.', 
+        val: '1 - 4 weeks' 
+    },
+    { 
+        title: 'Planning & Budgeting (1 to 3 Months)', 
+        desc: 'Comparing options and gathering official estimates for upcoming work.', 
+        val: '1 - 3 months' 
+    }
 ];
 
 const PAYMENTS = [
-    { name: 'Insurance Claim Pending', desc: 'Wind/hail claim assistance needed', val: 'Insurance Claim Pending' },
-    { name: 'Low Monthly Financing', desc: 'Explore $120-$190/mo low payment plans', val: 'Low Monthly Financing' },
-    { name: 'Cash / Direct Payment', desc: 'Standard payment upon completion', val: 'Cash / Direct Payment' }
+    { 
+        name: 'Explore Low Monthly Financing', 
+        desc: 'Flexible payment plans starting as low as $119/month with approved credit.', 
+        val: 'Low Monthly Financing' 
+    },
+    { 
+        name: 'Insurance Claim Assistance', 
+        desc: 'I have open wind or hail damage and need help navigating my insurance claim.', 
+        val: 'Insurance Claim Pending' 
+    },
+    { 
+        name: 'Cash / Standard Payment', 
+        desc: 'Paying directly upon project completion via check or credit card.', 
+        val: 'Cash / Direct Payment' 
+    }
 ];
 
 const TIME_BLOCKS = [
-    { time: 'Morning (8:00 AM - 11:00 AM)', tag: 'Recommended' },
-    { time: 'Afternoon (12:00 PM - 3:00 PM)', tag: 'Popular' },
-    { time: 'Late Afternoon (3:30 PM - 6:00 PM)', tag: 'Flexible' }
+    { time: 'Morning Arrival (8:00 AM - 11:00 AM)', tag: 'Most Popular' },
+    { time: 'Afternoon Arrival (12:00 PM - 3:00 PM)', tag: 'Recommended' },
+    { time: 'Late Afternoon Arrival (3:30 PM - 6:00 PM)', tag: 'Flexible' }
 ];
 
-// Helper to calculate date pills synchronously
+// Calculate date pills synchronously for 0ms render latency
 function getInitialDatePills() {
     const pills = [];
     const today = new Date();
@@ -88,7 +144,7 @@ export default function Home() {
         email: '',
         phone: '',
         appointmentDate: datePills[0]?.dateStr || '',
-        appointmentTime: 'Morning (8:00 AM - 11:00 AM)'
+        appointmentTime: 'Morning Arrival (8:00 AM - 11:00 AM)'
     });
 
     // Phone Auto-Formatter (XXX) XXX-XXXX
@@ -120,7 +176,7 @@ export default function Home() {
         window.scrollTo(0, 0);
     };
 
-    // Validation per step
+    // Validation for contact info
     const validateStep4 = () => {
         if (!formData.address.trim()) return 'Please enter your street address.';
         const cleanZip = formData.zip.replace(/\D/g, '');
@@ -208,7 +264,7 @@ export default function Home() {
     return (
         <div className="min-h-screen bg-[#060913] text-slate-100 flex flex-col font-sans selection:bg-teal-500 selection:text-white">
             
-            {/* Lightweight Header */}
+            {/* Header */}
             <header className="border-b border-teal-500/20 bg-[#060913] sticky top-0 z-40">
                 <div className="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
                     <div className="flex items-center gap-2 cursor-pointer" onClick={() => goToStep(1)}>
@@ -220,13 +276,13 @@ export default function Home() {
                         </div>
                         <span className="font-black text-lg tracking-tight text-white flex items-center gap-1">
                             QUOTRA<span className="text-teal-400">MAX</span>
-                            <span className="text-[10px] font-bold px-1.5 py-0.5 bg-teal-500/20 text-teal-300 rounded">AI</span>
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 bg-teal-500/20 text-teal-300 rounded">ASSESSMENT</span>
                         </span>
                     </div>
                     
-                    <div className="text-xs font-semibold text-teal-400 flex items-center gap-1.5">
+                    <div className="text-xs font-semibold text-teal-400 flex items-center gap-1.5 bg-teal-950/40 px-3 py-1 rounded-full border border-teal-500/30">
                         <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse"></span>
-                        Speed-to-Lead
+                        Free 21-Point Inspection
                     </div>
                 </div>
             </header>
@@ -234,18 +290,25 @@ export default function Home() {
             {/* Main Content */}
             <main className="flex-1 max-w-2xl w-full mx-auto px-4 py-6 sm:py-8 flex flex-col justify-center">
                 
-                {/* Header Text */}
+                {/* Hero Header */}
                 <div className="text-center mb-6">
                     <div className="inline-block px-3 py-1 bg-teal-500/10 border border-teal-500/20 rounded-full text-[11px] font-bold text-teal-300 mb-2 uppercase tracking-wider">
-                        ⚡ Instant Roof Qualification
+                        🔒 Official 60-Second Property Roof Assessment
                     </div>
-                    <h1 className="text-xl sm:text-3xl font-extrabold text-white tracking-tight">
-                        {step === 1 && 'Select Your Roofing Goal'}
-                        {step === 2 && 'Building Specs & Material'}
-                        {step === 3 && 'Timeline & Funding Intent'}
-                        {step === 4 && 'Property Address & Verification'}
-                        {step === 5 && 'Select Preferred Inspection Time'}
+                    <h1 className="text-xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight">
+                        {step === 1 && 'What is the primary goal for your roof?'}
+                        {step === 2 && 'What type of home and roofing material do you have?'}
+                        {step === 3 && 'What is your ideal project timeline & payment preference?'}
+                        {step === 4 && 'Where should we send your official satellite report?'}
+                        {step === 5 && 'Select your preferred date for a free on-site roof inspection'}
                     </h1>
+                    <p className="text-xs sm:text-sm text-slate-400 mt-1.5 font-medium">
+                        {step === 1 && 'Select your primary roof concern below to get started.'}
+                        {step === 2 && 'Helps our satellite aerial scanner calculate surface area & pitch.'}
+                        {step === 3 && 'Choose the scheduling and funding options that fit your budget.'}
+                        {step === 4 && 'Enter property address to match local licensed inspection crews.'}
+                        {step === 5 && 'Lock in your 21-point physical roof & attic condition check.'}
+                    </p>
                 </div>
 
                 {/* Card Container */}
@@ -254,7 +317,13 @@ export default function Home() {
                     {/* Progress Bar */}
                     <div className="mb-5">
                         <div className="flex justify-between text-xs font-bold mb-1.5">
-                            <span className="text-slate-400">Step {step} of 5</span>
+                            <span className="text-slate-400">Step {step} of 5: <span className="text-teal-400">
+                                {step === 1 && 'Roof Goal'}
+                                {step === 2 && 'Home Specs'}
+                                {step === 3 && 'Timeline & Budget'}
+                                {step === 4 && 'Property Location'}
+                                {step === 5 && 'Schedule Inspection'}
+                            </span></span>
                             <span className="text-teal-400 font-mono">{Math.round((step / 5) * 100)}%</span>
                         </div>
                         <div className="w-full h-2 bg-slate-900 rounded-full overflow-hidden border border-white/5">
@@ -269,7 +338,7 @@ export default function Home() {
                         </div>
                     )}
 
-                    {/* STEP 1 */}
+                    {/* STEP 1: ROOF GOAL */}
                     {step === 1 && (
                         <div className="space-y-3">
                             {SERVICES.map((item) => (
@@ -281,14 +350,14 @@ export default function Home() {
                                             ? 'bg-teal-500/15 border-teal-400 text-white'
                                             : 'bg-white/[0.02] border-white/10 hover:border-teal-500/30 text-slate-300'
                                     }`}>
-                                    <div className="flex items-center gap-3">
-                                        <span className="text-2xl">{item.icon}</span>
+                                    <div className="flex items-center gap-3.5">
+                                        <span className="text-2xl flex-shrink-0">{item.icon}</span>
                                         <div>
                                             <div className="font-bold text-sm text-white">{item.title}</div>
-                                            <div className="text-xs text-slate-400">{item.desc}</div>
+                                            <div className="text-xs text-slate-400 leading-relaxed mt-0.5">{item.desc}</div>
                                         </div>
                                     </div>
-                                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center text-xs font-bold ${
+                                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center text-xs font-bold flex-shrink-0 ${
                                         formData.service === item.val ? 'bg-teal-500 border-teal-400 text-slate-950' : 'border-white/20'
                                     }`}>
                                         {formData.service === item.val ? '✓' : ''}
@@ -300,18 +369,18 @@ export default function Home() {
                                 <button
                                     type="button"
                                     onClick={() => goToStep(2)}
-                                    className="w-full sm:w-auto bg-teal-500 hover:bg-teal-400 text-slate-950 font-extrabold text-sm px-6 py-3 rounded-xl transition-all flex items-center justify-center gap-2">
-                                    <span>Next: Roof Specs &rarr;</span>
+                                    className="w-full sm:w-auto bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-sm px-7 py-3 rounded-xl transition-all flex items-center justify-center gap-2">
+                                    <span>Next: Home Specs &rarr;</span>
                                 </button>
                             </div>
                         </div>
                     )}
 
-                    {/* STEP 2 */}
+                    {/* STEP 2: HOME SPECS & MATERIAL */}
                     {step === 2 && (
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Building Height</label>
+                                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">How many stories is your home?</label>
                                 <div className="grid grid-cols-3 gap-2.5">
                                     {['1 Story', '2 Stories', '3+ Stories'].map((story) => (
                                         <button
@@ -330,7 +399,7 @@ export default function Home() {
                             </div>
 
                             <div>
-                                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Desired Material</label>
+                                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">What is your preferred roofing material?</label>
                                 <div className="space-y-2.5">
                                     {MATERIALS.map((mat) => (
                                         <div
@@ -343,9 +412,9 @@ export default function Home() {
                                             }`}>
                                             <div>
                                                 <div className="font-bold text-xs sm:text-sm text-white">{mat.name}</div>
-                                                <div className="text-[11px] text-slate-400">{mat.desc}</div>
+                                                <div className="text-[11px] text-slate-400 mt-0.5">{mat.desc}</div>
                                             </div>
-                                            <div className={`w-5 h-5 rounded-full border flex items-center justify-center text-xs font-bold ${
+                                            <div className={`w-5 h-5 rounded-full border flex items-center justify-center text-xs font-bold flex-shrink-0 ${
                                                 formData.material === mat.val ? 'bg-teal-500 border-teal-400 text-slate-950' : 'border-white/20'
                                             }`}>
                                                 {formData.material === mat.val ? '✓' : ''}
@@ -357,16 +426,16 @@ export default function Home() {
 
                             <div className="flex justify-between items-center pt-3">
                                 <button type="button" onClick={() => goToStep(1)} className="text-xs font-semibold text-slate-400 hover:text-white">← Back</button>
-                                <button type="button" onClick={() => goToStep(3)} className="bg-teal-500 hover:bg-teal-400 text-slate-950 font-extrabold text-sm px-6 py-3 rounded-xl transition-all">Next: Timeline &rarr;</button>
+                                <button type="button" onClick={() => goToStep(3)} className="bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-sm px-6 py-3 rounded-xl transition-all">Next: Timeline &rarr;</button>
                             </div>
                         </div>
                     )}
 
-                    {/* STEP 3 */}
+                    {/* STEP 3: TIMELINE & BUDGET */}
                     {step === 3 && (
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Project Timeline</label>
+                                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">When do you need this work completed?</label>
                                 <div className="space-y-2">
                                     {TIMELINES.map((item) => (
                                         <div
@@ -377,9 +446,9 @@ export default function Home() {
                                             }`}>
                                             <div>
                                                 <div className="font-bold text-xs sm:text-sm text-white">{item.title}</div>
-                                                <div className="text-[11px] text-slate-400">{item.desc}</div>
+                                                <div className="text-[11px] text-slate-400 mt-0.5">{item.desc}</div>
                                             </div>
-                                            <div className={`w-5 h-5 rounded-full border flex items-center justify-center text-xs font-bold ${
+                                            <div className={`w-5 h-5 rounded-full border flex items-center justify-center text-xs font-bold flex-shrink-0 ${
                                                 formData.timeline === item.val ? 'bg-amber-400 border-amber-300 text-slate-950' : 'border-white/20'
                                             }`}>
                                                 {formData.timeline === item.val ? '✓' : ''}
@@ -390,7 +459,7 @@ export default function Home() {
                             </div>
 
                             <div>
-                                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Funding Preference</label>
+                                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">What is your preferred payment option?</label>
                                 <div className="space-y-2">
                                     {PAYMENTS.map((pay) => (
                                         <div
@@ -401,9 +470,9 @@ export default function Home() {
                                             }`}>
                                             <div>
                                                 <div className="font-bold text-xs sm:text-sm text-white">{pay.name}</div>
-                                                <div className="text-[11px] text-slate-400">{pay.desc}</div>
+                                                <div className="text-[11px] text-slate-400 mt-0.5">{pay.desc}</div>
                                             </div>
-                                            <div className={`w-5 h-5 rounded-full border flex items-center justify-center text-xs font-bold ${
+                                            <div className={`w-5 h-5 rounded-full border flex items-center justify-center text-xs font-bold flex-shrink-0 ${
                                                 formData.insurance === pay.val ? 'bg-teal-500 border-teal-400 text-slate-950' : 'border-white/20'
                                             }`}>
                                                 {formData.insurance === pay.val ? '✓' : ''}
@@ -415,19 +484,24 @@ export default function Home() {
 
                             <div className="flex justify-between items-center pt-3">
                                 <button type="button" onClick={() => goToStep(2)} className="text-xs font-semibold text-slate-400 hover:text-white">← Back</button>
-                                <button type="button" onClick={() => goToStep(4)} className="bg-teal-500 hover:bg-teal-400 text-slate-950 font-extrabold text-sm px-6 py-3 rounded-xl transition-all">Next: Address &rarr;</button>
+                                <button type="button" onClick={() => goToStep(4)} className="bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-sm px-6 py-3 rounded-xl transition-all">Next: Property Location &rarr;</button>
                             </div>
                         </div>
                     )}
 
-                    {/* STEP 4 */}
+                    {/* STEP 4: PROPERTY LOCATION & CONTACT */}
                     {step === 4 && (
                         <div className="space-y-3.5">
+                            <div className="p-3 bg-teal-500/10 border border-teal-500/30 rounded-xl flex items-center gap-2.5 text-xs text-teal-300">
+                                <span className="text-base">🛰️</span>
+                                <span><strong>Satellite Aerial Scanner Ready:</strong> Enter property location to calculate roof surface area and pitch.</span>
+                            </div>
+
                             <div>
                                 <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Street Address *</label>
                                 <input
                                     type="text"
-                                    placeholder="100 Bayshore Blvd"
+                                    placeholder="e.g. 100 Bayshore Blvd"
                                     value={formData.address}
                                     onChange={(e) => handleChange('address', e.target.value)}
                                     className="w-full bg-[#040711] border border-white/15 focus:border-teal-400 rounded-xl px-3.5 py-2.5 text-sm text-white outline-none"
@@ -436,7 +510,7 @@ export default function Home() {
 
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">ZIP Code *</label>
+                                    <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">5-Digit ZIP Code *</label>
                                     <input
                                         type="tel"
                                         inputMode="numeric"
@@ -461,7 +535,7 @@ export default function Home() {
 
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Phone *</label>
+                                    <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Mobile Phone (For Text Alert) *</label>
                                     <input
                                         type="tel"
                                         inputMode="numeric"
@@ -472,7 +546,7 @@ export default function Home() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Email *</label>
+                                    <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Email Address (For Report) *</label>
                                     <input
                                         type="email"
                                         placeholder="name@example.com"
@@ -483,18 +557,25 @@ export default function Home() {
                                 </div>
                             </div>
 
+                            <div className="p-2.5 bg-white/[0.02] border border-white/5 rounded-xl flex items-center justify-between text-[11px] text-slate-400">
+                                <span className="flex items-center gap-1">
+                                    <span className="text-teal-400">🔒</span> 100% Spam-Free Privacy Guarantee
+                                </span>
+                                <span>Zero Obligation</span>
+                            </div>
+
                             <div className="flex justify-between items-center pt-3">
                                 <button type="button" onClick={() => goToStep(3)} className="text-xs font-semibold text-slate-400 hover:text-white">← Back</button>
-                                <button type="button" onClick={handleStep4Continue} className="bg-teal-500 hover:bg-teal-400 text-slate-950 font-extrabold text-sm px-6 py-3 rounded-xl transition-all">Select Date &rarr;</button>
+                                <button type="button" onClick={handleStep4Continue} className="bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-sm px-6 py-3 rounded-xl transition-all">Select Date &rarr;</button>
                             </div>
                         </div>
                     )}
 
-                    {/* STEP 5 */}
+                    {/* STEP 5: INSPECTION BOOKING */}
                     {step === 5 && (
                         <form onSubmit={handleFinalSubmit} className="space-y-4">
                             <div>
-                                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Select Inspection Date</label>
+                                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Select Preferred Inspection Date</label>
                                 <div className="grid grid-cols-3 gap-2.5">
                                     {datePills.map((pill) => (
                                         <button
@@ -512,7 +593,7 @@ export default function Home() {
                             </div>
 
                             <div>
-                                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Select Time Window</label>
+                                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Select Arrival Window</label>
                                 <div className="space-y-2">
                                     {TIME_BLOCKS.map((block) => (
                                         <div
@@ -539,7 +620,7 @@ export default function Home() {
                                     type="submit"
                                     disabled={submitting}
                                     className="bg-gradient-to-r from-teal-500 to-emerald-400 hover:from-teal-400 hover:to-emerald-300 text-slate-950 font-black text-sm px-7 py-3.5 rounded-xl transition-all shadow-lg shadow-teal-500/20">
-                                    {submitting ? 'Confirming...' : 'Lock In Free Inspection &rarr;'}
+                                    {submitting ? 'Confirming...' : 'Claim My Free Roof Inspection &rarr;'}
                                 </button>
                             </div>
                         </form>
@@ -548,7 +629,7 @@ export default function Home() {
             </main>
 
             <footer className="border-t border-white/5 py-3 text-center text-[11px] text-slate-500">
-                &copy; 2026 Quotramax AI System
+                &copy; 2026 Quotramax Assessment Engine
             </footer>
         </div>
     );
