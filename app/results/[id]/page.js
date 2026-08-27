@@ -194,8 +194,8 @@ Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pendi
                                 {[
                                     {
                                         step: '01',
-                                        title: 'Aerial & Satellite Measurement Scan',
-                                        desc: 'Our high-resolution satellite imagery engine calculates roof surface area, pitch angles, and valley lengths before our arrival.',
+                                        title: '21-Point Inspection Preparation',
+                                        desc: 'Our local team reviews your property address, building specs, and material requirements to prepare an itemized inspection checklist.',
                                         status: 'In Progress'
                                     },
                                     {

@@ -97,8 +97,8 @@ const FAQS = [
         a: "Yes, 100% free. A licensed local roofer conducts a thorough walk-through of your shingles, attic ventilation, gutters, and flashing. You receive a written physical condition report with zero pressure or obligation to buy."
     },
     {
-        q: "How does the Satellite Aerial Scan work?",
-        a: "We use high-resolution orbital satellite photography to measure your roof's surface area, ridge line length, and slope pitch angles automatically before the inspector arrives on site."
+        q: "How do you calculate my roof quote and inspection report?",
+        a: "Our certified local inspectors review your property address, roof pitch, material preferences, and square footage to prepare an itemized price estimate before conducting your thorough physical inspection."
     },
     {
         q: "Will I get spammed with annoying phone calls?",
@@ -329,20 +329,20 @@ export default function Home() {
                 {/* Hero Header */}
                 <div className="text-center mb-6">
                     <div className="inline-block px-3 py-1 bg-teal-500/10 border border-teal-500/20 rounded-full text-[11px] font-bold text-teal-300 mb-2 uppercase tracking-wider">
-                        🔒 Official 60-Second Property Roof Assessment
+                        ⚡ Official 60-Second Roof Inspection & Price Estimate
                     </div>
                     <h1 className="text-xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight">
                         {step === 1 && 'What is the primary goal for your roof?'}
                         {step === 2 && 'What type of home and roofing material do you have?'}
                         {step === 3 && 'What is your ideal project timeline & payment preference?'}
-                        {step === 4 && 'Where should we send your official satellite report?'}
+                        {step === 4 && 'Where should we send your official roof inspection & price quote?'}
                         {step === 5 && 'Select your preferred date for a free on-site roof inspection'}
                     </h1>
                     <p className="text-xs sm:text-sm text-slate-400 mt-1.5 font-medium">
                         {step === 1 && 'Select your primary roof concern below to get started.'}
-                        {step === 2 && 'Helps our satellite aerial scanner calculate surface area & pitch.'}
+                        {step === 2 && 'Helps us calculate accurate material costs and labor scope.'}
                         {step === 3 && 'Choose the scheduling and funding options that fit your budget.'}
-                        {step === 4 && 'Enter property location to match local licensed inspection crews.'}
+                        {step === 4 && 'Enter your property address so our local licensed crew can prepare your estimate.'}
                         {step === 5 && 'Lock in your 21-point physical roof & attic condition check.'}
                     </p>
                 </div>
@@ -529,8 +529,8 @@ export default function Home() {
                     {step === 4 && (
                         <div className="space-y-3.5 animate-fadeIn">
                             <div className="p-3 bg-teal-500/10 border border-teal-500/30 rounded-xl flex items-center gap-2.5 text-xs text-teal-300">
-                                <span className="text-base">🛰️</span>
-                                <span><strong>Satellite Aerial Scanner Ready:</strong> Enter property location to calculate roof surface area and pitch.</span>
+                                <span className="text-base">🏠</span>
+                                <span><strong>Local Inspection Crew Available:</strong> Enter property location to check local scheduling availability and calculate your free estimate.</span>
                             </div>
 
                             {/* Invisible Honeypot Anti-Spam Field */}

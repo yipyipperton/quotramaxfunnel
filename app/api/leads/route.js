@@ -172,7 +172,7 @@ export async function POST(req) {
                 <div style="margin-top: 24px; padding: 16px; background-color: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
                     <h4 style="margin: 0 0 8px 0; color: #0f172a; font-size: 14px;">Next Steps:</h4>
                     <p style="margin: 0; font-size: 13px; color: #64748b; line-height: 1.5;">
-                        1. Our team is pulling satellite aerial roof measurements.<br>
+                        1. Our local inspection crew is preparing your property file.<br>
                         2. A licensed technician will contact you via text/phone at <strong>${phone || 'your phone'}</strong> to confirm access.<br>
                         3. You will receive a written physical property condition report on-site.
                     </p>
