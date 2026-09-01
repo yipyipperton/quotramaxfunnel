@@ -1,36 +1,31 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+This is a [Next.js](https://nextjs.org) project for the Quotramax roof inspection funnel.
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+cp .env.example .env.local
+# Fill in SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, LEAD_ACCESS_SECRET,
+# RESEND_API_KEY, and CONTRACTOR_EMAIL
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:8081](http://localhost:8081).
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## Production environment
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Leads are stored in Supabase. In production the JSON file fallback is disabled, so these variables are required on Vercel (or your host):
 
-## Learn More
+| Variable | Purpose |
+| --- | --- |
+| `SUPABASE_URL` | Project URL |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-only service role key (never `NEXT_PUBLIC_`) |
+| `LEAD_ACCESS_SECRET` | HMAC secret for confirmation tokens (`openssl rand -base64 32`) |
+| `RESEND_API_KEY` | Transactional email |
+| `FROM_EMAIL` | Verified Resend from-address |
+| `CONTRACTOR_EMAIL` | Inbox that receives new-lead alerts |
+| `LEAD_ALERT_BCC` | Optional extra copy of contractor alerts |
 
-To learn more about Next.js, take a look at the following resources:
+Apply `supabase/migrations/001_leads_rls.sql` in the Supabase SQL editor so Row Level Security is enabled and the anon key cannot read leads.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+If you previously committed Resend API keys, rotate them in the Resend dashboard. This repo no longer embeds fallback keys.

@@ -264,37 +264,42 @@ export default function Home() {
             }
         };
 
-        const tempId = 'RQ-' + Math.random().toString(36).substring(2, 8).toUpperCase();
-        const leadObj = {
-            id: tempId,
-            ...payload
-        };
-        
         try {
-            sessionStorage.setItem('qm_lead_' + tempId, JSON.stringify(leadObj));
-            sessionStorage.setItem('qm_latest_lead', JSON.stringify(leadObj));
-        } catch (e) {}
+            const res = await fetch('/api/leads', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(payload)
+            });
 
-        const queryParams = new URLSearchParams({
-            name: payload.name,
-            address: fullLocationAddress,
-            service: payload.service,
-            date: payload.appointment?.date || '',
-            time: payload.appointment?.time || '',
-            phone: payload.phone,
-            email: payload.email,
-            material: payload.material
-        }).toString();
+            const data = await res.json().catch(() => null);
+            if (!res.ok || !data?.success || !data.leadId) {
+                setSubmitting(false);
+                setError(data?.error || 'Could not confirm your inspection. Please try again.');
+                return;
+            }
 
-        // Background API sync with honeypot trap
-        fetch('/api/leads', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        }).catch(err => console.warn('Background sync note:', err));
+            const confirmation = {
+                id: data.leadId,
+                name: payload.name,
+                address: fullLocationAddress,
+                service: payload.service,
+                material: payload.material,
+                timeline: payload.timeline,
+                appointment: payload.appointment,
+                phone: payload.phone
+            };
 
-        // Instant UI Navigation
-        router.push(`/results/${tempId}?${queryParams}`);
+            try {
+                sessionStorage.setItem('qm_access_' + data.leadId, data.accessToken || '');
+                sessionStorage.setItem('qm_lead_' + data.leadId, JSON.stringify(confirmation));
+            } catch (e) {}
+
+            router.push(`/results/${encodeURIComponent(data.leadId)}`);
+        } catch (err) {
+            setSubmitting(false);
+            setError('Network error. Please check your connection and try again.');
+        }
     };
 
     return (
