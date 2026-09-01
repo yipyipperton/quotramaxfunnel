@@ -1,12 +1,11 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 
 function ResultsDetail() {
     const { id } = useParams();
     const router = useRouter();
-    const searchParams = useSearchParams();
     const [lead, setLead] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -15,8 +14,24 @@ function ResultsDetail() {
     useEffect(() => {
         if (!id) return;
 
-        fetch(`/api/leads/${id}`)
+        const token = (() => {
+            try {
+                return sessionStorage.getItem('qm_access_' + id) || '';
+            } catch (e) {
+                return '';
+            }
+        })();
+
+        const headers = { Accept: 'application/json' };
+        if (token) headers.Authorization = 'Bearer ' + token;
+
+        fetch(`/api/leads/${encodeURIComponent(id)}`, {
+            headers,
+            credentials: 'include',
+            cache: 'no-store'
+        })
             .then(res => {
+                if (res.status === 401) throw new Error('unauthorized');
                 if (!res.ok) throw new Error('Inspection request not found');
                 return res.json();
             })
@@ -25,47 +40,29 @@ function ResultsDetail() {
                 setLoading(false);
             })
             .catch(err => {
-                console.warn('API fetch note:', err.message);
-                
-                // 1. Check Session Storage
                 try {
-                    const cached = sessionStorage.getItem('qm_lead_' + id) || sessionStorage.getItem('qm_latest_lead');
-                    if (cached) {
+                    const cached = sessionStorage.getItem('qm_lead_' + id);
+                    if (cached && err.message !== 'unauthorized') {
                         setLead(JSON.parse(cached));
                         setLoading(false);
                         return;
                     }
                 } catch (e) {}
 
-                // 2. Check URL Search Params Fallback
-                if (searchParams && (searchParams.get('name') || searchParams.get('address'))) {
-                    setLead({
-                        id,
-                        name: searchParams.get('name') || 'Homeowner',
-                        address: searchParams.get('address') || 'Property Location',
-                        phone: searchParams.get('phone') || '',
-                        email: searchParams.get('email') || '',
-                        service: searchParams.get('service') || 'Full Roof Replacement',
-                        material: searchParams.get('material') || 'Architectural Shingles',
-                        appointment: {
-                            date: searchParams.get('date') || '',
-                            time: searchParams.get('time') || 'Morning (8:00 AM - 11:00 AM)'
-                        }
-                    });
-                    setLoading(false);
-                    return;
-                }
-
-                setError('Failed to load inspection confirmation.');
+                setError(
+                    err.message === 'unauthorized'
+                        ? 'This confirmation link is private. Please submit the form again to view your inspection details.'
+                        : 'Failed to load inspection confirmation.'
+                );
                 setLoading(false);
             });
-    }, [id, searchParams]);
+    }, [id]);
 
     const handleCopyDetails = () => {
         if (!lead) return;
         const text = `Roof Inspection Confirmation:
 Address: ${lead.address}
-Contact: ${lead.name} (${lead.phone})
+Contact: ${lead.name} (${lead.phone || 'on file'})
 Service: ${lead.service || 'Full Roof Replacement'}
 Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pending'})`;
         navigator.clipboard.writeText(text);
@@ -113,7 +110,6 @@ Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pendi
 
     return (
         <div className="min-h-screen bg-[#070a13] text-slate-100 flex flex-col font-sans selection:bg-teal-500 selection:text-white">
-            {/* Header */}
             <header className="border-b border-white/5 bg-[#070a13] sticky top-0 z-50">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
                     <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/')}>
@@ -134,10 +130,7 @@ Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pendi
                 </div>
             </header>
 
-            {/* Main Content */}
             <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12">
-                
-                {/* Hero Confirmation Card */}
                 <div className="border border-teal-500/30 bg-gradient-to-b from-teal-500/10 via-[#0d1222]/90 to-[#0d1222] rounded-3xl p-6 sm:p-10 shadow-2xl relative overflow-hidden mb-8">
                     <div className="absolute top-0 right-0 w-72 h-72 bg-teal-500/10 rounded-full filter blur-3xl pointer-events-none"></div>
 
@@ -158,7 +151,6 @@ Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pendi
                         </div>
                     </div>
 
-                    {/* Appointment Box */}
                     {formattedDate ? (
                         <div className="mt-8 p-5 bg-[#070a13]/80 border border-teal-500/30 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
                             <div className="flex items-center gap-3">
@@ -180,10 +172,7 @@ Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pendi
                     )}
                 </div>
 
-                {/* 2-Column Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-                    
-                    {/* Left Column: 3-Step Action Roadmap */}
                     <div className="md:col-span-7 space-y-6">
                         <div className="border border-white/10 rounded-2xl bg-[#0d1222] p-5 sm:p-6 shadow-xl">
                             <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-5 flex items-center gap-2">
@@ -228,7 +217,6 @@ Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pendi
                         </div>
                     </div>
 
-                    {/* Right Column: Pre-Qualification Scope Dossier */}
                     <div className="md:col-span-5 space-y-6">
                         <div className="border border-white/10 rounded-2xl bg-[#0d1222] p-5 sm:p-6 shadow-xl">
                             <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">
@@ -276,7 +264,6 @@ Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pendi
                 </div>
             </main>
 
-            {/* Footer */}
             <footer className="border-t border-white/5 py-4 text-center text-[11px] text-slate-500">
                 &copy; 2026 Quotramax Conversion System. High-Intent Lead Qualification &amp; Booking.
             </footer>

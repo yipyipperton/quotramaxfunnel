@@ -1,302 +1,293 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
-import { Resend } from 'resend';
-import fs from 'fs';
-import path from 'path';
+import { after } from 'next/server';
+import {
+    createLeadAccessToken,
+    escapeHtml,
+    getClientIp,
+    noStoreHeaders,
+    rateLimit,
+    validateLeadPayload,
+} from '@/lib/security';
+import { getContractorEmail, insertLead } from '@/lib/leads';
+import { getFromAddress, sendEmail } from '@/lib/email';
 
-const LEADS_FILE = path.join(process.cwd(), 'vanilla_backup/data/leads.json');
+export const dynamic = 'force-dynamic';
 
-// Array of API keys for robust fallback delivery
-const RESEND_KEYS = [
-    process.env.RESEND_API_KEY,
-    ['re_KeGhuHKu_', '729okgcPqgYv6q8q4jCmviXD'].join(''),
-    ['re_eQ71cGkh_', 'DwALa5Ck2637P87uQFetE5Wq'].join('')
-].filter(Boolean);
-
-async function sendEmail({ to, subject, html, from = 'Quotramax Inspection Team <leads@quotramax.com>' }) {
-    for (const key of RESEND_KEYS) {
-        try {
-            const client = new Resend(key);
-            const res = await client.emails.send({ from, to, subject, html });
-            if (res && (res.id || !res.error)) {
-                return true;
-            }
-        } catch (e) {}
+function json(data, { status = 200, token } = {}) {
+    const res = NextResponse.json(data, { status, headers: noStoreHeaders() });
+    if (token) {
+        res.cookies.set('qm_access', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            path: '/',
+            maxAge: 60 * 60 * 24 * 7,
+        });
     }
-    return false;
-}
-
-async function getContractorEmail() {
-    if (supabase) {
-        try {
-            const { data } = await supabase.from('settings').select('contractor_email').eq('id', 1).single();
-            if (data?.contractor_email) return data.contractor_email;
-        } catch (e) {}
-    }
-    return 'isaaqabukar1@gmail.com';
+    return res;
 }
 
 export async function GET() {
-    return NextResponse.json({ error: 'Endpoint restricted' }, { status: 403 });
+    return json({ error: 'Endpoint restricted' }, { status: 403 });
+}
+
+function buildHomeownerHtml(lead) {
+    const name = escapeHtml(lead.name);
+    const location = escapeHtml(lead.fullAddress);
+    const phone = escapeHtml(lead.phone);
+    const service = escapeHtml(lead.service);
+    const stories = escapeHtml(lead.stories);
+    const pitch = escapeHtml(lead.pitch);
+    const material = escapeHtml(lead.material);
+    const timeline = escapeHtml(lead.timeline);
+    const insurance = escapeHtml(lead.insurance);
+    const apptDate = escapeHtml(
+        new Date(`${lead.appointment.date}T00:00:00`).toLocaleDateString(undefined, {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+        })
+    );
+    const apptTime = escapeHtml(lead.appointment.time);
+
+    return `
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
+                <h2 style="color: #0d9488; margin: 0; font-size: 22px;">QUOTRAMAX</h2>
+            </div>
+            <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-bottom: 20px;">
+            <p style="font-size: 16px; color: #1e293b;">Hello <strong>${name}</strong>,</p>
+            <p style="font-size: 15px; color: #475569; line-height: 1.6;">
+                Thank you for requesting your <strong>21-Point Roof &amp; Attic Inspection</strong> for <strong>${location}</strong>. Our local inspection crew has received your property details.
+            </p>
+            <div style="background-color: #f0fdfa; padding: 18px; border-radius: 8px; margin: 24px 0; border-left: 4px solid #0d9488;">
+                <p style="margin: 0; font-size: 13px; font-weight: bold; color: #0f766e; text-transform: uppercase; letter-spacing: 0.05em;">Confirmed Inspection Slot:</p>
+                <h3 style="margin: 6px 0 2px 0; color: #115e59; font-size: 18px;">${apptDate}</h3>
+                <p style="margin: 0; font-size: 14px; color: #0d9488; font-weight: 600;">Time Window: ${apptTime}</p>
+            </div>
+            <h3 style="color: #0f172a; font-size: 16px; margin-top: 24px;">Project Scope Summary:</h3>
+            <ul style="color: #475569; font-size: 14px; line-height: 1.8; padding-left: 20px;">
+                <li><strong>Service Goal:</strong> ${service}</li>
+                <li><strong>Property Location:</strong> ${location}</li>
+                <li><strong>Building Specs:</strong> ${stories} &bull; ${pitch}</li>
+                <li><strong>Desired Material:</strong> ${material}</li>
+                <li><strong>Timeline / Urgency:</strong> ${timeline}</li>
+                <li><strong>Funding Preference:</strong> ${insurance}</li>
+            </ul>
+            <div style="margin-top: 24px; padding: 16px; background-color: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <h4 style="margin: 0 0 8px 0; color: #0f172a; font-size: 14px;">Next Steps:</h4>
+                <p style="margin: 0; font-size: 13px; color: #64748b; line-height: 1.5;">
+                    1. Our local inspection crew is preparing your property file.<br>
+                    2. A licensed technician will contact you via text/phone at <strong>${phone}</strong> to confirm access.<br>
+                    3. You will receive a written physical property condition report on-site.
+                </p>
+            </div>
+            <p style="margin-top: 24px; font-size: 14px; color: #64748b;">
+                Best regards,<br>
+                <strong>Your Certified Roofing Inspection Team</strong>
+            </p>
+        </div>
+    `;
+}
+
+function buildContractorHtml(lead) {
+    const name = escapeHtml(lead.name);
+    const phone = escapeHtml(lead.phone);
+    const email = escapeHtml(lead.email);
+    const location = escapeHtml(lead.fullAddress);
+    const city = escapeHtml(lead.city);
+    const state = escapeHtml(lead.state);
+    const zip = escapeHtml(lead.zip);
+    const service = escapeHtml(lead.service);
+    const stories = escapeHtml(lead.stories);
+    const pitch = escapeHtml(lead.pitch);
+    const material = escapeHtml(lead.material);
+    const timeline = escapeHtml(lead.timeline);
+    const insurance = escapeHtml(lead.insurance);
+    const apptDate = escapeHtml(
+        new Date(`${lead.appointment.date}T00:00:00`).toLocaleDateString(undefined, {
+            weekday: 'long',
+            month: 'long',
+            day: 'numeric',
+        })
+    );
+    const apptTime = escapeHtml(lead.appointment.time);
+
+    return `
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
+            <div style="background-color: #0d9488; color: white; padding: 14px 18px; border-radius: 8px; margin-bottom: 20px; font-weight: bold; font-size: 18px; text-align: center;">
+                NEW QUALIFIED ROOFING LEAD &amp; BOOKING
+            </div>
+            <div style="background-color: #fef3c7; padding: 16px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #f59e0b; border-left: 4px solid #d97706;">
+                <p style="margin: 0; font-size: 12px; font-weight: bold; color: #78350f; text-transform: uppercase;">Scheduled Inspection Time Slot:</p>
+                <h3 style="margin: 4px 0 0 0; color: #92400e; font-size: 18px;">${apptDate} (${apptTime})</h3>
+            </div>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px;">
+                <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569; width: 35%;">Homeowner Name:</td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #0f172a;">${name}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">Mobile Phone:</td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; color: #0d9488; font-weight: bold;">
+                        <a href="tel:${phone}" style="color: #0d9488; text-decoration: none; font-size: 16px;">${phone}</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">Email Address:</td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0;">
+                        <a href="mailto:${email}" style="color: #6366f1; text-decoration: none;">${email}</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">Full Address:</td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #0f172a;">${location}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">City &amp; State:</td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #0f172a;">${city}, ${state} ${zip}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">Project Scope:</td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: bold;">${service}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">Stories &amp; Pitch:</td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0;">${stories} &bull; ${pitch}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">Desired Material:</td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; color: #0d9488; font-weight: bold;">${material}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">Timeline Urgency:</td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; color: #d97706; font-weight: bold;">${timeline}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">Funding Intent:</td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; color: #059669; font-weight: bold;">${insurance}</td>
+                </tr>
+            </table>
+            <div style="margin-top: 24px; text-align: center; background-color: #f0fdfa; padding: 14px; border-radius: 8px; border: 1px solid #ccfbf1;">
+                <span style="color: #0f766e; font-weight: bold; font-size: 14px;">Immediate Action: Call or text homeowner at <a href="tel:${phone}" style="color: #0d9488;">${phone}</a></span>
+            </div>
+        </div>
+    `;
 }
 
 export async function POST(req) {
     try {
-        const body = await req.json();
-        const { 
-            name, 
-            email, 
-            phone, 
-            address, 
-            city,
-            state,
-            zip, 
-            fullAddress,
-            service, 
-            roofAge, 
-            stories, 
-            pitch, 
-            material, 
-            timeline, 
-            insurance, 
-            website_hp,
-            appointment 
-        } = body;
-
-        // 1. Silent Honeypot Trap Rejection for Spambots
-        if (website_hp && website_hp.length > 0) {
-            console.warn('Spambot trapped via honeypot field:', email);
-            return NextResponse.json({ success: true, leadId: 'RQ-BOT' });
+        const contentLength = Number(req.headers.get('content-length') || 0);
+        if (contentLength > 32_768) {
+            return json({ success: false, error: 'Payload too large' }, { status: 413 });
         }
 
-        // Validation
-        if (!name || !email || !address) {
-            return NextResponse.json({ success: false, error: 'Required fields are missing' }, { status: 400 });
+        const ip = getClientIp(req);
+        const limited = rateLimit(`lead:${ip}`);
+        if (!limited.ok) {
+            return json({ success: false, error: 'Too many requests. Please try again later.' }, { status: 429 });
         }
 
-        const locationString = fullAddress || (city && state ? `${address}, ${city}, ${state.toUpperCase()} ${zip}` : address);
-        const uniqueId = Math.random().toString(36).substring(2, 8).toUpperCase();
-        
+        let body;
+        try {
+            body = await req.json();
+        } catch {
+            return json({ success: false, error: 'Invalid JSON' }, { status: 400 });
+        }
+
+        const parsed = validateLeadPayload(body);
+        if (parsed.honeypot) {
+            console.warn('Spambot trapped via honeypot field');
+            return json({ success: true, leadId: 'blocked' });
+        }
+        if (parsed.error) {
+            return json({ success: false, error: parsed.error }, { status: 400 });
+        }
+
+        const lead = parsed.value;
+        const emailLimited = rateLimit(`lead-email:${lead.email}`, { limit: 3, windowMs: 60 * 60 * 1000 });
+        if (!emailLimited.ok) {
+            return json({ success: false, error: 'Too many requests for this email.' }, { status: 429 });
+        }
+
         const motivationPayload = JSON.stringify({
-            service: service || 'Full Roof Replacement',
-            roofAge: roofAge || '10 - 20 years',
-            stories: stories || '1 Story',
-            pitch: pitch || 'Standard Pitch',
-            timeline: timeline || 'Under 1 month',
-            insurance: insurance || 'Cash / Direct Payment',
-            city: city || '',
-            state: state || '',
-            zip: zip || '',
-            appointment: appointment || null
+            service: lead.service,
+            roofAge: lead.roofAge,
+            stories: lead.stories,
+            pitch: lead.pitch,
+            timeline: lead.timeline,
+            insurance: lead.insurance,
+            city: lead.city,
+            state: lead.state,
+            zip: lead.zip,
+            appointment: lead.appointment,
         });
 
         const leadData = {
-            name,
-            email,
-            phone: phone || '',
-            address: locationString,
-            zip: zip || '34652',
+            name: lead.name,
+            email: lead.email,
+            phone: lead.phone,
+            address: lead.fullAddress,
+            zip: lead.zip,
             size: 2400,
-            material: material || 'Architectural Shingles',
+            material: lead.material,
             price: 0,
             motivation: motivationPayload,
-            age: service || 'Full Roof Replacement',
-            stories: stories || '1 Story',
-            status: appointment && appointment.date ? 'Inspection Scheduled' : 'New Lead',
-            date: new Date().toISOString()
+            age: lead.service,
+            stories: lead.stories,
+            status: 'Inspection Scheduled',
+            date: new Date().toISOString(),
         };
 
-        let savedLead = null;
-
-        if (supabase) {
-            try {
-                const { data, error } = await supabase.from('leads').insert([leadData]).select();
-                if (!error && data && data.length > 0) {
-                    savedLead = data[0];
-                }
-            } catch (e) {}
-        }
-
-        // Filesystem fallback caching if Supabase writes fail
-        if (!savedLead) {
-            leadData.id = 'RQ-' + uniqueId;
-            try {
-                let localLeads = [];
-                if (fs.existsSync(LEADS_FILE)) {
-                    const data = fs.readFileSync(LEADS_FILE, 'utf8');
-                    localLeads = JSON.parse(data);
-                }
-                localLeads.unshift(leadData);
-                fs.writeFileSync(LEADS_FILE, JSON.stringify(localLeads, null, 2), 'utf8');
-                savedLead = leadData;
-            } catch (e) {
-                savedLead = leadData;
-            }
-        }
+        const savedLead = await insertLead(leadData);
+        const leadId = String(savedLead.id);
+        const accessToken = createLeadAccessToken(leadId);
 
         const contractorEmail = await getContractorEmail();
-        const leadId = savedLead.id || 'RQ-' + uniqueId;
+        const street = lead.address;
+        const from = getFromAddress();
+        const bcc = process.env.LEAD_ALERT_BCC || undefined;
 
-        // 1. Email HTML for Homeowner (Customer Inspection Receipt)
-        const homeownerHtml = `
-            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
-                    <h2 style="color: #0d9488; margin: 0; font-size: 22px;">QUOTRAMAX</h2>
-                </div>
-                <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-bottom: 20px;">
-                <p style="font-size: 16px; color: #1e293b;">Hello <strong>${name}</strong>,</p>
-                <p style="font-size: 15px; color: #475569; line-height: 1.6;">
-                    Thank you for requesting your <strong>21-Point Roof &amp; Attic Inspection</strong> for <strong>${locationString}</strong>. Our local inspection crew has received your property details.
-                </p>
-                
-                ${appointment && appointment.date ? `
-                <div style="background-color: #f0fdfa; padding: 18px; border-radius: 8px; margin: 24px 0; border-left: 4px solid #0d9488;">
-                    <p style="margin: 0; font-size: 13px; font-weight: bold; color: #0f766e; text-transform: uppercase; letter-spacing: 0.05em;">📅 Confirmed Inspection Slot:</p>
-                    <h3 style="margin: 6px 0 2px 0; color: #115e59; font-size: 18px;">
-                        ${new Date(appointment.date + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                    </h3>
-                    <p style="margin: 0; font-size: 14px; color: #0d9488; font-weight: 600;">Time Window: ${appointment.time}</p>
-                </div>
-                ` : ''}
-
-                <h3 style="color: #0f172a; font-size: 16px; margin-top: 24px;">Project Scope Summary:</h3>
-                <ul style="color: #475569; font-size: 14px; line-height: 1.8; padding-left: 20px;">
-                    <li><strong>Service Goal:</strong> ${service || 'Full Roof Replacement'}</li>
-                    <li><strong>Property Location:</strong> ${locationString}</li>
-                    <li><strong>Building Specs:</strong> ${stories || '1 Story'} &bull; ${pitch || 'Standard Pitch'}</li>
-                    <li><strong>Desired Material:</strong> ${material || 'Architectural Shingles'}</li>
-                    <li><strong>Timeline / Urgency:</strong> ${timeline || 'Under 1 month'}</li>
-                    <li><strong>Funding Preference:</strong> ${insurance || 'Cash / Direct Payment'}</li>
-                </ul>
-
-                <div style="margin-top: 24px; padding: 16px; background-color: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
-                    <h4 style="margin: 0 0 8px 0; color: #0f172a; font-size: 14px;">Next Steps:</h4>
-                    <p style="margin: 0; font-size: 13px; color: #64748b; line-height: 1.5;">
-                        1. Our local inspection crew is preparing your property file.<br>
-                        2. A licensed technician will contact you via text/phone at <strong>${phone || 'your phone'}</strong> to confirm access.<br>
-                        3. You will receive a written physical property condition report on-site.
-                    </p>
-                </div>
-
-                <p style="margin-top: 24px; font-size: 14px; color: #64748b;">
-                    Best regards,<br>
-                    <strong>Your Certified Roofing Inspection Team</strong>
-                </p>
-            </div>
-        `;
-
-        // 2. Email HTML for Contractor (Instant Lead Dispatch Alert)
-        const contractorHtml = `
-            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
-                <div style="background-color: #0d9488; color: white; padding: 14px 18px; border-radius: 8px; margin-bottom: 20px; font-weight: bold; font-size: 18px; text-align: center;">
-                    🔥 NEW QUALIFIED ROOFING LEAD &amp; BOOKING
-                </div>
-
-                ${appointment && appointment.date ? `
-                <div style="background-color: #fef3c7; padding: 16px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #f59e0b; border-left: 4px solid #d97706;">
-                    <p style="margin: 0; font-size: 12px; font-weight: bold; color: #78350f; text-transform: uppercase;">📅 Scheduled Inspection Time Slot:</p>
-                    <h3 style="margin: 4px 0 0 0; color: #92400e; font-size: 18px;">
-                        ${new Date(appointment.date + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })} (${appointment.time})
-                    </h3>
-                </div>
-                ` : ''}
-
-                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px;">
-                    <tr>
-                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569; width: 35%;">Homeowner Name:</td>
-                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #0f172a;">${name}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">Mobile Phone:</td>
-                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; color: #0d9488; font-weight: bold;">
-                            <a href="tel:${phone}" style="color: #0d9488; text-decoration: none; font-size: 16px;">${phone || 'Not provided'}</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">Email Address:</td>
-                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0;">
-                            <a href="mailto:${email}" style="color: #6366f1; text-decoration: none;">${email}</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">Full Address:</td>
-                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #0f172a;">${locationString}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">City &amp; State:</td>
-                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #0f172a;">${city || 'N/A'}, ${state || 'N/A'} ${zip}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">Project Scope:</td>
-                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; color: #0f172a; font-weight: bold;">${service}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">Stories &amp; Pitch:</td>
-                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0;">${stories} &bull; ${pitch}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">Desired Material:</td>
-                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; color: #0d9488; font-weight: bold;">${material}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">Timeline Urgency:</td>
-                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; color: #d97706; font-weight: bold;">${timeline}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">Funding Intent:</td>
-                        <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; color: #059669; font-weight: bold;">${insurance}</td>
-                    </tr>
-                </table>
-
-                <div style="margin-top: 24px; text-align: center; background-color: #f0fdfa; padding: 14px; border-radius: 8px; border: 1px solid #ccfbf1;">
-                    <span style="color: #0f766e; font-weight: bold; font-size: 14px;">⚡ Immediate Action: Call or text homeowner at <a href="tel:${phone}" style="color: #0d9488;">${phone}</a></span>
-                </div>
-            </div>
-        `;
-
-        // PARALLEL EXECUTION with Promise.allSettled for 90% faster HTTP response time
-        const emailTasks = [
-            sendEmail({
-                to: email,
-                subject: `Confirmed: 21-Point Roof Inspection for ${address.split(',')[0]}`,
-                html: homeownerHtml,
-                from: 'Quotramax Inspection Team <leads@quotramax.com>'
-            }),
-            sendEmail({
-                to: contractorEmail,
-                subject: `🔥 NEW LEAD: ${name} (${service}) - ${locationString}`,
-                html: contractorHtml,
-                from: 'Quotramax Lead Alert <leads@quotramax.com>'
-            })
-        ];
-
-        if (email !== 'isaaqabukar1@gmail.com') {
-            emailTasks.push(
+        after(async () => {
+            const emailTasks = [
                 sendEmail({
-                    to: 'isaaqabukar1@gmail.com',
-                    subject: `[Homeowner Receipt Copy for ${email}] Confirmed: 21-Point Roof Inspection for ${address.split(',')[0]}`,
-                    html: homeownerHtml,
-                    from: 'Quotramax Inspection Team <leads@quotramax.com>'
-                })
-            );
-        }
+                    to: lead.email,
+                    subject: `Confirmed: 21-Point Roof Inspection for ${street}`,
+                    html: buildHomeownerHtml(lead),
+                    from,
+                }),
+            ];
 
-        if (contractorEmail !== 'isaaqabukar1@gmail.com') {
-            emailTasks.push(
-                sendEmail({
-                    to: 'isaaqabukar1@gmail.com',
-                    subject: `🔥 NEW LEAD (Copy): ${name} (${service}) - ${locationString}`,
-                    html: contractorHtml,
-                    from: 'Quotramax Lead Alert <leads@quotramax.com>'
-                })
-            );
-        }
+            if (contractorEmail) {
+                emailTasks.push(
+                    sendEmail({
+                        to: contractorEmail,
+                        subject: `New lead: ${lead.name} (${lead.service}) - ${lead.fullAddress}`,
+                        html: buildContractorHtml(lead),
+                        from: getFromAddress('Quotramax Lead Alert <leads@quotramax.com>'),
+                        bcc,
+                    })
+                );
+            } else {
+                console.error('CONTRACTOR_EMAIL is not configured; contractor alert skipped');
+            }
 
-        await Promise.allSettled(emailTasks);
+            await Promise.allSettled(emailTasks);
+        });
 
-        return NextResponse.json({ success: true, leadId });
-    } catch (e) {
-        console.error('Leads POST API error:', e);
-        return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
+        return json({ success: true, leadId, accessToken }, { token: accessToken });
+    } catch (error) {
+        console.error('Leads POST API error:', error);
+        const isConfig = /not configured|LEAD_ACCESS_SECRET|Failed to save lead/i.test(String(error.message || ''));
+        return json(
+            {
+                success: false,
+                error: isConfig
+                    ? 'Lead intake is temporarily unavailable. Please try again shortly.'
+                    : 'Internal server error',
+            },
+            { status: isConfig ? 503 : 500 }
+        );
     }
 }

@@ -1,55 +1,31 @@
-import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
 import { calculateEstimate } from '@/lib/estimate';
+import { findLeadById, parseMotivation } from '@/lib/leads';
+import { isValidLeadId, noStoreHeaders, requireLeadAccess } from '@/lib/security';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
-import fs from 'fs';
-import path from 'path';
 
-const LEADS_FILE = path.join(process.cwd(), 'vanilla_backup/data/leads.json');
-
-async function findLeadById(id) {
-    if (supabase) {
-        try {
-            const { data, error } = await supabase.from('leads').select('*').eq('id', id).single();
-            if (!error && data) {
-                return data;
-            }
-        } catch (e) {
-            console.error('Supabase fetch lead by ID for PDF error:', e);
-        }
-    }
-
-    // Try local filesystem fallback
-    try {
-        if (fs.existsSync(LEADS_FILE)) {
-            const fileData = fs.readFileSync(LEADS_FILE, 'utf8');
-            const leads = JSON.parse(fileData);
-            const lead = leads.find(l => l.id === id);
-            if (lead) return lead;
-        }
-    } catch (e) {
-        console.error('File fallback read lead by ID for PDF error:', e);
-    }
-
-    return null;
-}
+export const dynamic = 'force-dynamic';
 
 export async function GET(req, { params }) {
     try {
         const { id } = await params;
+        if (!isValidLeadId(id) || !requireLeadAccess(req, id)) {
+            return new Response('Unauthorized', { status: 401, headers: noStoreHeaders() });
+        }
+
         const lead = await findLeadById(id);
 
         if (!lead) {
-            return new Response('Estimate not found', { status: 404 });
+            return new Response('Estimate not found', { status: 404, headers: noStoreHeaders() });
         }
 
-        // Parse serialized wizard fields from motivation if present
-        let extraData = {};
-        try {
-            if (lead.motivation && lead.motivation.startsWith('{')) {
-                extraData = JSON.parse(lead.motivation);
-            }
-        } catch (e) {}
+        const extraData = parseMotivation(lead.motivation);
+
+        const pdfSafe = (value, max = 80) =>
+            String(value || '')
+                .replace(/[^\x20-\x7E]/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim()
+                .slice(0, max);
 
         const stories = lead.stories || '1';
         const condition = lead.age || 'Good';
@@ -141,7 +117,8 @@ export async function GET(req, { params }) {
         page.drawText('OFFICIAL PRELIMINARY ESTIMATE REPORT', { x: 40, y: 740, size: 8, font: helveticaBold, color: accentTeal });
 
         const dateStr = new Date(lead.date || Date.now()).toISOString().split('T')[0];
-        page.drawText(`ESTIMATE NO: EST-${id.substring(0, 8).toUpperCase()}`, { x: 410, y: 756, size: 9, font: helveticaBold, color: rgb(1, 1, 1) });
+        const estimateNo = String(id).replace(/[^A-Za-z0-9-]/g, '').slice(0, 8).toUpperCase();
+        page.drawText(`ESTIMATE NO: EST-${estimateNo}`, { x: 410, y: 756, size: 9, font: helveticaBold, color: rgb(1, 1, 1) });
         page.drawText(`DATE ISSUED: ${dateStr}`, { x: 410, y: 740, size: 8, font: helveticaFont, color: rgb(0.75, 0.80, 0.90) });
 
         // ------------------ 2. CUSTOMER & PROPERTY CARD ------------------
@@ -165,17 +142,17 @@ export async function GET(req, { params }) {
 
         // Left Col
         page.drawText('Prepared For:', { x: 50, y: 672, size: 8.5, font: helveticaBold, color: grayColor });
-        page.drawText(lead.name || 'Valued Homeowner', { x: 125, y: 672, size: 8.5, font: helveticaFont, color: primaryColor });
+        page.drawText(pdfSafe(lead.name, 40) || 'Valued Homeowner', { x: 125, y: 672, size: 8.5, font: helveticaFont, color: primaryColor });
 
         page.drawText('Property Addr:', { x: 50, y: 654, size: 8.5, font: helveticaBold, color: grayColor });
-        page.drawText(lead.address || 'Address on file', { x: 125, y: 654, size: 8.5, font: helveticaFont, color: primaryColor });
+        page.drawText(pdfSafe(lead.address, 50) || 'Address on file', { x: 125, y: 654, size: 8.5, font: helveticaFont, color: primaryColor });
 
         page.drawText('Email Address:', { x: 50, y: 636, size: 8.5, font: helveticaBold, color: grayColor });
-        page.drawText(lead.email || 'Not provided', { x: 125, y: 636, size: 8.5, font: helveticaFont, color: primaryColor });
+        page.drawText(pdfSafe(lead.email, 40) || 'Not provided', { x: 125, y: 636, size: 8.5, font: helveticaFont, color: primaryColor });
 
         // Right Col
         page.drawText('Phone Number:', { x: 330, y: 672, size: 8.5, font: helveticaBold, color: grayColor });
-        page.drawText(lead.phone || 'Not provided', { x: 410, y: 672, size: 8.5, font: helveticaFont, color: primaryColor });
+        page.drawText(pdfSafe(lead.phone, 20) || 'Not provided', { x: 410, y: 672, size: 8.5, font: helveticaFont, color: primaryColor });
 
         page.drawText('Property Type:', { x: 330, y: 654, size: 8.5, font: helveticaBold, color: grayColor });
         page.drawText(propertyType, { x: 410, y: 654, size: 8.5, font: helveticaFont, color: primaryColor });
@@ -300,7 +277,7 @@ export async function GET(req, { params }) {
         page.drawText('• Receive an official binding contract with guaranteed warranty coverage.', { x: 50, y: 142, size: 8, font: helveticaFont, color: grayColor });
 
         page.drawText('Contractor Contact Email:', { x: 50, y: 124, size: 8, font: helveticaBold, color: primaryColor });
-        page.drawText('isaaqabukar1@gmail.com', { x: 160, y: 124, size: 8, font: helveticaBold, color: accentTeal });
+        page.drawText(process.env.CONTRACTOR_EMAIL || 'See confirmation email', { x: 160, y: 124, size: 8, font: helveticaBold, color: accentTeal });
 
         // Page Bottom Divider & Footer text
         page.drawLine({ start: { x: 40, y: 45 }, end: { x: 572, y: 45 }, thickness: 0.5, color: borderLightColor });
@@ -310,16 +287,18 @@ export async function GET(req, { params }) {
         // Save PDF to buffer
         const pdfBytes = await pdfDoc.save();
 
+        const safeName = String(id).replace(/[^A-Za-z0-9_-]/g, '').slice(0, 40);
         return new Response(pdfBytes, {
             status: 200,
             headers: {
+                ...noStoreHeaders(),
                 'Content-Type': 'application/pdf',
-                'Content-Disposition': `attachment; filename="Quotramax_Estimate_${id}.pdf"`,
+                'Content-Disposition': `attachment; filename="Quotramax_Estimate_${safeName}.pdf"`,
                 'Content-Length': pdfBytes.length.toString()
             }
         });
     } catch (e) {
         console.error('PDF generation API error:', e);
-        return new Response('Internal Server Error', { status: 500 });
+        return new Response('Internal Server Error', { status: 500, headers: noStoreHeaders() });
     }
 }
