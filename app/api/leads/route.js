@@ -279,15 +279,43 @@ export async function POST(req) {
         return json({ success: true, leadId, accessToken }, { token: accessToken });
     } catch (error) {
         console.error('Leads POST API error:', error);
-        const isConfig = /not configured|LEAD_ACCESS_SECRET|Failed to save lead/i.test(String(error.message || ''));
-        return json(
-            {
-                success: false,
-                error: isConfig
-                    ? 'Lead intake is temporarily unavailable. Please try again shortly.'
-                    : 'Internal server error',
-            },
-            { status: isConfig ? 503 : 500 }
-        );
+        const message = String(error.message || '');
+        if (message === 'RLS_BLOCKED') {
+            return json(
+                {
+                    success: false,
+                    error: 'The website is using the public database key. In Vercel, add SUPABASE_SERVICE_ROLE_KEY using the secret service_role key from Supabase, then Redeploy.',
+                },
+                { status: 503 }
+            );
+        }
+        if (/not configured/i.test(message)) {
+            return json(
+                {
+                    success: false,
+                    error: 'Database is not connected on Vercel yet. Add SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY, then Redeploy.',
+                },
+                { status: 503 }
+            );
+        }
+        if (/LEAD_ACCESS_SECRET/i.test(message)) {
+            return json(
+                {
+                    success: false,
+                    error: 'Lead intake is temporarily unavailable. Please try again shortly.',
+                },
+                { status: 503 }
+            );
+        }
+        if (/Failed to save lead/i.test(message)) {
+            return json(
+                {
+                    success: false,
+                    error: 'Could not save this lead to the database. Check Vercel → Deployments → Logs for “Supabase insert lead error”.',
+                },
+                { status: 503 }
+            );
+        }
+        return json({ success: false, error: 'Internal server error' }, { status: 500 });
     }
 }
