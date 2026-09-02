@@ -3,17 +3,17 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-    AlertCircle,
+    ArrowRight,
     Check,
     ChevronDown,
-    ChevronLeft,
-    ChevronRight,
     Clock,
     CloudLightning,
     Droplets,
-    Home as HomeIcon,
+    Hammer,
+    House,
     Lock,
     Search,
+    TriangleAlert,
     Zap
 } from 'lucide-react';
 
@@ -21,25 +21,25 @@ const SERVICES = [
     {
         title: 'Full Roof Replacement',
         desc: 'My roof is old, worn out, or needs a complete teardown and new installation.',
-        Icon: HomeIcon,
+        icon: Hammer,
         val: 'Full Roof Replacement'
     },
     {
         title: 'Active Leak or Repair Emergency',
         desc: 'Water dripping, ceiling stains, missing shingles, or emergency flashing repair.',
-        Icon: Droplets,
+        icon: Droplets,
         val: 'Active Leak / Repair'
     },
     {
         title: 'Storm & Hail Damage Claim',
         desc: 'I suspect wind, hail, or tree damage and need an official inspection for insurance.',
-        Icon: CloudLightning,
+        icon: CloudLightning,
         val: 'Storm / Hail Damage'
     },
     {
         title: 'Preventative 21-Point Inspection',
         desc: 'I am buying, selling, or maintaining my home and want a thorough roof check.',
-        Icon: Search,
+        icon: Search,
         val: 'Preventative Inspection'
     }
 ];
@@ -127,39 +127,30 @@ const FAQS = [
     }
 ];
 
-const STEP_LABELS = ['Roof Goal', 'Home Specs', 'Timeline & Budget', 'Property Location', 'Schedule Inspection'];
-
-const cardClass = (selected) =>
-    `w-full min-h-11 p-4 rounded-2xl border flex items-center justify-between gap-3 cursor-pointer transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+const optionCardClass = (selected) =>
+    `w-full min-h-[44px] p-5 rounded-2xl border text-left flex items-center justify-between gap-4 cursor-pointer transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
         selected
-            ? 'border-accent bg-accent/10 shadow-sm'
-            : 'border-border bg-card hover:-translate-y-0.5 hover:shadow-md hover:border-primary/25'
+            ? 'border-primary bg-primary-tint shadow-card'
+            : 'border-border bg-background hover:border-border-strong hover:shadow-card-hover hover:-translate-y-0.5'
     }`;
 
-const onCardKeyDown = (fn) => (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        fn();
-    }
-};
-
 const inputClass =
-    'w-full min-h-11 rounded-xl border border-border bg-background px-3.5 py-2.5 text-base text-foreground outline-none transition duration-150 placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-ring';
+    'w-full min-h-[44px] px-4 py-3 rounded-xl border border-border bg-background text-lg text-foreground placeholder:text-foreground-tertiary transition-all duration-200 ease-out focus:outline-none focus:border-primary focus:ring-2 focus:ring-ring';
 
 const primaryBtn =
-    'inline-flex w-full sm:w-auto items-center justify-center gap-2 min-h-11 rounded-xl bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground shadow-sm transition duration-150 hover:brightness-105 hover:shadow-md active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60';
+    'inline-flex w-full sm:w-auto items-center justify-center gap-2 min-h-[44px] px-6 py-3 rounded-xl bg-primary text-primary-fg font-semibold text-lg shadow-button transition-all duration-200 ease-out hover:bg-primary-hover hover:shadow-lg active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none';
 
-const secondaryBtn =
-    'inline-flex items-center justify-center gap-1 min-h-11 px-2 text-sm font-medium text-muted-foreground transition duration-150 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-lg';
+const backBtn =
+    'min-h-[44px] px-4 rounded-xl text-base font-medium text-foreground-secondary transition-colors duration-200 ease-out hover:bg-muted hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring';
 
 function SelectionMark({ selected }) {
     return (
         <span
-            className={`w-6 h-6 rounded-full border flex items-center justify-center flex-shrink-0 transition-colors duration-200 ${
-                selected ? 'bg-accent border-accent text-accent-foreground' : 'border-border bg-card'
+            className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 transition-colors duration-200 ${
+                selected ? 'bg-primary' : 'border border-border-strong'
             }`}
             aria-hidden="true">
-            {selected ? <Check className="w-[14px] h-[14px]" strokeWidth={2.5} /> : null}
+            {selected ? <Check className="w-3.5 h-3.5 text-primary-fg" strokeWidth={2.5} /> : null}
         </span>
     );
 }
@@ -347,40 +338,40 @@ export default function Home() {
     };
 
     return (
-        <div className="min-h-screen bg-background text-foreground flex flex-col font-sans selection:bg-accent/20">
-            <header className="border-b border-border bg-card/90 backdrop-blur-md sticky top-0 z-40">
+        <div className="min-h-screen bg-background-alt text-foreground flex flex-col font-sans selection:bg-primary-tint">
+            <header className="border-b border-border bg-background/80 backdrop-blur-xl sticky top-0 z-40">
                 <div className="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center gap-3">
                     <div className="flex items-center gap-2 cursor-pointer" onClick={() => goToStep(1)}>
-                        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                            <HomeIcon className="w-4 h-4 text-primary-foreground" aria-hidden="true" />
+                        <div className="w-8 h-8 rounded-lg bg-primary-tint border border-border flex items-center justify-center">
+                            <House className="w-4 h-4 text-primary" aria-hidden="true" />
                         </div>
-                        <span className="font-heading font-bold text-lg tracking-tight text-foreground flex items-center gap-1.5">
-                            QUOTRA<span className="text-accent">MAX</span>
-                            <span className="text-[10px] font-semibold px-1.5 py-0.5 bg-muted text-muted-foreground rounded-md">ASSESSMENT</span>
+                        <span className="font-heading font-semibold text-lg tracking-tight text-foreground flex items-center gap-1.5">
+                            QUOTRA<span className="text-primary">MAX</span>
+                            <span className="text-xs font-semibold px-1.5 py-0.5 bg-muted text-foreground-secondary rounded-md">ASSESSMENT</span>
                         </span>
                     </div>
 
-                    <div className="text-xs font-semibold text-accent flex items-center gap-1.5 bg-accent/10 px-3 py-1.5 rounded-full border border-accent/20">
-                        <span className="w-2 h-2 rounded-full bg-accent" aria-hidden="true"></span>
+                    <div className="text-sm font-medium text-foreground-secondary flex items-center gap-1.5 bg-muted px-3 py-1.5 rounded-full border border-border">
+                        <span className="w-2 h-2 rounded-full bg-accent animate-pulse" aria-hidden="true"></span>
                         Free 21-Point Inspection
                     </div>
                 </div>
             </header>
 
-            <main className="flex-1 max-w-xl w-full mx-auto px-4 py-8 sm:py-10 flex flex-col justify-center">
-                <div className="text-center mb-8">
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-muted border border-border rounded-full text-[11px] font-semibold text-primary mb-3 uppercase tracking-wider">
-                        <Zap className="w-3.5 h-3.5 text-accent" aria-hidden="true" />
+            <main className="flex-1 max-w-2xl w-full mx-auto px-4 py-10 sm:py-12 flex flex-col justify-center gap-12">
+                <div className="text-center">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-tint border border-border rounded-full text-sm font-medium text-primary mb-4">
+                        <Zap className="w-5 h-5" aria-hidden="true" />
                         Official 60-Second Roof Inspection & Price Estimate
                     </div>
-                    <h1 className="font-heading text-2xl sm:text-3xl font-bold text-foreground tracking-tight leading-tight">
+                    <h1 className="text-2xl sm:text-4xl font-heading font-bold tracking-tight leading-tight">
                         {step === 1 && 'What is the primary goal for your roof?'}
                         {step === 2 && 'What type of home and roofing material do you have?'}
                         {step === 3 && 'What is your ideal project timeline & payment preference?'}
                         {step === 4 && 'Where should we send your official roof inspection & price quote?'}
                         {step === 5 && 'Select your preferred date for a free on-site roof inspection'}
                     </h1>
-                    <p className="text-base text-muted-foreground mt-3 font-medium">
+                    <p className="text-lg text-foreground-secondary leading-relaxed mt-3">
                         {step === 1 && 'Select your primary roof concern below to get started.'}
                         {step === 2 && 'Helps us calculate accurate material costs and labor scope.'}
                         {step === 3 && 'Choose the scheduling and funding options that fit your budget.'}
@@ -389,84 +380,54 @@ export default function Home() {
                     </p>
                 </div>
 
-                <div className="border border-border rounded-2xl bg-card p-5 sm:p-8 shadow-card">
+                <div className="rounded-2xl border border-border bg-background shadow-card px-4 sm:px-6 py-6 sm:py-8">
                     <div className="mb-6">
-                        <div className="relative mb-3">
-                            <div className="absolute top-3.5 left-[10%] right-[10%] h-0.5 bg-muted rounded-full" aria-hidden="true" />
-                            <div
-                                className="absolute top-3.5 left-[10%] h-0.5 bg-accent rounded-full transition-all duration-300 ease-out"
-                                style={{ width: `${((step - 1) / 4) * 80}%` }}
-                                aria-hidden="true"
-                            />
-                            <div className="relative flex items-start justify-between gap-1">
-                                {STEP_LABELS.map((label, idx) => {
-                                    const n = idx + 1;
-                                    const done = n < step;
-                                    const active = n === step;
-                                    return (
-                                        <div
-                                            key={label}
-                                            className="flex-1 flex flex-col items-center gap-1.5 min-w-0"
-                                            aria-current={active ? 'step' : undefined}>
-                                            <div
-                                                className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold transition-colors duration-200 z-[1] ${
-                                                    done
-                                                        ? 'bg-accent text-accent-foreground'
-                                                        : active
-                                                          ? 'bg-primary text-primary-foreground ring-2 ring-ring/30'
-                                                          : 'bg-muted text-muted-foreground'
-                                                }`}>
-                                                {done ? <Check className="w-3.5 h-3.5" aria-hidden="true" /> : n}
-                                            </div>
-                                            <span className={`hidden sm:block text-[10px] font-semibold truncate max-w-full ${active ? 'text-foreground' : 'text-muted-foreground'}`}>
-                                                {label}
-                                            </span>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                        <div className="flex justify-between text-xs font-semibold mb-2">
-                            <span className="text-muted-foreground">
-                                Step {step} of 5: <span className="text-foreground">{STEP_LABELS[step - 1]}</span>
+                        <div className="flex justify-between items-baseline gap-3 mb-2">
+                            <span className="text-base text-foreground-secondary">
+                                Step {step} of 5:{' '}
+                                <span className="text-primary font-semibold">
+                                    {step === 1 && 'Roof Goal'}
+                                    {step === 2 && 'Home Specs'}
+                                    {step === 3 && 'Timeline & Budget'}
+                                    {step === 4 && 'Property Location'}
+                                    {step === 5 && 'Schedule Inspection'}
+                                </span>
                             </span>
-                            <span className="text-muted-foreground tabular-nums">{Math.round((step / 5) * 100)}%</span>
+                            <span className="text-foreground-tertiary tabular-nums">{Math.round((step / 5) * 100)}%</span>
                         </div>
                         <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
                             <div
-                                className="h-full bg-accent rounded-full transition-all duration-300 ease-out"
+                                className="h-full bg-primary rounded-full transition-all duration-300 ease-out"
                                 style={{ width: `${(step / 5) * 100}%` }}
                             />
                         </div>
                     </div>
 
                     {error && (
-                        <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 text-destructive-foreground text-sm rounded-xl font-semibold text-center flex items-center justify-center gap-2">
-                            <AlertCircle className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
+                        <div className="mb-4 p-4 bg-danger-tint border border-danger/20 text-danger text-base rounded-xl font-medium text-center flex items-center justify-center gap-2">
+                            <TriangleAlert className="w-5 h-5 flex-shrink-0" aria-hidden="true" />
                             {error}
                         </div>
                     )}
 
                     {step === 1 && (
-                        <div key="step-1" className="space-y-3 animate-step-in">
+                        <div className="space-y-4 animate-stepIn">
                             {SERVICES.map((item) => {
                                 const selected = formData.service === item.val;
-                                const Icon = item.Icon;
+                                const Icon = item.icon;
                                 return (
                                     <div
                                         key={item.val}
                                         role="button"
                                         tabIndex={0}
                                         onClick={() => handleChange('service', item.val)}
-                                        onKeyDown={onCardKeyDown(() => handleChange('service', item.val))}
-                                        className={cardClass(selected)}>
-                                        <div className="flex items-center gap-3.5 min-w-0">
-                                            <span className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center flex-shrink-0">
-                                                <Icon className="w-5 h-5 text-primary" aria-hidden="true" />
-                                            </span>
+                                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleChange('service', item.val); } }}
+                                        className={optionCardClass(selected)}>
+                                        <div className="flex items-center gap-4 min-w-0">
+                                            <Icon className="w-6 h-6 text-primary flex-shrink-0" aria-hidden="true" />
                                             <div className="min-w-0">
-                                                <div className="font-semibold text-sm text-foreground">{item.title}</div>
-                                                <div className="text-sm text-muted-foreground leading-relaxed mt-0.5">{item.desc}</div>
+                                                <div className="text-lg font-semibold text-foreground">{item.title}</div>
+                                                <div className="text-base text-foreground-secondary leading-relaxed mt-1">{item.desc}</div>
                                             </div>
                                         </div>
                                         <SelectionMark selected={selected} />
@@ -474,29 +435,29 @@ export default function Home() {
                                 );
                             })}
 
-                            <div className="flex justify-end pt-4">
+                            <div className="flex justify-end pt-2">
                                 <button type="button" onClick={() => goToStep(2)} className={primaryBtn}>
-                                    <span>Next: Home Specs →</span>
-                                    <ChevronRight className="w-4 h-4" aria-hidden="true" />
+                                    Next: Home Specs
+                                    <ArrowRight className="w-5 h-5" aria-hidden="true" />
                                 </button>
                             </div>
                         </div>
                     )}
 
                     {step === 2 && (
-                        <div key="step-2" className="space-y-6 animate-step-in">
+                        <div className="space-y-8 animate-stepIn">
                             <div>
-                                <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">How many stories is your home?</label>
-                                <div className="grid grid-cols-3 gap-2.5">
+                                <label className="block text-base font-medium text-foreground mb-3">How many stories is your home?</label>
+                                <div className="grid grid-cols-3 gap-3">
                                     {['1 Story', '2 Stories', '3+ Stories'].map((story) => (
                                         <button
                                             key={story}
                                             type="button"
                                             onClick={() => handleChange('stories', story)}
-                                            className={`min-h-11 p-3 rounded-xl border text-sm font-semibold transition-all duration-200 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                                            className={`min-h-[44px] p-4 rounded-2xl border text-base font-semibold transition-all duration-200 ease-out text-center focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
                                                 formData.stories === story
-                                                    ? 'bg-accent/10 border-accent text-foreground shadow-sm'
-                                                    : 'bg-card border-border text-muted-foreground hover:-translate-y-0.5 hover:shadow-md'
+                                                    ? 'border-primary bg-primary-tint shadow-card text-foreground'
+                                                    : 'border-border bg-background text-foreground-secondary hover:border-border-strong hover:shadow-card-hover hover:-translate-y-0.5'
                                             }`}>
                                             {story}
                                         </button>
@@ -505,8 +466,8 @@ export default function Home() {
                             </div>
 
                             <div>
-                                <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">What is your preferred roofing material?</label>
-                                <div className="space-y-2.5">
+                                <label className="block text-base font-medium text-foreground mb-3">What is your preferred roofing material?</label>
+                                <div className="space-y-3">
                                     {MATERIALS.map((mat) => {
                                         const selected = formData.material === mat.val;
                                         return (
@@ -515,11 +476,11 @@ export default function Home() {
                                                 role="button"
                                                 tabIndex={0}
                                                 onClick={() => handleChange('material', mat.val)}
-                                                onKeyDown={onCardKeyDown(() => handleChange('material', mat.val))}
-                                                className={cardClass(selected)}>
+                                                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleChange('material', mat.val); } }}
+                                                className={optionCardClass(selected)}>
                                                 <div className="min-w-0 pr-2">
-                                                    <div className="font-semibold text-sm text-foreground">{mat.name}</div>
-                                                    <div className="text-sm text-muted-foreground mt-0.5">{mat.desc}</div>
+                                                    <div className="text-lg font-semibold text-foreground">{mat.name}</div>
+                                                    <div className="text-base text-foreground-secondary leading-relaxed mt-1">{mat.desc}</div>
                                                 </div>
                                                 <SelectionMark selected={selected} />
                                             </div>
@@ -528,24 +489,23 @@ export default function Home() {
                                 </div>
                             </div>
 
-                            <div className="flex justify-between items-center pt-2 gap-3">
-                                <button type="button" onClick={() => goToStep(1)} className={secondaryBtn}>
-                                    <ChevronLeft className="w-4 h-4" aria-hidden="true" />
+                            <div className="flex justify-between items-center gap-3 pt-2">
+                                <button type="button" onClick={() => goToStep(1)} className={backBtn}>
                                     ← Back
                                 </button>
                                 <button type="button" onClick={() => goToStep(3)} className={primaryBtn}>
-                                    Next: Timeline →
-                                    <ChevronRight className="w-4 h-4" aria-hidden="true" />
+                                    Next: Timeline
+                                    <ArrowRight className="w-5 h-5" aria-hidden="true" />
                                 </button>
                             </div>
                         </div>
                     )}
 
                     {step === 3 && (
-                        <div key="step-3" className="space-y-6 animate-step-in">
+                        <div className="space-y-8 animate-stepIn">
                             <div>
-                                <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">When do you need this work completed?</label>
-                                <div className="space-y-2">
+                                <label className="block text-base font-medium text-foreground mb-3">When do you need this work completed?</label>
+                                <div className="space-y-3">
                                     {TIMELINES.map((item) => {
                                         const selected = formData.timeline === item.val;
                                         return (
@@ -554,11 +514,11 @@ export default function Home() {
                                                 role="button"
                                                 tabIndex={0}
                                                 onClick={() => handleChange('timeline', item.val)}
-                                                onKeyDown={onCardKeyDown(() => handleChange('timeline', item.val))}
-                                                className={cardClass(selected)}>
+                                                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleChange('timeline', item.val); } }}
+                                                className={optionCardClass(selected)}>
                                                 <div className="min-w-0 pr-2">
-                                                    <div className="font-semibold text-sm text-foreground">{item.title}</div>
-                                                    <div className="text-sm text-muted-foreground mt-0.5">{item.desc}</div>
+                                                    <div className="text-lg font-semibold text-foreground">{item.title}</div>
+                                                    <div className="text-base text-foreground-secondary leading-relaxed mt-1">{item.desc}</div>
                                                 </div>
                                                 <SelectionMark selected={selected} />
                                             </div>
@@ -568,8 +528,8 @@ export default function Home() {
                             </div>
 
                             <div>
-                                <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">What is your preferred payment option?</label>
-                                <div className="space-y-2">
+                                <label className="block text-base font-medium text-foreground mb-3">What is your preferred payment option?</label>
+                                <div className="space-y-3">
                                     {PAYMENTS.map((pay) => {
                                         const selected = formData.insurance === pay.val;
                                         return (
@@ -578,11 +538,11 @@ export default function Home() {
                                                 role="button"
                                                 tabIndex={0}
                                                 onClick={() => handleChange('insurance', pay.val)}
-                                                onKeyDown={onCardKeyDown(() => handleChange('insurance', pay.val))}
-                                                className={cardClass(selected)}>
+                                                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleChange('insurance', pay.val); } }}
+                                                className={optionCardClass(selected)}>
                                                 <div className="min-w-0 pr-2">
-                                                    <div className="font-semibold text-sm text-foreground">{pay.name}</div>
-                                                    <div className="text-sm text-muted-foreground mt-0.5">{pay.desc}</div>
+                                                    <div className="text-lg font-semibold text-foreground">{pay.name}</div>
+                                                    <div className="text-base text-foreground-secondary leading-relaxed mt-1">{pay.desc}</div>
                                                 </div>
                                                 <SelectionMark selected={selected} />
                                             </div>
@@ -591,23 +551,22 @@ export default function Home() {
                                 </div>
                             </div>
 
-                            <div className="flex justify-between items-center pt-2 gap-3">
-                                <button type="button" onClick={() => goToStep(2)} className={secondaryBtn}>
-                                    <ChevronLeft className="w-4 h-4" aria-hidden="true" />
+                            <div className="flex justify-between items-center gap-3 pt-2">
+                                <button type="button" onClick={() => goToStep(2)} className={backBtn}>
                                     ← Back
                                 </button>
                                 <button type="button" onClick={() => goToStep(4)} className={primaryBtn}>
-                                    Next: Property Location →
-                                    <ChevronRight className="w-4 h-4" aria-hidden="true" />
+                                    Next: Property Location
+                                    <ArrowRight className="w-5 h-5" aria-hidden="true" />
                                 </button>
                             </div>
                         </div>
                     )}
 
                     {step === 4 && (
-                        <div key="step-4" className="space-y-4 animate-step-in">
-                            <div className="p-3.5 bg-accent/10 border border-accent/20 rounded-xl flex items-start gap-2.5 text-sm text-foreground">
-                                <HomeIcon className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" aria-hidden="true" />
+                        <div className="space-y-4 animate-stepIn animate-fadeIn">
+                            <div className="p-4 bg-primary-tint border border-border rounded-2xl flex items-start gap-3 text-base text-foreground">
+                                <House className="w-6 h-6 text-primary flex-shrink-0 mt-0.5" aria-hidden="true" />
                                 <span><strong>Local Inspection Crew Available:</strong> Enter property location to check local scheduling availability and calculate your free estimate.</span>
                             </div>
 
@@ -623,7 +582,7 @@ export default function Home() {
                             />
 
                             <div>
-                                <label className="block text-xs font-semibold text-foreground uppercase tracking-wider mb-1.5">Street Address *</label>
+                                <label className="block text-base font-medium text-foreground mb-2">Street Address *</label>
                                 <input
                                     type="text"
                                     placeholder="e.g. 100 Bayshore Blvd"
@@ -633,9 +592,9 @@ export default function Home() {
                                 />
                             </div>
 
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-xs font-semibold text-foreground uppercase tracking-wider mb-1.5">City *</label>
+                                    <label className="block text-base font-medium text-foreground mb-2">City *</label>
                                     <input
                                         type="text"
                                         placeholder="e.g. Tampa"
@@ -645,7 +604,7 @@ export default function Home() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-semibold text-foreground uppercase tracking-wider mb-1.5">State *</label>
+                                    <label className="block text-base font-medium text-foreground mb-2">State *</label>
                                     <input
                                         type="text"
                                         maxLength={2}
@@ -657,9 +616,9 @@ export default function Home() {
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-xs font-semibold text-foreground uppercase tracking-wider mb-1.5">5-Digit ZIP Code *</label>
+                                    <label className="block text-base font-medium text-foreground mb-2">5-Digit ZIP Code *</label>
                                     <input
                                         type="tel"
                                         inputMode="numeric"
@@ -671,7 +630,7 @@ export default function Home() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-semibold text-foreground uppercase tracking-wider mb-1.5">Full Name *</label>
+                                    <label className="block text-base font-medium text-foreground mb-2">Full Name *</label>
                                     <input
                                         type="text"
                                         placeholder="First and last name"
@@ -682,9 +641,9 @@ export default function Home() {
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-xs font-semibold text-foreground uppercase tracking-wider mb-1.5">Mobile Phone (For Text Alert) *</label>
+                                    <label className="block text-base font-medium text-foreground mb-2">Mobile Phone (For Text Alert) *</label>
                                     <input
                                         type="tel"
                                         inputMode="numeric"
@@ -695,7 +654,7 @@ export default function Home() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-semibold text-foreground uppercase tracking-wider mb-1.5">Email Address (For Report) *</label>
+                                    <label className="block text-base font-medium text-foreground mb-2">Email Address (For Report) *</label>
                                     <input
                                         type="email"
                                         placeholder="name@example.com"
@@ -706,51 +665,50 @@ export default function Home() {
                                 </div>
                             </div>
 
-                            <div className="p-3 bg-muted border border-border rounded-xl flex items-center justify-between text-sm text-muted-foreground">
-                                <span className="flex items-center gap-1.5">
-                                    <Lock className="w-3.5 h-3.5 text-accent" aria-hidden="true" /> 100% Spam-Free Privacy Guarantee
+                            <div className="p-4 bg-muted border border-border rounded-2xl flex items-center justify-between gap-3 text-base text-foreground-secondary">
+                                <span className="flex items-center gap-2">
+                                    <Lock className="w-5 h-5 text-primary" aria-hidden="true" /> 100% Spam-Free Privacy Guarantee
                                 </span>
                                 <span>Zero Obligation</span>
                             </div>
 
-                            <div className="flex justify-between items-center pt-2 gap-3">
-                                <button type="button" onClick={() => goToStep(3)} className={secondaryBtn}>
-                                    <ChevronLeft className="w-4 h-4" aria-hidden="true" />
+                            <div className="flex justify-between items-center gap-3 pt-2">
+                                <button type="button" onClick={() => goToStep(3)} className={backBtn}>
                                     ← Back
                                 </button>
                                 <button type="button" onClick={handleStep4Continue} className={primaryBtn}>
-                                    Select Date →
-                                    <ChevronRight className="w-4 h-4" aria-hidden="true" />
+                                    Select Date
+                                    <ArrowRight className="w-5 h-5" aria-hidden="true" />
                                 </button>
                             </div>
                         </div>
                     )}
 
                     {step === 5 && (
-                        <form key="step-5" onSubmit={handleFinalSubmit} className="space-y-6 animate-step-in">
+                        <form onSubmit={handleFinalSubmit} className="space-y-8 animate-stepIn">
                             <div>
-                                <label className="block text-xs font-semibold text-foreground uppercase tracking-wider mb-3">Select Preferred Inspection Date</label>
-                                <div className="grid grid-cols-3 gap-2.5">
+                                <label className="block text-base font-medium text-foreground mb-3">Select Preferred Inspection Date</label>
+                                <div className="grid grid-cols-3 gap-3">
                                     {datePills.map((pill) => (
                                         <button
                                             key={pill.dateStr}
                                             type="button"
                                             onClick={() => handleChange('appointmentDate', pill.dateStr)}
-                                            className={`min-h-11 p-3 rounded-xl border text-center transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                                            className={`min-h-[44px] p-4 rounded-2xl border text-center transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
                                                 formData.appointmentDate === pill.dateStr
-                                                    ? 'bg-accent/10 border-accent text-foreground shadow-sm'
-                                                    : 'bg-card border-border text-muted-foreground hover:-translate-y-0.5 hover:shadow-md'
+                                                    ? 'border-primary bg-primary-tint shadow-card text-foreground'
+                                                    : 'border-border bg-background text-foreground-secondary hover:border-border-strong hover:shadow-card-hover hover:-translate-y-0.5'
                                             }`}>
-                                            <div className="text-[10px] uppercase font-bold text-accent">{pill.label}</div>
-                                            <div className="text-xs font-bold mt-0.5 text-foreground">{pill.display}</div>
+                                            <div className="text-sm font-semibold text-primary">{pill.label}</div>
+                                            <div className="text-base font-semibold mt-1 text-foreground">{pill.display}</div>
                                         </button>
                                     ))}
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-xs font-semibold text-foreground uppercase tracking-wider mb-3">Select Arrival Window</label>
-                                <div className="space-y-2">
+                                <label className="block text-base font-medium text-foreground mb-3">Select Arrival Window</label>
+                                <div className="space-y-3">
                                     {TIME_BLOCKS.map((block) => {
                                         const selected = formData.appointmentTime === block.time;
                                         return (
@@ -759,13 +717,13 @@ export default function Home() {
                                                 role="button"
                                                 tabIndex={0}
                                                 onClick={() => handleChange('appointmentTime', block.time)}
-                                                onKeyDown={onCardKeyDown(() => handleChange('appointmentTime', block.time))}
-                                                className={cardClass(selected)}>
-                                                <div className="flex items-center gap-2 min-w-0">
-                                                    <Clock className="w-4 h-4 text-primary flex-shrink-0" aria-hidden="true" />
+                                                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleChange('appointmentTime', block.time); } }}
+                                                className={optionCardClass(selected)}>
+                                                <div className="flex items-center gap-3 min-w-0">
+                                                    <Clock className="w-6 h-6 text-primary flex-shrink-0" aria-hidden="true" />
                                                     <div className="min-w-0">
-                                                        <span className="text-sm font-semibold text-foreground">{block.time}</span>
-                                                        <span className="ml-2 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-muted text-muted-foreground border border-border">
+                                                        <span className="text-lg font-semibold text-foreground">{block.time}</span>
+                                                        <span className="ml-2 text-sm font-medium px-2 py-0.5 rounded-md bg-muted text-foreground-secondary">
                                                             {block.tag}
                                                         </span>
                                                     </div>
@@ -777,48 +735,49 @@ export default function Home() {
                                 </div>
                             </div>
 
-                            <div className="flex justify-between items-center pt-2 gap-3">
-                                <button type="button" onClick={() => goToStep(4)} className={secondaryBtn}>
-                                    <ChevronLeft className="w-4 h-4" aria-hidden="true" />
+                            <div className="flex justify-between items-center gap-3 pt-2">
+                                <button type="button" onClick={() => goToStep(4)} className={backBtn}>
                                     ← Back
                                 </button>
                                 <button type="submit" disabled={submitting} className={primaryBtn}>
-                                    {submitting ? 'Confirming...' : 'Claim My Free Roof Inspection →'}
-                                    {!submitting && <ChevronRight className="w-4 h-4" aria-hidden="true" />}
+                                    {submitting ? 'Confirming...' : 'Claim My Free Roof Inspection'}
+                                    {!submitting && <ArrowRight className="w-5 h-5" aria-hidden="true" />}
                                 </button>
                             </div>
                         </form>
                     )}
                 </div>
 
-                <div className="mt-10 border border-border rounded-2xl bg-card p-5 sm:p-8 shadow-card">
+                <div>
                     <div className="text-center mb-6">
-                        <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 bg-muted text-muted-foreground rounded-md">
+                        <span className="text-sm font-medium px-2.5 py-1 bg-muted text-foreground-secondary rounded-md">
                             Got Questions?
                         </span>
-                        <h2 className="font-heading text-xl font-bold text-foreground mt-3">Frequently Asked Questions</h2>
-                        <p className="text-sm text-muted-foreground mt-2">Everything you need to know about your free 21-point roof inspection.</p>
+                        <h2 className="text-2xl font-heading font-bold text-foreground mt-4">Frequently Asked Questions</h2>
+                        <p className="text-base text-foreground-secondary leading-relaxed mt-2">Everything you need to know about your free 21-point roof inspection.</p>
                     </div>
 
-                    <div className="divide-y divide-border">
+                    <div>
                         {FAQS.map((faq, idx) => {
                             const open = openFaq === idx;
                             return (
-                                <div key={idx} className="py-1">
+                                <div
+                                    key={idx}
+                                    className={`border-b border-border ${idx === FAQS.length - 1 ? 'border-b-0' : ''}`}>
                                     <button
                                         type="button"
-                                        onClick={() => setOpenFaq(open ? null : idx)}
+                                        onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
                                         aria-expanded={open}
-                                        className="w-full min-h-11 px-1 py-3.5 text-left text-sm font-semibold text-foreground flex justify-between items-center gap-3 hover:text-primary transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-lg">
+                                        className="w-full min-h-[44px] py-5 flex items-center justify-between gap-4 text-left text-lg font-heading font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-ring rounded-lg">
                                         <span>{faq.q}</span>
                                         <ChevronDown
-                                            className={`w-4 h-4 text-muted-foreground flex-shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+                                            className={`w-5 h-5 text-foreground-secondary flex-shrink-0 transition-transform duration-200 ease-out ${open ? 'rotate-180' : ''}`}
                                             aria-hidden="true"
                                         />
                                     </button>
-                                    <div className={`grid transition-[grid-template-rows] duration-200 ease-out ${open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+                                    <div className={`grid transition-all duration-300 ease-out ${open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
                                         <div className="overflow-hidden">
-                                            <p className="px-1 pb-3.5 text-sm text-muted-foreground leading-relaxed">
+                                            <p className={`text-base text-foreground-secondary leading-relaxed pb-5 ${open ? 'animate-fadeIn' : ''}`}>
                                                 {faq.a}
                                             </p>
                                         </div>
@@ -830,7 +789,7 @@ export default function Home() {
                 </div>
             </main>
 
-            <footer className="border-t border-border py-4 text-center text-[11px] text-muted-foreground">
+            <footer className="border-t border-border text-sm text-foreground-tertiary py-6 text-center">
                 &copy; 2026 Quotramax Assessment Engine
             </footer>
         </div>
