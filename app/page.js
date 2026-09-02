@@ -2,86 +2,99 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import {
+    AlertCircle,
+    Check,
+    ChevronDown,
+    ChevronLeft,
+    ChevronRight,
+    Clock,
+    CloudLightning,
+    Droplets,
+    Home as HomeIcon,
+    Lock,
+    Search,
+    Zap
+} from 'lucide-react';
 
-// Direct-response homeowner-centric option datasets
 const SERVICES = [
-    { 
-        title: 'Full Roof Replacement', 
-        desc: 'My roof is old, worn out, or needs a complete teardown and new installation.', 
-        icon: '🏗️', 
-        val: 'Full Roof Replacement' 
+    {
+        title: 'Full Roof Replacement',
+        desc: 'My roof is old, worn out, or needs a complete teardown and new installation.',
+        Icon: HomeIcon,
+        val: 'Full Roof Replacement'
     },
-    { 
-        title: 'Active Leak or Repair Emergency', 
-        desc: 'Water dripping, ceiling stains, missing shingles, or emergency flashing repair.', 
-        icon: '💧', 
-        val: 'Active Leak / Repair' 
+    {
+        title: 'Active Leak or Repair Emergency',
+        desc: 'Water dripping, ceiling stains, missing shingles, or emergency flashing repair.',
+        Icon: Droplets,
+        val: 'Active Leak / Repair'
     },
-    { 
-        title: 'Storm & Hail Damage Claim', 
-        desc: 'I suspect wind, hail, or tree damage and need an official inspection for insurance.', 
-        icon: '⛈️', 
-        val: 'Storm / Hail Damage' 
+    {
+        title: 'Storm & Hail Damage Claim',
+        desc: 'I suspect wind, hail, or tree damage and need an official inspection for insurance.',
+        Icon: CloudLightning,
+        val: 'Storm / Hail Damage'
     },
-    { 
-        title: 'Preventative 21-Point Inspection', 
-        desc: 'I am buying, selling, or maintaining my home and want a thorough roof check.', 
-        icon: '🔍', 
-        val: 'Preventative Inspection' 
+    {
+        title: 'Preventative 21-Point Inspection',
+        desc: 'I am buying, selling, or maintaining my home and want a thorough roof check.',
+        Icon: Search,
+        val: 'Preventative Inspection'
     }
 ];
 
 const MATERIALS = [
-    { 
-        name: 'Architectural Shingles', 
-        desc: 'Most popular 30-year dimensional asphalt shingles (Durable & Cost-Effective)', 
-        val: 'Architectural Shingles' 
+    {
+        name: 'Architectural Shingles',
+        desc: 'Most popular 30-year dimensional asphalt shingles (Durable & Cost-Effective)',
+        val: 'Architectural Shingles'
     },
-    { 
-        name: 'Standing Seam Metal Roofing', 
-        desc: 'Ultra-durable 50+ year architectural steel or aluminum (Maximum Storm Protection)', 
-        val: 'Standing Seam Metal' 
+    {
+        name: 'Standing Seam Metal Roofing',
+        desc: 'Ultra-durable 50+ year architectural steel or aluminum (Maximum Storm Protection)',
+        val: 'Standing Seam Metal'
     },
-    { 
-        name: 'Clay Tile or Natural Slate', 
-        desc: 'Premium heavy-duty Spanish tile or natural slate (Luxury Long-Term System)', 
-        val: 'Clay Tile / Slate' 
+    {
+        name: 'Clay Tile or Natural Slate',
+        desc: 'Premium heavy-duty Spanish tile or natural slate (Luxury Long-Term System)',
+        val: 'Clay Tile / Slate'
     }
 ];
 
 const TIMELINES = [
-    { 
-        title: 'Emergency / Urgent (Under 2 Weeks)', 
-        desc: 'Active leak or structural damage needing immediate attention.', 
-        val: 'Under 2 weeks' 
+    {
+        title: 'Emergency / Urgent (Under 2 Weeks)',
+        desc: 'Active leak or structural damage needing immediate attention.',
+        val: 'Under 2 weeks'
     },
-    { 
-        title: 'Standard Scheduling (1 to 4 Weeks)', 
-        desc: 'Planning replacement or repair within the next 30 days.', 
-        val: '1 - 4 weeks' 
+    {
+        title: 'Standard Scheduling (1 to 4 Weeks)',
+        desc: 'Planning replacement or repair within the next 30 days.',
+        val: '1 - 4 weeks'
     },
-    { 
-        title: 'Planning & Budgeting (1 to 3 Months)', 
-        desc: 'Comparing options and gathering official estimates for upcoming work.', 
-        val: '1 - 3 months' 
+    {
+        title: 'Planning & Budgeting (1 to 3 Months)',
+        desc: 'Comparing options and gathering official estimates for upcoming work.',
+        val: '1 - 3 months'
     }
 ];
 
 const PAYMENTS = [
-    { 
-        name: 'Explore Low Monthly Financing', 
-        desc: 'Flexible payment plans starting as low as $119/month with approved credit.', 
-        val: 'Low Monthly Financing' 
+    {
+        name: 'Explore Low Monthly Financing',
+        desc: 'Flexible payment plans starting as low as $119/month with approved credit.',
+        val: 'Low Monthly Financing'
     },
-    { 
-        name: 'Insurance Claim Assistance', 
-        desc: 'I have open wind or hail damage and need help navigating my insurance claim.', 
-        val: 'Insurance Claim Pending' 
+    {
+        name: 'Insurance Claim Assistance',
+        desc: 'I have open wind or hail damage and need help navigating my insurance claim.',
+        val: 'Insurance Claim Pending'
     },
-    { 
-        name: 'Cash / Standard Payment', 
-        desc: 'Paying directly upon project completion via check or credit card.', 
-        val: 'Cash / Direct Payment' 
+    {
+        name: 'Cash / Standard Payment',
+        desc: 'Paying directly upon project completion via check or credit card.',
+        val: 'Cash / Direct Payment'
     }
 ];
 
@@ -114,11 +127,47 @@ const FAQS = [
     }
 ];
 
-// Calculate date pills synchronously for 0ms render latency
+const STEP_LABELS = ['Roof Goal', 'Home Specs', 'Timeline & Budget', 'Property Location', 'Schedule Inspection'];
+
+const cardClass = (selected) =>
+    `w-full min-h-11 p-4 rounded-2xl border flex items-center justify-between gap-3 cursor-pointer transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+        selected
+            ? 'border-accent bg-accent/10 shadow-sm'
+            : 'border-border bg-card hover:-translate-y-0.5 hover:shadow-md hover:border-primary/25'
+    }`;
+
+const onCardKeyDown = (fn) => (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        fn();
+    }
+};
+
+const inputClass =
+    'w-full min-h-11 rounded-xl border border-border bg-background px-3.5 py-2.5 text-base text-foreground outline-none transition duration-150 placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-ring';
+
+const primaryBtn =
+    'inline-flex w-full sm:w-auto items-center justify-center gap-2 min-h-11 rounded-xl bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground shadow-sm transition duration-150 hover:brightness-105 hover:shadow-md active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60';
+
+const secondaryBtn =
+    'inline-flex items-center justify-center gap-1 min-h-11 px-2 text-sm font-medium text-muted-foreground transition duration-150 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-lg';
+
+function SelectionMark({ selected }) {
+    return (
+        <span
+            className={`w-6 h-6 rounded-full border flex items-center justify-center flex-shrink-0 transition-colors duration-200 ${
+                selected ? 'bg-accent border-accent text-accent-foreground' : 'border-border bg-card'
+            }`}
+            aria-hidden="true">
+            {selected ? <Check className="w-[14px] h-[14px]" strokeWidth={2.5} /> : null}
+        </span>
+    );
+}
+
 function getInitialDatePills() {
     const pills = [];
     const today = new Date();
-    
+
     const tomorrow = new Date(today);
     tomorrow.setDate(today.getDate() + 1);
     pills.push({
@@ -169,12 +218,11 @@ export default function Home() {
         name: '',
         email: '',
         phone: '',
-        website_hp: '', // Honeypot field for bot spam detection
+        website_hp: '',
         appointmentDate: datePills[0]?.dateStr || '',
         appointmentTime: 'Morning Arrival (8:00 AM - 11:00 AM)'
     });
 
-    // Phone Auto-Formatter (XXX) XXX-XXXX
     const handlePhoneChange = (e) => {
         const raw = e.target.value.replace(/\D/g, '').substring(0, 10);
         let formatted = '';
@@ -190,20 +238,17 @@ export default function Home() {
         setFormData(prev => ({ ...prev, phone: formatted }));
     };
 
-    // Generic input change
     const handleChange = (field, value) => {
         setError('');
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
-    // Manual Step Progression (Instant)
     const goToStep = (nextStepTarget) => {
         setError('');
         setStep(nextStepTarget);
         window.scrollTo(0, 0);
     };
 
-    // Validation for contact info + City & State + Anti-spam validation
     const validateStep4 = () => {
         if (!formData.address.trim()) return 'Please enter your street address.';
         if (!formData.city.trim()) return 'Please enter your city.';
@@ -228,7 +273,6 @@ export default function Home() {
         goToStep(5);
     };
 
-    // Final Submission Handler (Instant Optimistic Navigation + Anti-Spam Trap)
     const handleFinalSubmit = async (e) => {
         e.preventDefault();
         if (!formData.appointmentDate) {
@@ -303,47 +347,40 @@ export default function Home() {
     };
 
     return (
-        <div className="min-h-screen bg-[#060913] text-slate-100 flex flex-col font-sans selection:bg-teal-500 selection:text-white">
-            
-            {/* Header */}
-            <header className="border-b border-teal-500/20 bg-[#060913] sticky top-0 z-40">
-                <div className="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
+        <div className="min-h-screen bg-background text-foreground flex flex-col font-sans selection:bg-accent/20">
+            <header className="border-b border-border bg-card/90 backdrop-blur-md sticky top-0 z-40">
+                <div className="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center gap-3">
                     <div className="flex items-center gap-2 cursor-pointer" onClick={() => goToStep(1)}>
-                        <div className="w-8 h-8 rounded-lg bg-teal-500/20 border border-teal-500/30 flex items-center justify-center">
-                            <svg className="w-4 h-4 text-teal-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                                <polyline points="9 22 9 12 15 12 15 22" />
-                            </svg>
+                        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+                            <HomeIcon className="w-4 h-4 text-primary-foreground" aria-hidden="true" />
                         </div>
-                        <span className="font-black text-lg tracking-tight text-white flex items-center gap-1">
-                            QUOTRA<span className="text-teal-400">MAX</span>
-                            <span className="text-[10px] font-bold px-1.5 py-0.5 bg-teal-500/20 text-teal-300 rounded">ASSESSMENT</span>
+                        <span className="font-heading font-bold text-lg tracking-tight text-foreground flex items-center gap-1.5">
+                            QUOTRA<span className="text-accent">MAX</span>
+                            <span className="text-[10px] font-semibold px-1.5 py-0.5 bg-muted text-muted-foreground rounded-md">ASSESSMENT</span>
                         </span>
                     </div>
-                    
-                    <div className="text-xs font-semibold text-teal-400 flex items-center gap-1.5 bg-teal-950/40 px-3 py-1 rounded-full border border-teal-500/30">
-                        <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse"></span>
+
+                    <div className="text-xs font-semibold text-accent flex items-center gap-1.5 bg-accent/10 px-3 py-1.5 rounded-full border border-accent/20">
+                        <span className="w-2 h-2 rounded-full bg-accent" aria-hidden="true"></span>
                         Free 21-Point Inspection
                     </div>
                 </div>
             </header>
 
-            {/* Main Content */}
-            <main className="flex-1 max-w-2xl w-full mx-auto px-4 py-6 sm:py-8 flex flex-col justify-center">
-                
-                {/* Hero Header */}
-                <div className="text-center mb-6">
-                    <div className="inline-block px-3 py-1 bg-teal-500/10 border border-teal-500/20 rounded-full text-[11px] font-bold text-teal-300 mb-2 uppercase tracking-wider">
-                        ⚡ Official 60-Second Roof Inspection & Price Estimate
+            <main className="flex-1 max-w-xl w-full mx-auto px-4 py-8 sm:py-10 flex flex-col justify-center">
+                <div className="text-center mb-8">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-muted border border-border rounded-full text-[11px] font-semibold text-primary mb-3 uppercase tracking-wider">
+                        <Zap className="w-3.5 h-3.5 text-accent" aria-hidden="true" />
+                        Official 60-Second Roof Inspection & Price Estimate
                     </div>
-                    <h1 className="text-xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight">
+                    <h1 className="font-heading text-2xl sm:text-3xl font-bold text-foreground tracking-tight leading-tight">
                         {step === 1 && 'What is the primary goal for your roof?'}
                         {step === 2 && 'What type of home and roofing material do you have?'}
                         {step === 3 && 'What is your ideal project timeline & payment preference?'}
                         {step === 4 && 'Where should we send your official roof inspection & price quote?'}
                         {step === 5 && 'Select your preferred date for a free on-site roof inspection'}
                     </h1>
-                    <p className="text-xs sm:text-sm text-slate-400 mt-1.5 font-medium">
+                    <p className="text-base text-muted-foreground mt-3 font-medium">
                         {step === 1 && 'Select your primary roof concern below to get started.'}
                         {step === 2 && 'Helps us calculate accurate material costs and labor scope.'}
                         {step === 3 && 'Choose the scheduling and funding options that fit your budget.'}
@@ -352,86 +389,114 @@ export default function Home() {
                     </p>
                 </div>
 
-                {/* Card Container */}
-                <div className="border border-teal-500/20 rounded-2xl bg-[#090d1a] p-4 sm:p-6 shadow-xl">
-                    
-                    {/* Progress Bar */}
-                    <div className="mb-5">
-                        <div className="flex justify-between text-xs font-bold mb-1.5">
-                            <span className="text-slate-400">Step {step} of 5: <span className="text-teal-400">
-                                {step === 1 && 'Roof Goal'}
-                                {step === 2 && 'Home Specs'}
-                                {step === 3 && 'Timeline & Budget'}
-                                {step === 4 && 'Property Location'}
-                                {step === 5 && 'Schedule Inspection'}
-                            </span></span>
-                            <span className="text-teal-400 font-mono">{Math.round((step / 5) * 100)}%</span>
+                <div className="border border-border rounded-2xl bg-card p-5 sm:p-8 shadow-card">
+                    <div className="mb-6">
+                        <div className="relative mb-3">
+                            <div className="absolute top-3.5 left-[10%] right-[10%] h-0.5 bg-muted rounded-full" aria-hidden="true" />
+                            <div
+                                className="absolute top-3.5 left-[10%] h-0.5 bg-accent rounded-full transition-all duration-300 ease-out"
+                                style={{ width: `${((step - 1) / 4) * 80}%` }}
+                                aria-hidden="true"
+                            />
+                            <div className="relative flex items-start justify-between gap-1">
+                                {STEP_LABELS.map((label, idx) => {
+                                    const n = idx + 1;
+                                    const done = n < step;
+                                    const active = n === step;
+                                    return (
+                                        <div
+                                            key={label}
+                                            className="flex-1 flex flex-col items-center gap-1.5 min-w-0"
+                                            aria-current={active ? 'step' : undefined}>
+                                            <div
+                                                className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold transition-colors duration-200 z-[1] ${
+                                                    done
+                                                        ? 'bg-accent text-accent-foreground'
+                                                        : active
+                                                          ? 'bg-primary text-primary-foreground ring-2 ring-ring/30'
+                                                          : 'bg-muted text-muted-foreground'
+                                                }`}>
+                                                {done ? <Check className="w-3.5 h-3.5" aria-hidden="true" /> : n}
+                                            </div>
+                                            <span className={`hidden sm:block text-[10px] font-semibold truncate max-w-full ${active ? 'text-foreground' : 'text-muted-foreground'}`}>
+                                                {label}
+                                            </span>
+                                        </div>
+                                    );
+                                })}
+                            </div>
                         </div>
-                        <div className="w-full h-2 bg-slate-900 rounded-full overflow-hidden border border-white/5">
-                            <div className="h-full bg-teal-400 transition-all duration-300" style={{ width: `${(step / 5) * 100}%` }}></div>
+                        <div className="flex justify-between text-xs font-semibold mb-2">
+                            <span className="text-muted-foreground">
+                                Step {step} of 5: <span className="text-foreground">{STEP_LABELS[step - 1]}</span>
+                            </span>
+                            <span className="text-muted-foreground tabular-nums">{Math.round((step / 5) * 100)}%</span>
+                        </div>
+                        <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+                            <div
+                                className="h-full bg-accent rounded-full transition-all duration-300 ease-out"
+                                style={{ width: `${(step / 5) * 100}%` }}
+                            />
                         </div>
                     </div>
 
-                    {/* Error Banner */}
                     {error && (
-                        <div className="mb-4 p-3 bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs rounded-xl font-bold text-center">
-                            ⚠️ {error}
+                        <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 text-destructive-foreground text-sm rounded-xl font-semibold text-center flex items-center justify-center gap-2">
+                            <AlertCircle className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
+                            {error}
                         </div>
                     )}
 
-                    {/* STEP 1: ROOF GOAL */}
                     {step === 1 && (
-                        <div className="space-y-3">
-                            {SERVICES.map((item) => (
-                                <div
-                                    key={item.val}
-                                    onClick={() => handleChange('service', item.val)}
-                                    className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
-                                        formData.service === item.val
-                                            ? 'bg-teal-500/15 border-teal-400 text-white'
-                                            : 'bg-white/[0.02] border-white/10 hover:border-teal-500/30 text-slate-300'
-                                    }`}>
-                                    <div className="flex items-center gap-3.5">
-                                        <span className="text-2xl flex-shrink-0">{item.icon}</span>
-                                        <div>
-                                            <div className="font-bold text-sm text-white">{item.title}</div>
-                                            <div className="text-xs text-slate-400 leading-relaxed mt-0.5">{item.desc}</div>
+                        <div key="step-1" className="space-y-3 animate-step-in">
+                            {SERVICES.map((item) => {
+                                const selected = formData.service === item.val;
+                                const Icon = item.Icon;
+                                return (
+                                    <div
+                                        key={item.val}
+                                        role="button"
+                                        tabIndex={0}
+                                        onClick={() => handleChange('service', item.val)}
+                                        onKeyDown={onCardKeyDown(() => handleChange('service', item.val))}
+                                        className={cardClass(selected)}>
+                                        <div className="flex items-center gap-3.5 min-w-0">
+                                            <span className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center flex-shrink-0">
+                                                <Icon className="w-5 h-5 text-primary" aria-hidden="true" />
+                                            </span>
+                                            <div className="min-w-0">
+                                                <div className="font-semibold text-sm text-foreground">{item.title}</div>
+                                                <div className="text-sm text-muted-foreground leading-relaxed mt-0.5">{item.desc}</div>
+                                            </div>
                                         </div>
+                                        <SelectionMark selected={selected} />
                                     </div>
-                                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center text-xs font-bold flex-shrink-0 ${
-                                        formData.service === item.val ? 'bg-teal-500 border-teal-400 text-slate-950' : 'border-white/20'
-                                    }`}>
-                                        {formData.service === item.val ? '✓' : ''}
-                                    </div>
-                                </div>
-                            ))}
+                                );
+                            })}
 
-                            <div className="flex justify-end pt-3">
-                                <button
-                                    type="button"
-                                    onClick={() => goToStep(2)}
-                                    className="w-full sm:w-auto bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-sm px-7 py-3 rounded-xl transition-all flex items-center justify-center gap-2">
+                            <div className="flex justify-end pt-4">
+                                <button type="button" onClick={() => goToStep(2)} className={primaryBtn}>
                                     <span>Next: Home Specs →</span>
+                                    <ChevronRight className="w-4 h-4" aria-hidden="true" />
                                 </button>
                             </div>
                         </div>
                     )}
 
-                    {/* STEP 2: HOME SPECS & MATERIAL */}
                     {step === 2 && (
-                        <div className="space-y-4">
+                        <div key="step-2" className="space-y-6 animate-step-in">
                             <div>
-                                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">How many stories is your home?</label>
+                                <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">How many stories is your home?</label>
                                 <div className="grid grid-cols-3 gap-2.5">
                                     {['1 Story', '2 Stories', '3+ Stories'].map((story) => (
                                         <button
                                             key={story}
                                             type="button"
                                             onClick={() => handleChange('stories', story)}
-                                            className={`p-3 rounded-xl border text-xs font-bold transition-all text-center ${
+                                            className={`min-h-11 p-3 rounded-xl border text-sm font-semibold transition-all duration-200 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                                                 formData.stories === story
-                                                    ? 'bg-teal-500/20 border-teal-400 text-teal-300'
-                                                    : 'bg-white/[0.02] border-white/10 text-slate-300'
+                                                    ? 'bg-accent/10 border-accent text-foreground shadow-sm'
+                                                    : 'bg-card border-border text-muted-foreground hover:-translate-y-0.5 hover:shadow-md'
                                             }`}>
                                             {story}
                                         </button>
@@ -440,105 +505,112 @@ export default function Home() {
                             </div>
 
                             <div>
-                                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">What is your preferred roofing material?</label>
+                                <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">What is your preferred roofing material?</label>
                                 <div className="space-y-2.5">
-                                    {MATERIALS.map((mat) => (
-                                        <div
-                                            key={mat.val}
-                                            onClick={() => handleChange('material', mat.val)}
-                                            className={`p-3.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
-                                                formData.material === mat.val
-                                                    ? 'bg-teal-500/15 border-teal-400 text-white'
-                                                    : 'bg-white/[0.02] border-white/10 hover:border-teal-500/30 text-slate-300'
-                                            }`}>
-                                            <div>
-                                                <div className="font-bold text-xs sm:text-sm text-white">{mat.name}</div>
-                                                <div className="text-[11px] text-slate-400 mt-0.5">{mat.desc}</div>
+                                    {MATERIALS.map((mat) => {
+                                        const selected = formData.material === mat.val;
+                                        return (
+                                            <div
+                                                key={mat.val}
+                                                role="button"
+                                                tabIndex={0}
+                                                onClick={() => handleChange('material', mat.val)}
+                                                onKeyDown={onCardKeyDown(() => handleChange('material', mat.val))}
+                                                className={cardClass(selected)}>
+                                                <div className="min-w-0 pr-2">
+                                                    <div className="font-semibold text-sm text-foreground">{mat.name}</div>
+                                                    <div className="text-sm text-muted-foreground mt-0.5">{mat.desc}</div>
+                                                </div>
+                                                <SelectionMark selected={selected} />
                                             </div>
-                                            <div className={`w-5 h-5 rounded-full border flex items-center justify-center text-xs font-bold flex-shrink-0 ${
-                                                formData.material === mat.val ? 'bg-teal-500 border-teal-400 text-slate-950' : 'border-white/20'
-                                            }`}>
-                                                {formData.material === mat.val ? '✓' : ''}
-                                            </div>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             </div>
 
-                            <div className="flex justify-between items-center pt-3">
-                                <button type="button" onClick={() => goToStep(1)} className="text-xs font-semibold text-slate-400 hover:text-white">← Back</button>
-                                <button type="button" onClick={() => goToStep(3)} className="bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-sm px-6 py-3 rounded-xl transition-all">Next: Timeline →</button>
+                            <div className="flex justify-between items-center pt-2 gap-3">
+                                <button type="button" onClick={() => goToStep(1)} className={secondaryBtn}>
+                                    <ChevronLeft className="w-4 h-4" aria-hidden="true" />
+                                    ← Back
+                                </button>
+                                <button type="button" onClick={() => goToStep(3)} className={primaryBtn}>
+                                    Next: Timeline →
+                                    <ChevronRight className="w-4 h-4" aria-hidden="true" />
+                                </button>
                             </div>
                         </div>
                     )}
 
-                    {/* STEP 3: TIMELINE & BUDGET */}
                     {step === 3 && (
-                        <div className="space-y-4">
+                        <div key="step-3" className="space-y-6 animate-step-in">
                             <div>
-                                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">When do you need this work completed?</label>
+                                <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">When do you need this work completed?</label>
                                 <div className="space-y-2">
-                                    {TIMELINES.map((item) => (
-                                        <div
-                                            key={item.val}
-                                            onClick={() => handleChange('timeline', item.val)}
-                                            className={`p-3.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
-                                                formData.timeline === item.val ? 'bg-amber-500/15 border-amber-400 text-amber-200' : 'bg-white/[0.02] border-white/10 text-slate-300'
-                                            }`}>
-                                            <div>
-                                                <div className="font-bold text-xs sm:text-sm text-white">{item.title}</div>
-                                                <div className="text-[11px] text-slate-400 mt-0.5">{item.desc}</div>
+                                    {TIMELINES.map((item) => {
+                                        const selected = formData.timeline === item.val;
+                                        return (
+                                            <div
+                                                key={item.val}
+                                                role="button"
+                                                tabIndex={0}
+                                                onClick={() => handleChange('timeline', item.val)}
+                                                onKeyDown={onCardKeyDown(() => handleChange('timeline', item.val))}
+                                                className={cardClass(selected)}>
+                                                <div className="min-w-0 pr-2">
+                                                    <div className="font-semibold text-sm text-foreground">{item.title}</div>
+                                                    <div className="text-sm text-muted-foreground mt-0.5">{item.desc}</div>
+                                                </div>
+                                                <SelectionMark selected={selected} />
                                             </div>
-                                            <div className={`w-5 h-5 rounded-full border flex items-center justify-center text-xs font-bold flex-shrink-0 ${
-                                                formData.timeline === item.val ? 'bg-amber-400 border-amber-300 text-slate-950' : 'border-white/20'
-                                            }`}>
-                                                {formData.timeline === item.val ? '✓' : ''}
-                                            </div>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">What is your preferred payment option?</label>
+                                <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">What is your preferred payment option?</label>
                                 <div className="space-y-2">
-                                    {PAYMENTS.map((pay) => (
-                                        <div
-                                            key={pay.val}
-                                            onClick={() => handleChange('insurance', pay.val)}
-                                            className={`p-3.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
-                                                formData.insurance === pay.val ? 'bg-teal-500/15 border-teal-400 text-white' : 'bg-white/[0.02] border-white/10 hover:border-teal-500/30 text-slate-300'
-                                            }`}>
-                                            <div>
-                                                <div className="font-bold text-xs sm:text-sm text-white">{pay.name}</div>
-                                                <div className="text-[11px] text-slate-400 mt-0.5">{pay.desc}</div>
+                                    {PAYMENTS.map((pay) => {
+                                        const selected = formData.insurance === pay.val;
+                                        return (
+                                            <div
+                                                key={pay.val}
+                                                role="button"
+                                                tabIndex={0}
+                                                onClick={() => handleChange('insurance', pay.val)}
+                                                onKeyDown={onCardKeyDown(() => handleChange('insurance', pay.val))}
+                                                className={cardClass(selected)}>
+                                                <div className="min-w-0 pr-2">
+                                                    <div className="font-semibold text-sm text-foreground">{pay.name}</div>
+                                                    <div className="text-sm text-muted-foreground mt-0.5">{pay.desc}</div>
+                                                </div>
+                                                <SelectionMark selected={selected} />
                                             </div>
-                                            <div className={`w-5 h-5 rounded-full border flex items-center justify-center text-xs font-bold flex-shrink-0 ${
-                                                formData.insurance === pay.val ? 'bg-teal-500 border-teal-400 text-slate-950' : 'border-white/20'
-                                            }`}>
-                                                {formData.insurance === pay.val ? '✓' : ''}
-                                            </div>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             </div>
 
-                            <div className="flex justify-between items-center pt-3">
-                                <button type="button" onClick={() => goToStep(2)} className="text-xs font-semibold text-slate-400 hover:text-white">← Back</button>
-                                <button type="button" onClick={() => goToStep(4)} className="bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-sm px-6 py-3 rounded-xl transition-all">Next: Property Location →</button>
+                            <div className="flex justify-between items-center pt-2 gap-3">
+                                <button type="button" onClick={() => goToStep(2)} className={secondaryBtn}>
+                                    <ChevronLeft className="w-4 h-4" aria-hidden="true" />
+                                    ← Back
+                                </button>
+                                <button type="button" onClick={() => goToStep(4)} className={primaryBtn}>
+                                    Next: Property Location →
+                                    <ChevronRight className="w-4 h-4" aria-hidden="true" />
+                                </button>
                             </div>
                         </div>
                     )}
 
-                    {/* STEP 4: PROPERTY LOCATION & CONTACT */}
                     {step === 4 && (
-                        <div className="space-y-3.5 animate-fadeIn">
-                            <div className="p-3 bg-teal-500/10 border border-teal-500/30 rounded-xl flex items-center gap-2.5 text-xs text-teal-300">
-                                <span className="text-base">🏠</span>
+                        <div key="step-4" className="space-y-4 animate-step-in">
+                            <div className="p-3.5 bg-accent/10 border border-accent/20 rounded-xl flex items-start gap-2.5 text-sm text-foreground">
+                                <HomeIcon className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" aria-hidden="true" />
                                 <span><strong>Local Inspection Crew Available:</strong> Enter property location to check local scheduling availability and calculate your free estimate.</span>
                             </div>
 
-                            {/* Invisible Honeypot Anti-Spam Field */}
                             <input
                                 type="text"
                                 name="website_hp"
@@ -551,43 +623,43 @@ export default function Home() {
                             />
 
                             <div>
-                                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Street Address *</label>
+                                <label className="block text-xs font-semibold text-foreground uppercase tracking-wider mb-1.5">Street Address *</label>
                                 <input
                                     type="text"
                                     placeholder="e.g. 100 Bayshore Blvd"
                                     value={formData.address}
                                     onChange={(e) => handleChange('address', e.target.value)}
-                                    className="w-full bg-[#040711] border border-white/15 focus:border-teal-400 rounded-xl px-3.5 py-2.5 text-sm text-white outline-none"
+                                    className={inputClass}
                                 />
                             </div>
 
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">City *</label>
+                                    <label className="block text-xs font-semibold text-foreground uppercase tracking-wider mb-1.5">City *</label>
                                     <input
                                         type="text"
                                         placeholder="e.g. Tampa"
                                         value={formData.city}
                                         onChange={(e) => handleChange('city', e.target.value)}
-                                        className="w-full bg-[#040711] border border-white/15 focus:border-teal-400 rounded-xl px-3.5 py-2.5 text-sm text-white outline-none"
+                                        className={inputClass}
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">State *</label>
+                                    <label className="block text-xs font-semibold text-foreground uppercase tracking-wider mb-1.5">State *</label>
                                     <input
                                         type="text"
                                         maxLength={2}
                                         placeholder="FL"
                                         value={formData.state}
                                         onChange={(e) => handleChange('state', e.target.value.toUpperCase())}
-                                        className="w-full bg-[#040711] border border-white/15 focus:border-teal-400 rounded-xl px-3.5 py-2.5 text-sm text-white outline-none uppercase font-mono"
+                                        className={`${inputClass} uppercase font-mono`}
                                     />
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">5-Digit ZIP Code *</label>
+                                    <label className="block text-xs font-semibold text-foreground uppercase tracking-wider mb-1.5">5-Digit ZIP Code *</label>
                                     <input
                                         type="tel"
                                         inputMode="numeric"
@@ -595,151 +667,170 @@ export default function Home() {
                                         placeholder="33602"
                                         value={formData.zip}
                                         onChange={(e) => handleChange('zip', e.target.value.replace(/\D/g, ''))}
-                                        className="w-full bg-[#040711] border border-white/15 focus:border-teal-400 rounded-xl px-3.5 py-2.5 text-sm text-white outline-none font-mono"
+                                        className={`${inputClass} font-mono`}
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Full Name *</label>
+                                    <label className="block text-xs font-semibold text-foreground uppercase tracking-wider mb-1.5">Full Name *</label>
                                     <input
                                         type="text"
                                         placeholder="First and last name"
                                         value={formData.name}
                                         onChange={(e) => handleChange('name', e.target.value)}
-                                        className="w-full bg-[#040711] border border-white/15 focus:border-teal-400 rounded-xl px-3.5 py-2.5 text-sm text-white outline-none"
+                                        className={inputClass}
                                     />
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Mobile Phone (For Text Alert) *</label>
+                                    <label className="block text-xs font-semibold text-foreground uppercase tracking-wider mb-1.5">Mobile Phone (For Text Alert) *</label>
                                     <input
                                         type="tel"
                                         inputMode="numeric"
                                         placeholder="(555) 000-0000"
                                         value={formData.phone}
                                         onChange={handlePhoneChange}
-                                        className="w-full bg-[#040711] border border-white/15 focus:border-teal-400 rounded-xl px-3.5 py-2.5 text-sm text-white outline-none font-mono"
+                                        className={`${inputClass} font-mono`}
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">Email Address (For Report) *</label>
+                                    <label className="block text-xs font-semibold text-foreground uppercase tracking-wider mb-1.5">Email Address (For Report) *</label>
                                     <input
                                         type="email"
                                         placeholder="name@example.com"
                                         value={formData.email}
                                         onChange={(e) => handleChange('email', e.target.value)}
-                                        className="w-full bg-[#040711] border border-white/15 focus:border-teal-400 rounded-xl px-3.5 py-2.5 text-sm text-white outline-none"
+                                        className={inputClass}
                                     />
                                 </div>
                             </div>
 
-                            <div className="p-2.5 bg-white/[0.02] border border-white/5 rounded-xl flex items-center justify-between text-[11px] text-slate-400">
-                                <span className="flex items-center gap-1">
-                                    <span className="text-teal-400">🔒</span> 100% Spam-Free Privacy Guarantee
+                            <div className="p-3 bg-muted border border-border rounded-xl flex items-center justify-between text-sm text-muted-foreground">
+                                <span className="flex items-center gap-1.5">
+                                    <Lock className="w-3.5 h-3.5 text-accent" aria-hidden="true" /> 100% Spam-Free Privacy Guarantee
                                 </span>
                                 <span>Zero Obligation</span>
                             </div>
 
-                            <div className="flex justify-between items-center pt-3">
-                                <button type="button" onClick={() => goToStep(3)} className="text-xs font-semibold text-slate-400 hover:text-white">← Back</button>
-                                <button type="button" onClick={handleStep4Continue} className="bg-teal-500 hover:bg-teal-400 text-slate-950 font-black text-sm px-6 py-3 rounded-xl transition-all">Select Date →</button>
+                            <div className="flex justify-between items-center pt-2 gap-3">
+                                <button type="button" onClick={() => goToStep(3)} className={secondaryBtn}>
+                                    <ChevronLeft className="w-4 h-4" aria-hidden="true" />
+                                    ← Back
+                                </button>
+                                <button type="button" onClick={handleStep4Continue} className={primaryBtn}>
+                                    Select Date →
+                                    <ChevronRight className="w-4 h-4" aria-hidden="true" />
+                                </button>
                             </div>
                         </div>
                     )}
 
-                    {/* STEP 5: INSPECTION BOOKING */}
                     {step === 5 && (
-                        <form onSubmit={handleFinalSubmit} className="space-y-4">
+                        <form key="step-5" onSubmit={handleFinalSubmit} className="space-y-6 animate-step-in">
                             <div>
-                                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Select Preferred Inspection Date</label>
+                                <label className="block text-xs font-semibold text-foreground uppercase tracking-wider mb-3">Select Preferred Inspection Date</label>
                                 <div className="grid grid-cols-3 gap-2.5">
                                     {datePills.map((pill) => (
                                         <button
                                             key={pill.dateStr}
                                             type="button"
                                             onClick={() => handleChange('appointmentDate', pill.dateStr)}
-                                            className={`p-3 rounded-xl border text-center transition-all ${
-                                                formData.appointmentDate === pill.dateStr ? 'bg-teal-500/20 border-teal-400 text-white' : 'bg-white/[0.02] border-white/10 text-slate-300'
+                                            className={`min-h-11 p-3 rounded-xl border text-center transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                                                formData.appointmentDate === pill.dateStr
+                                                    ? 'bg-accent/10 border-accent text-foreground shadow-sm'
+                                                    : 'bg-card border-border text-muted-foreground hover:-translate-y-0.5 hover:shadow-md'
                                             }`}>
-                                            <div className="text-[10px] uppercase font-bold text-teal-400">{pill.label}</div>
-                                            <div className="text-xs font-extrabold mt-0.5">{pill.display}</div>
+                                            <div className="text-[10px] uppercase font-bold text-accent">{pill.label}</div>
+                                            <div className="text-xs font-bold mt-0.5 text-foreground">{pill.display}</div>
                                         </button>
                                     ))}
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Select Arrival Window</label>
+                                <label className="block text-xs font-semibold text-foreground uppercase tracking-wider mb-3">Select Arrival Window</label>
                                 <div className="space-y-2">
-                                    {TIME_BLOCKS.map((block) => (
-                                        <div
-                                            key={block.time}
-                                            onClick={() => handleChange('appointmentTime', block.time)}
-                                            className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
-                                                formData.appointmentTime === block.time ? 'bg-teal-500/20 border-teal-400 text-white' : 'bg-white/[0.02] border-white/10 text-slate-300'
-                                            }`}>
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-sm">🕒</span>
-                                                <span className="text-xs font-bold text-white">{block.time}</span>
+                                    {TIME_BLOCKS.map((block) => {
+                                        const selected = formData.appointmentTime === block.time;
+                                        return (
+                                            <div
+                                                key={block.time}
+                                                role="button"
+                                                tabIndex={0}
+                                                onClick={() => handleChange('appointmentTime', block.time)}
+                                                onKeyDown={onCardKeyDown(() => handleChange('appointmentTime', block.time))}
+                                                className={cardClass(selected)}>
+                                                <div className="flex items-center gap-2 min-w-0">
+                                                    <Clock className="w-4 h-4 text-primary flex-shrink-0" aria-hidden="true" />
+                                                    <div className="min-w-0">
+                                                        <span className="text-sm font-semibold text-foreground">{block.time}</span>
+                                                        <span className="ml-2 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-muted text-muted-foreground border border-border">
+                                                            {block.tag}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <SelectionMark selected={selected} />
                                             </div>
-                                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-teal-500/10 text-teal-400 border border-teal-500/20">
-                                                {block.tag}
-                                            </span>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             </div>
 
-                            <div className="flex justify-between items-center pt-3">
-                                <button type="button" onClick={() => goToStep(4)} className="text-xs font-semibold text-slate-400 hover:text-white">← Back</button>
-                                <button
-                                    type="submit"
-                                    disabled={submitting}
-                                    className="bg-gradient-to-r from-teal-500 to-emerald-400 hover:from-teal-400 hover:to-emerald-300 text-slate-950 font-black text-sm px-7 py-3.5 rounded-xl transition-all shadow-lg shadow-teal-500/20">
+                            <div className="flex justify-between items-center pt-2 gap-3">
+                                <button type="button" onClick={() => goToStep(4)} className={secondaryBtn}>
+                                    <ChevronLeft className="w-4 h-4" aria-hidden="true" />
+                                    ← Back
+                                </button>
+                                <button type="submit" disabled={submitting} className={primaryBtn}>
                                     {submitting ? 'Confirming...' : 'Claim My Free Roof Inspection →'}
+                                    {!submitting && <ChevronRight className="w-4 h-4" aria-hidden="true" />}
                                 </button>
                             </div>
                         </form>
                     )}
                 </div>
 
-                {/* FAQ Section */}
-                <div className="mt-10 border border-teal-500/20 rounded-2xl bg-[#090d1a] p-5 sm:p-6 shadow-xl">
-                    <div className="text-center mb-5">
-                        <span className="text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-1 bg-teal-500/10 text-teal-400 rounded-md border border-teal-500/20">
+                <div className="mt-10 border border-border rounded-2xl bg-card p-5 sm:p-8 shadow-card">
+                    <div className="text-center mb-6">
+                        <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 bg-muted text-muted-foreground rounded-md">
                             Got Questions?
                         </span>
-                        <h2 className="text-lg sm:text-xl font-bold text-white mt-2">Frequently Asked Questions</h2>
-                        <p className="text-xs text-slate-400 mt-1">Everything you need to know about your free 21-point roof inspection.</p>
+                        <h2 className="font-heading text-xl font-bold text-foreground mt-3">Frequently Asked Questions</h2>
+                        <p className="text-sm text-muted-foreground mt-2">Everything you need to know about your free 21-point roof inspection.</p>
                     </div>
 
-                    <div className="space-y-3">
-                        {FAQS.map((faq, idx) => (
-                            <div 
-                                key={idx}
-                                className="border border-white/10 rounded-xl overflow-hidden bg-white/[0.01] transition-all">
-                                <button
-                                    type="button"
-                                    onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                                    className="w-full px-4 py-3.5 text-left text-xs sm:text-sm font-bold text-white flex justify-between items-center hover:bg-white/[0.02]">
-                                    <span>{faq.q}</span>
-                                    <span className="text-teal-400 text-base font-mono flex-shrink-0 ml-2">
-                                        {openFaq === idx ? '−' : '+'}
-                                    </span>
-                                </button>
-                                {openFaq === idx && (
-                                    <div className="px-4 pb-3.5 text-xs text-slate-300 leading-relaxed border-t border-white/5 pt-2.5 animate-fadeIn">
-                                        {faq.a}
+                    <div className="divide-y divide-border">
+                        {FAQS.map((faq, idx) => {
+                            const open = openFaq === idx;
+                            return (
+                                <div key={idx} className="py-1">
+                                    <button
+                                        type="button"
+                                        onClick={() => setOpenFaq(open ? null : idx)}
+                                        aria-expanded={open}
+                                        className="w-full min-h-11 px-1 py-3.5 text-left text-sm font-semibold text-foreground flex justify-between items-center gap-3 hover:text-primary transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-lg">
+                                        <span>{faq.q}</span>
+                                        <ChevronDown
+                                            className={`w-4 h-4 text-muted-foreground flex-shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+                                            aria-hidden="true"
+                                        />
+                                    </button>
+                                    <div className={`grid transition-[grid-template-rows] duration-200 ease-out ${open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+                                        <div className="overflow-hidden">
+                                            <p className="px-1 pb-3.5 text-sm text-muted-foreground leading-relaxed">
+                                                {faq.a}
+                                            </p>
+                                        </div>
                                     </div>
-                                )}
-                            </div>
-                        ))}
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
             </main>
 
-            <footer className="border-t border-white/5 py-3 text-center text-[11px] text-slate-500">
+            <footer className="border-t border-border py-4 text-center text-[11px] text-muted-foreground">
                 &copy; 2026 Quotramax Assessment Engine
             </footer>
         </div>
