@@ -9,10 +9,17 @@ export const metadata = {
   description: "High-converting pre-qualification funnel and direct calendar booking engine for residential roofers.",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  colorScheme: "dark",
+  themeColor: "#0c0d11",
+};
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`h-full antialiased ${inter.variable} ${manrope.variable}`}>
-      <body className="min-h-full flex flex-col bg-background text-foreground font-sans">{children}</body>
+      <body className="min-h-full flex flex-col bg-background-alt text-foreground font-sans">{children}</body>
     </html>
   );
 }

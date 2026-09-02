@@ -1,33 +1,69 @@
 @import "tailwindcss";
 
-@theme {
-  /* Backgrounds */
-  --color-background: oklch(100% 0 0);
-  --color-background-alt: oklch(98.2% 0.004 250);
+:root {
+  color-scheme: dark;
+
+  /* Surfaces: page is deepest, cards sit above it */
+  --background: oklch(14% 0.008 265);
+  --background-alt: oklch(10.5% 0.008 265);
 
   /* Text */
-  --color-foreground: oklch(18% 0.015 260);
-  --color-foreground-secondary: oklch(48% 0.014 260);
-  --color-foreground-tertiary: oklch(64% 0.012 260);
+  --foreground: oklch(97% 0.004 265);
+  --foreground-secondary: oklch(74% 0.008 265);
+  --foreground-tertiary: oklch(60% 0.008 265);
 
-  /* Primary: Apple system blue (#007AFF) */
-  --color-primary: oklch(58% 0.19 256);
-  --color-primary-hover: oklch(53% 0.19 256);
-  --color-primary-active: oklch(48% 0.19 256);
-  --color-primary-fg: oklch(100% 0 0);
-  --color-primary-tint: oklch(96% 0.03 256);
+  /* Primary: Apple system blue, tuned for dark surfaces */
+  --primary: oklch(56% 0.2 258);
+  --primary-hover: oklch(62% 0.2 258);
+  --primary-active: oklch(50% 0.2 258);
+  --primary-fg: oklch(100% 0 0);
+  --primary-accent: oklch(75% 0.14 254);
+  --primary-tint: oklch(26% 0.07 258);
 
-  --color-accent: oklch(62% 0.15 150);
-  --color-accent-fg: oklch(100% 0 0);
-  --color-danger: oklch(58% 0.19 25);
-  --color-danger-tint: oklch(96% 0.03 25);
+  --accent: oklch(74% 0.17 152);
+  --accent-fg: oklch(14% 0.02 152);
+  --danger: oklch(70% 0.17 25);
+  --danger-tint: oklch(26% 0.08 25);
 
-  --color-muted: oklch(97% 0.004 250);
-  --color-muted-foreground: oklch(52% 0.014 260);
-  --color-border: oklch(92% 0.005 250);
-  --color-border-strong: oklch(84% 0.008 250);
-  --color-ring: oklch(58% 0.19 256);
+  --muted: oklch(19% 0.008 265);
+  --muted-foreground: oklch(72% 0.008 265);
+  --border: oklch(26% 0.01 265);
+  --border-strong: oklch(38% 0.012 265);
+  --ring: oklch(75% 0.14 254);
+}
 
+/* Color and font tokens are `inline` so they resolve against the :root and next/font vars */
+@theme inline {
+  --color-background: var(--background);
+  --color-background-alt: var(--background-alt);
+
+  --color-foreground: var(--foreground);
+  --color-foreground-secondary: var(--foreground-secondary);
+  --color-foreground-tertiary: var(--foreground-tertiary);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-active: var(--primary-active);
+  --color-primary-fg: var(--primary-fg);
+  --color-primary-accent: var(--primary-accent);
+  --color-primary-tint: var(--primary-tint);
+
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-danger: var(--danger);
+  --color-danger-tint: var(--danger-tint);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-ring: var(--ring);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-heading: var(--font-manrope), var(--font-inter), sans-serif;
+}
+
+@theme {
   /* Type scale (approximate SF Pro) */
   --text-xs: 0.75rem;
   --text-sm: 0.8125rem;
@@ -45,13 +81,13 @@
   --radius-xl: 1rem;
   --radius-2xl: 1.25rem;
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px oklch(0% 0 0 / 0.06);
-  --shadow-md: 0 4px 16px oklch(0% 0 0 / 0.08);
-  --shadow-lg: 0 10px 30px oklch(0% 0 0 / 0.12);
-  --shadow-card: 0 4px 20px oklch(0% 0 0 / 0.08), inset 0 0 0 1px oklch(100% 0 0 / 0.4);
-  --shadow-card-hover: 0 8px 30px oklch(0% 0 0 / 0.12), inset 0 0 0 1px oklch(100% 0 0 / 0.6);
-  --shadow-button: 0 2px 8px oklch(0% 0 0 / 0.08), inset 0 0 0 1px oklch(100% 0 0 / 0.5);
+  /* Shadows: depth on dark surfaces comes from black blur plus a hairline highlight */
+  --shadow-sm: 0 1px 2px oklch(0% 0 0 / 0.4);
+  --shadow-md: 0 4px 16px oklch(0% 0 0 / 0.45);
+  --shadow-lg: 0 10px 30px oklch(0% 0 0 / 0.55);
+  --shadow-card: 0 4px 20px oklch(0% 0 0 / 0.45), inset 0 0 0 1px oklch(100% 0 0 / 0.04);
+  --shadow-card-hover: 0 8px 30px oklch(0% 0 0 / 0.55), inset 0 0 0 1px oklch(100% 0 0 / 0.08);
+  --shadow-button: 0 2px 8px oklch(0% 0 0 / 0.4), inset 0 0 0 1px oklch(100% 0 0 / 0.12);
 
   /* Spacing (8px grid) */
   --spacing-18: 4.5rem;
@@ -61,12 +97,6 @@
   --ease-out-apple: cubic-bezier(0.22, 0.61, 0.36, 1);
   --animate-fadeIn: fadeIn 260ms var(--ease-out-apple) both;
   --animate-stepIn: stepIn 280ms var(--ease-out-apple) both;
-}
-
-/* Font tokens must be `inline` so they resolve against the next/font vars on <html> */
-@theme inline {
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-heading: var(--font-manrope), var(--font-inter), sans-serif;
 }
 
 @keyframes fadeIn {
@@ -81,19 +111,29 @@
 
 html,
 body {
-  background: var(--color-background);
-  color: var(--color-foreground);
+  background: var(--background-alt);
+  color: var(--foreground);
   font-family: var(--font-sans);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  overflow-x: hidden;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
   font-weight: 700;
   letter-spacing: -0.02em;
-  color: var(--color-foreground);
+  color: var(--foreground);
+}
+
+::placeholder {
+  color: var(--foreground-tertiary);
 }
 
 @media (prefers-reduced-motion: reduce) {

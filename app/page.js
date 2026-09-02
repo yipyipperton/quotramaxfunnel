@@ -128,20 +128,26 @@ const FAQS = [
 ];
 
 const optionCardClass = (selected) =>
-    `w-full min-h-[44px] p-5 rounded-2xl border text-left flex items-center justify-between gap-4 cursor-pointer transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
+    `w-full min-h-[44px] p-4 sm:p-5 rounded-2xl border text-left flex items-center justify-between gap-3 sm:gap-4 cursor-pointer transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background ${
         selected
-            ? 'border-primary bg-primary-tint shadow-card'
+            ? 'border-primary-accent bg-primary-tint shadow-card'
             : 'border-border bg-background hover:border-border-strong hover:shadow-card-hover hover:-translate-y-0.5'
     }`;
 
 const inputClass =
-    'w-full min-h-[44px] px-4 py-3 rounded-xl border border-border bg-background text-lg text-foreground placeholder:text-foreground-tertiary transition-all duration-200 ease-out focus:outline-none focus:border-primary focus:ring-2 focus:ring-ring';
+    'w-full min-h-[44px] px-4 py-3 rounded-xl border border-border bg-background-alt text-base sm:text-lg text-foreground placeholder:text-foreground-tertiary transition-all duration-200 ease-out focus:outline-none focus:border-primary-accent focus:ring-2 focus:ring-ring';
 
 const primaryBtn =
-    'inline-flex w-full sm:w-auto items-center justify-center gap-2 min-h-[44px] px-6 py-3 rounded-xl bg-primary text-primary-fg font-semibold text-lg shadow-button transition-all duration-200 ease-out hover:bg-primary-hover hover:shadow-lg active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none';
+    'inline-flex w-full sm:w-auto items-center justify-center gap-2 min-h-[48px] px-6 py-3 rounded-xl bg-primary text-primary-fg font-semibold text-base sm:text-lg shadow-button transition-all duration-200 ease-out hover:bg-primary-hover hover:shadow-lg active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background disabled:opacity-50 disabled:pointer-events-none';
 
 const backBtn =
-    'min-h-[44px] px-4 rounded-xl text-base font-medium text-foreground-secondary transition-colors duration-200 ease-out hover:bg-muted hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring';
+    'w-full sm:w-auto min-h-[44px] px-4 rounded-xl text-base font-medium text-foreground-secondary transition-colors duration-200 ease-out hover:bg-muted hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring';
+
+const navRow = 'flex flex-col-reverse sm:flex-row sm:justify-between sm:items-center gap-3 pt-2';
+
+const fieldLabel = 'block text-base font-medium text-foreground mb-2';
+
+const sectionLabel = 'block text-base font-medium text-foreground mb-3';
 
 function SelectionMark({ selected }) {
     return (
@@ -340,31 +346,31 @@ export default function Home() {
     return (
         <div className="min-h-screen bg-background-alt text-foreground flex flex-col font-sans selection:bg-primary-tint">
             <header className="border-b border-border bg-background/80 backdrop-blur-xl sticky top-0 z-40">
-                <div className="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center gap-3">
-                    <div className="flex items-center gap-2 cursor-pointer" onClick={() => goToStep(1)}>
-                        <div className="w-8 h-8 rounded-lg bg-primary-tint border border-border flex items-center justify-center">
-                            <House className="w-4 h-4 text-primary" aria-hidden="true" />
+                <div className="max-w-4xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-x-3 gap-y-2">
+                    <div className="flex items-center gap-2 cursor-pointer min-w-0" onClick={() => goToStep(1)}>
+                        <div className="w-8 h-8 rounded-lg bg-primary-tint border border-border flex items-center justify-center flex-shrink-0">
+                            <House className="w-4 h-4 text-primary-accent" aria-hidden="true" />
                         </div>
-                        <span className="font-heading font-semibold text-lg tracking-tight text-foreground flex items-center gap-1.5">
-                            QUOTRA<span className="text-primary">MAX</span>
+                        <span className="font-heading font-semibold text-base sm:text-lg tracking-tight text-foreground flex items-center gap-1.5 min-w-0">
+                            QUOTRA<span className="text-primary-accent">MAX</span>
                             <span className="text-xs font-semibold px-1.5 py-0.5 bg-muted text-foreground-secondary rounded-md">ASSESSMENT</span>
                         </span>
                     </div>
 
-                    <div className="text-sm font-medium text-foreground-secondary flex items-center gap-1.5 bg-muted px-3 py-1.5 rounded-full border border-border">
-                        <span className="w-2 h-2 rounded-full bg-accent animate-pulse" aria-hidden="true"></span>
+                    <div className="text-xs sm:text-sm font-medium text-foreground-secondary flex items-center gap-1.5 bg-muted px-3 py-1.5 rounded-full border border-border">
+                        <span className="w-2 h-2 rounded-full bg-accent animate-pulse flex-shrink-0" aria-hidden="true"></span>
                         Free 21-Point Inspection
                     </div>
                 </div>
             </header>
 
-            <main className="flex-1 max-w-2xl w-full mx-auto px-4 py-10 sm:py-12 flex flex-col justify-center gap-12">
+            <main className="flex-1 max-w-2xl w-full mx-auto px-4 py-10 sm:py-12 flex flex-col justify-center gap-10 sm:gap-12">
                 <div className="text-center">
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-tint border border-border rounded-full text-sm font-medium text-primary mb-4">
-                        <Zap className="w-5 h-5" aria-hidden="true" />
+                    <div className="inline-flex items-start sm:items-center gap-2 px-3 py-1.5 bg-primary-tint border border-border rounded-2xl sm:rounded-full text-xs sm:text-sm font-medium text-primary-accent mb-4 text-left">
+                        <Zap className="w-5 h-5 flex-shrink-0" aria-hidden="true" />
                         Official 60-Second Roof Inspection & Price Estimate
                     </div>
-                    <h1 className="text-2xl sm:text-4xl font-heading font-bold tracking-tight leading-tight">
+                    <h1 className="text-2xl sm:text-4xl font-heading font-bold tracking-tight leading-tight text-balance">
                         {step === 1 && 'What is the primary goal for your roof?'}
                         {step === 2 && 'What type of home and roofing material do you have?'}
                         {step === 3 && 'What is your ideal project timeline & payment preference?'}
@@ -385,7 +391,7 @@ export default function Home() {
                         <div className="flex justify-between items-baseline gap-3 mb-2">
                             <span className="text-base text-foreground-secondary">
                                 Step {step} of 5:{' '}
-                                <span className="text-primary font-semibold">
+                                <span className="text-primary-accent font-semibold">
                                     {step === 1 && 'Roof Goal'}
                                     {step === 2 && 'Home Specs'}
                                     {step === 3 && 'Timeline & Budget'}
@@ -397,14 +403,14 @@ export default function Home() {
                         </div>
                         <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
                             <div
-                                className="h-full bg-primary rounded-full transition-all duration-300 ease-out"
+                                className="h-full bg-primary-accent rounded-full transition-all duration-300 ease-out"
                                 style={{ width: `${(step / 5) * 100}%` }}
                             />
                         </div>
                     </div>
 
                     {error && (
-                        <div className="mb-4 p-4 bg-danger-tint border border-danger/20 text-danger text-base rounded-xl font-medium text-center flex items-center justify-center gap-2">
+                        <div className="mb-4 p-4 bg-danger-tint border border-danger/30 text-danger text-base rounded-xl font-medium text-center flex items-center justify-center gap-2">
                             <TriangleAlert className="w-5 h-5 flex-shrink-0" aria-hidden="true" />
                             {error}
                         </div>
@@ -423,10 +429,10 @@ export default function Home() {
                                         onClick={() => handleChange('service', item.val)}
                                         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleChange('service', item.val); } }}
                                         className={optionCardClass(selected)}>
-                                        <div className="flex items-center gap-4 min-w-0">
-                                            <Icon className="w-6 h-6 text-primary flex-shrink-0" aria-hidden="true" />
+                                        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                                            <Icon className="w-6 h-6 text-primary-accent flex-shrink-0" aria-hidden="true" />
                                             <div className="min-w-0">
-                                                <div className="text-lg font-semibold text-foreground">{item.title}</div>
+                                                <div className="text-base sm:text-lg font-semibold text-foreground">{item.title}</div>
                                                 <div className="text-base text-foreground-secondary leading-relaxed mt-1">{item.desc}</div>
                                             </div>
                                         </div>
@@ -435,7 +441,7 @@ export default function Home() {
                                 );
                             })}
 
-                            <div className="flex justify-end pt-2">
+                            <div className="flex pt-2">
                                 <button type="button" onClick={() => goToStep(2)} className={primaryBtn}>
                                     Next: Home Specs
                                     <ArrowRight className="w-5 h-5" aria-hidden="true" />
@@ -447,16 +453,16 @@ export default function Home() {
                     {step === 2 && (
                         <div className="space-y-8 animate-stepIn">
                             <div>
-                                <label className="block text-base font-medium text-foreground mb-3">How many stories is your home?</label>
-                                <div className="grid grid-cols-3 gap-3">
+                                <label className={sectionLabel}>How many stories is your home?</label>
+                                <div className="grid grid-cols-3 gap-2 sm:gap-3">
                                     {['1 Story', '2 Stories', '3+ Stories'].map((story) => (
                                         <button
                                             key={story}
                                             type="button"
                                             onClick={() => handleChange('stories', story)}
-                                            className={`min-h-[44px] p-4 rounded-2xl border text-base font-semibold transition-all duration-200 ease-out text-center focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
+                                            className={`min-h-[44px] px-2 py-3 sm:p-4 rounded-2xl border text-base font-semibold transition-all duration-200 ease-out text-center focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background ${
                                                 formData.stories === story
-                                                    ? 'border-primary bg-primary-tint shadow-card text-foreground'
+                                                    ? 'border-primary-accent bg-primary-tint shadow-card text-foreground'
                                                     : 'border-border bg-background text-foreground-secondary hover:border-border-strong hover:shadow-card-hover hover:-translate-y-0.5'
                                             }`}>
                                             {story}
@@ -466,7 +472,7 @@ export default function Home() {
                             </div>
 
                             <div>
-                                <label className="block text-base font-medium text-foreground mb-3">What is your preferred roofing material?</label>
+                                <label className={sectionLabel}>What is your preferred roofing material?</label>
                                 <div className="space-y-3">
                                     {MATERIALS.map((mat) => {
                                         const selected = formData.material === mat.val;
@@ -478,8 +484,8 @@ export default function Home() {
                                                 onClick={() => handleChange('material', mat.val)}
                                                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleChange('material', mat.val); } }}
                                                 className={optionCardClass(selected)}>
-                                                <div className="min-w-0 pr-2">
-                                                    <div className="text-lg font-semibold text-foreground">{mat.name}</div>
+                                                <div className="min-w-0 pr-1 sm:pr-2">
+                                                    <div className="text-base sm:text-lg font-semibold text-foreground">{mat.name}</div>
                                                     <div className="text-base text-foreground-secondary leading-relaxed mt-1">{mat.desc}</div>
                                                 </div>
                                                 <SelectionMark selected={selected} />
@@ -489,7 +495,7 @@ export default function Home() {
                                 </div>
                             </div>
 
-                            <div className="flex justify-between items-center gap-3 pt-2">
+                            <div className={navRow}>
                                 <button type="button" onClick={() => goToStep(1)} className={backBtn}>
                                     ← Back
                                 </button>
@@ -504,7 +510,7 @@ export default function Home() {
                     {step === 3 && (
                         <div className="space-y-8 animate-stepIn">
                             <div>
-                                <label className="block text-base font-medium text-foreground mb-3">When do you need this work completed?</label>
+                                <label className={sectionLabel}>When do you need this work completed?</label>
                                 <div className="space-y-3">
                                     {TIMELINES.map((item) => {
                                         const selected = formData.timeline === item.val;
@@ -516,8 +522,8 @@ export default function Home() {
                                                 onClick={() => handleChange('timeline', item.val)}
                                                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleChange('timeline', item.val); } }}
                                                 className={optionCardClass(selected)}>
-                                                <div className="min-w-0 pr-2">
-                                                    <div className="text-lg font-semibold text-foreground">{item.title}</div>
+                                                <div className="min-w-0 pr-1 sm:pr-2">
+                                                    <div className="text-base sm:text-lg font-semibold text-foreground">{item.title}</div>
                                                     <div className="text-base text-foreground-secondary leading-relaxed mt-1">{item.desc}</div>
                                                 </div>
                                                 <SelectionMark selected={selected} />
@@ -528,7 +534,7 @@ export default function Home() {
                             </div>
 
                             <div>
-                                <label className="block text-base font-medium text-foreground mb-3">What is your preferred payment option?</label>
+                                <label className={sectionLabel}>What is your preferred payment option?</label>
                                 <div className="space-y-3">
                                     {PAYMENTS.map((pay) => {
                                         const selected = formData.insurance === pay.val;
@@ -540,8 +546,8 @@ export default function Home() {
                                                 onClick={() => handleChange('insurance', pay.val)}
                                                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleChange('insurance', pay.val); } }}
                                                 className={optionCardClass(selected)}>
-                                                <div className="min-w-0 pr-2">
-                                                    <div className="text-lg font-semibold text-foreground">{pay.name}</div>
+                                                <div className="min-w-0 pr-1 sm:pr-2">
+                                                    <div className="text-base sm:text-lg font-semibold text-foreground">{pay.name}</div>
                                                     <div className="text-base text-foreground-secondary leading-relaxed mt-1">{pay.desc}</div>
                                                 </div>
                                                 <SelectionMark selected={selected} />
@@ -551,7 +557,7 @@ export default function Home() {
                                 </div>
                             </div>
 
-                            <div className="flex justify-between items-center gap-3 pt-2">
+                            <div className={navRow}>
                                 <button type="button" onClick={() => goToStep(2)} className={backBtn}>
                                     ← Back
                                 </button>
@@ -566,7 +572,7 @@ export default function Home() {
                     {step === 4 && (
                         <div className="space-y-4 animate-stepIn animate-fadeIn">
                             <div className="p-4 bg-primary-tint border border-border rounded-2xl flex items-start gap-3 text-base text-foreground">
-                                <House className="w-6 h-6 text-primary flex-shrink-0 mt-0.5" aria-hidden="true" />
+                                <House className="w-6 h-6 text-primary-accent flex-shrink-0 mt-0.5" aria-hidden="true" />
                                 <span><strong>Local Inspection Crew Available:</strong> Enter property location to check local scheduling availability and calculate your free estimate.</span>
                             </div>
 
@@ -582,7 +588,7 @@ export default function Home() {
                             />
 
                             <div>
-                                <label className="block text-base font-medium text-foreground mb-2">Street Address *</label>
+                                <label className={fieldLabel}>Street Address *</label>
                                 <input
                                     type="text"
                                     placeholder="e.g. 100 Bayshore Blvd"
@@ -594,7 +600,7 @@ export default function Home() {
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-base font-medium text-foreground mb-2">City *</label>
+                                    <label className={fieldLabel}>City *</label>
                                     <input
                                         type="text"
                                         placeholder="e.g. Tampa"
@@ -604,7 +610,7 @@ export default function Home() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-base font-medium text-foreground mb-2">State *</label>
+                                    <label className={fieldLabel}>State *</label>
                                     <input
                                         type="text"
                                         maxLength={2}
@@ -618,7 +624,7 @@ export default function Home() {
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-base font-medium text-foreground mb-2">5-Digit ZIP Code *</label>
+                                    <label className={fieldLabel}>5-Digit ZIP Code *</label>
                                     <input
                                         type="tel"
                                         inputMode="numeric"
@@ -630,7 +636,7 @@ export default function Home() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-base font-medium text-foreground mb-2">Full Name *</label>
+                                    <label className={fieldLabel}>Full Name *</label>
                                     <input
                                         type="text"
                                         placeholder="First and last name"
@@ -643,7 +649,7 @@ export default function Home() {
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-base font-medium text-foreground mb-2">Mobile Phone (For Text Alert) *</label>
+                                    <label className={fieldLabel}>Mobile Phone (For Text Alert) *</label>
                                     <input
                                         type="tel"
                                         inputMode="numeric"
@@ -654,7 +660,7 @@ export default function Home() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-base font-medium text-foreground mb-2">Email Address (For Report) *</label>
+                                    <label className={fieldLabel}>Email Address (For Report) *</label>
                                     <input
                                         type="email"
                                         placeholder="name@example.com"
@@ -665,14 +671,14 @@ export default function Home() {
                                 </div>
                             </div>
 
-                            <div className="p-4 bg-muted border border-border rounded-2xl flex items-center justify-between gap-3 text-base text-foreground-secondary">
+                            <div className="p-4 bg-muted border border-border rounded-2xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-base text-foreground-secondary">
                                 <span className="flex items-center gap-2">
-                                    <Lock className="w-5 h-5 text-primary" aria-hidden="true" /> 100% Spam-Free Privacy Guarantee
+                                    <Lock className="w-5 h-5 text-primary-accent flex-shrink-0" aria-hidden="true" /> 100% Spam-Free Privacy Guarantee
                                 </span>
                                 <span>Zero Obligation</span>
                             </div>
 
-                            <div className="flex justify-between items-center gap-3 pt-2">
+                            <div className={navRow}>
                                 <button type="button" onClick={() => goToStep(3)} className={backBtn}>
                                     ← Back
                                 </button>
@@ -687,27 +693,27 @@ export default function Home() {
                     {step === 5 && (
                         <form onSubmit={handleFinalSubmit} className="space-y-8 animate-stepIn">
                             <div>
-                                <label className="block text-base font-medium text-foreground mb-3">Select Preferred Inspection Date</label>
-                                <div className="grid grid-cols-3 gap-3">
+                                <label className={sectionLabel}>Select Preferred Inspection Date</label>
+                                <div className="grid grid-cols-3 gap-2 sm:gap-3">
                                     {datePills.map((pill) => (
                                         <button
                                             key={pill.dateStr}
                                             type="button"
                                             onClick={() => handleChange('appointmentDate', pill.dateStr)}
-                                            className={`min-h-[44px] p-4 rounded-2xl border text-center transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${
+                                            className={`min-h-[44px] px-2 py-3 sm:p-4 rounded-2xl border text-center transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background ${
                                                 formData.appointmentDate === pill.dateStr
-                                                    ? 'border-primary bg-primary-tint shadow-card text-foreground'
+                                                    ? 'border-primary-accent bg-primary-tint shadow-card text-foreground'
                                                     : 'border-border bg-background text-foreground-secondary hover:border-border-strong hover:shadow-card-hover hover:-translate-y-0.5'
                                             }`}>
-                                            <div className="text-sm font-semibold text-primary">{pill.label}</div>
-                                            <div className="text-base font-semibold mt-1 text-foreground">{pill.display}</div>
+                                            <div className="text-sm font-semibold text-primary-accent">{pill.label}</div>
+                                            <div className="text-sm sm:text-base font-semibold mt-1 text-foreground">{pill.display}</div>
                                         </button>
                                     ))}
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-base font-medium text-foreground mb-3">Select Arrival Window</label>
+                                <label className={sectionLabel}>Select Arrival Window</label>
                                 <div className="space-y-3">
                                     {TIME_BLOCKS.map((block) => {
                                         const selected = formData.appointmentTime === block.time;
@@ -720,10 +726,10 @@ export default function Home() {
                                                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleChange('appointmentTime', block.time); } }}
                                                 className={optionCardClass(selected)}>
                                                 <div className="flex items-center gap-3 min-w-0">
-                                                    <Clock className="w-6 h-6 text-primary flex-shrink-0" aria-hidden="true" />
-                                                    <div className="min-w-0">
-                                                        <span className="text-lg font-semibold text-foreground">{block.time}</span>
-                                                        <span className="ml-2 text-sm font-medium px-2 py-0.5 rounded-md bg-muted text-foreground-secondary">
+                                                    <Clock className="w-6 h-6 text-primary-accent flex-shrink-0" aria-hidden="true" />
+                                                    <div className="min-w-0 flex flex-wrap items-center gap-x-2 gap-y-1">
+                                                        <span className="text-base sm:text-lg font-semibold text-foreground">{block.time}</span>
+                                                        <span className="text-sm font-medium px-2 py-0.5 rounded-md bg-muted text-foreground-secondary">
                                                             {block.tag}
                                                         </span>
                                                     </div>
@@ -735,7 +741,7 @@ export default function Home() {
                                 </div>
                             </div>
 
-                            <div className="flex justify-between items-center gap-3 pt-2">
+                            <div className={navRow}>
                                 <button type="button" onClick={() => goToStep(4)} className={backBtn}>
                                     ← Back
                                 </button>
@@ -753,7 +759,7 @@ export default function Home() {
                         <span className="text-sm font-medium px-2.5 py-1 bg-muted text-foreground-secondary rounded-md">
                             Got Questions?
                         </span>
-                        <h2 className="text-2xl font-heading font-bold text-foreground mt-4">Frequently Asked Questions</h2>
+                        <h2 className="text-xl sm:text-2xl font-heading font-bold text-foreground mt-4">Frequently Asked Questions</h2>
                         <p className="text-base text-foreground-secondary leading-relaxed mt-2">Everything you need to know about your free 21-point roof inspection.</p>
                     </div>
 
@@ -768,7 +774,7 @@ export default function Home() {
                                         type="button"
                                         onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
                                         aria-expanded={open}
-                                        className="w-full min-h-[44px] py-5 flex items-center justify-between gap-4 text-left text-lg font-heading font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-ring rounded-lg">
+                                        className="w-full min-h-[44px] py-5 flex items-center justify-between gap-4 text-left text-base sm:text-lg font-heading font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-ring rounded-lg">
                                         <span>{faq.q}</span>
                                         <ChevronDown
                                             className={`w-5 h-5 text-foreground-secondary flex-shrink-0 transition-transform duration-200 ease-out ${open ? 'rotate-180' : ''}`}

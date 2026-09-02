@@ -75,7 +75,7 @@ Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pendi
         return (
             <div className="min-h-screen bg-background-alt text-foreground flex flex-col items-center justify-center font-sans">
                 <div className="flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-12 h-12 border-4 border-primary-accent border-t-transparent rounded-full animate-spin"></div>
                     <span className="text-base font-medium text-foreground-secondary">Loading Your Inspection Confirmation...</span>
                 </div>
             </div>
@@ -93,7 +93,7 @@ Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pendi
                 <button
                     type="button"
                     onClick={() => router.push('/')}
-                    className="min-h-[44px] px-6 py-3 bg-primary hover:bg-primary-hover text-primary-fg font-semibold rounded-xl text-lg transition-all duration-200 ease-out shadow-button focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                    className="min-h-[44px] px-6 py-3 bg-primary hover:bg-primary-hover text-primary-fg font-semibold rounded-xl text-lg transition-all duration-200 ease-out shadow-button focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background-alt">
                     Return to Funnel Home
                 </button>
             </div>
@@ -112,10 +112,10 @@ Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pendi
     return (
         <div className="min-h-screen bg-background-alt text-foreground flex flex-col font-sans selection:bg-primary-tint">
             <header className="border-b border-border bg-background/80 backdrop-blur-xl sticky top-0 z-50">
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex justify-between items-center">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap justify-between items-center gap-x-3 gap-y-2">
                     <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/')}>
                         <div className="w-8 h-8 rounded-lg bg-primary-tint border border-border flex items-center justify-center">
-                            <House className="w-4 h-4 text-primary" aria-hidden="true" />
+                            <House className="w-4 h-4 text-primary-accent" aria-hidden="true" />
                         </div>
                         <span className="font-heading font-semibold text-lg sm:text-xl tracking-tight text-foreground">
                             QUOTRAMAX
@@ -142,10 +142,10 @@ Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pendi
                 <div className="border border-border bg-background rounded-2xl p-6 sm:p-10 shadow-card relative overflow-hidden mb-10">
                     <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 text-center sm:text-left">
                         <div className="w-16 h-16 sm:w-20 sm:h-20 bg-primary-tint border border-border rounded-2xl flex items-center justify-center flex-shrink-0">
-                            <PartyPopper className="w-8 h-8 text-primary" aria-hidden="true" />
+                            <PartyPopper className="w-8 h-8 text-primary-accent" aria-hidden="true" />
                         </div>
                         <div>
-                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary-tint border border-border rounded-full text-sm font-semibold text-primary mb-2">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary-tint border border-border rounded-full text-sm font-semibold text-primary-accent mb-2">
                                 <Check className="w-4 h-4" aria-hidden="true" /> Inspection Dossier Confirmed
                             </div>
                             <h1 className="font-heading text-2xl sm:text-4xl font-bold text-foreground tracking-tight">
@@ -160,9 +160,9 @@ Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pendi
                     {formattedDate ? (
                         <div className="mt-8 p-5 bg-muted border border-border rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
                             <div className="flex items-center gap-3">
-                                <Calendar className="w-6 h-6 text-primary" aria-hidden="true" />
+                                <Calendar className="w-6 h-6 text-primary-accent" aria-hidden="true" />
                                 <div>
-                                    <div className="text-sm font-medium text-primary">Scheduled Appointment Date</div>
+                                    <div className="text-sm font-medium text-primary-accent">Scheduled Appointment Date</div>
                                     <div className="text-lg font-semibold text-foreground">{formattedDate}</div>
                                 </div>
                             </div>
@@ -182,7 +182,7 @@ Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pendi
                     <div className="md:col-span-7 space-y-6">
                         <div className="border border-border rounded-2xl bg-background p-5 sm:p-6 shadow-card">
                             <h2 className="text-base font-medium text-foreground-secondary mb-5 flex items-center gap-2">
-                                <Map className="w-5 h-5 text-primary" aria-hidden="true" /> What Happens Next (Roadmap)
+                                <Map className="w-5 h-5 text-primary-accent" aria-hidden="true" /> What Happens Next (Roadmap)
                             </h2>
 
                             <div className="space-y-4">
@@ -207,13 +207,13 @@ Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pendi
                                     }
                                 ].map((item, idx) => (
                                     <div key={idx} className="flex gap-4 p-4 bg-muted border border-border rounded-2xl">
-                                        <div className="w-8 h-8 rounded-lg bg-background border border-border text-primary font-semibold text-sm flex items-center justify-center flex-shrink-0">
+                                        <div className="w-8 h-8 rounded-lg bg-background border border-border text-primary-accent font-semibold text-sm flex items-center justify-center flex-shrink-0">
                                             {item.step}
                                         </div>
                                         <div>
                                             <div className="flex items-center gap-2 flex-wrap">
-                                                <h3 className="text-lg font-semibold text-foreground">{item.title}</h3>
-                                                <span className="text-sm px-2 py-0.5 bg-primary-tint text-primary rounded-full font-medium">{item.status}</span>
+                                                <h3 className="text-base sm:text-lg font-semibold text-foreground">{item.title}</h3>
+                                                <span className="text-sm px-2 py-0.5 bg-primary-tint text-primary-accent rounded-full font-medium">{item.status}</span>
                                             </div>
                                             <p className="text-base text-foreground-secondary mt-1 leading-relaxed">{item.desc}</p>
                                         </div>
@@ -240,7 +240,7 @@ Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pendi
                                 </div>
                                 <div className="p-3 bg-muted rounded-xl border border-border flex justify-between items-center gap-2">
                                     <span className="text-foreground-secondary">Preferred Material:</span>
-                                    <span className="font-semibold text-primary">{lead.material || 'Architectural Shingles'}</span>
+                                    <span className="font-semibold text-primary-accent">{lead.material || 'Architectural Shingles'}</span>
                                 </div>
                                 <div className="p-3 bg-muted rounded-xl border border-border flex justify-between items-center gap-2">
                                     <span className="text-foreground-secondary">Timeline:</span>
@@ -249,7 +249,7 @@ Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pendi
                             </div>
 
                             <div className="mt-5 p-4 bg-primary-tint border border-border rounded-2xl text-center">
-                                <span className="text-primary font-semibold text-base mb-1 flex items-center justify-center gap-1.5">
+                                <span className="text-primary-accent font-semibold text-base mb-1 flex items-center justify-center gap-1.5">
                                     <Shield className="w-5 h-5" aria-hidden="true" /> 100% Free &amp; Zero Obligation
                                 </span>
                                 <p className="text-base text-foreground-secondary leading-snug mt-1">
@@ -282,7 +282,7 @@ export default function Results() {
         <Suspense fallback={
             <div className="min-h-screen bg-background-alt text-foreground flex flex-col items-center justify-center font-sans">
                 <div className="flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-12 h-12 border-4 border-primary-accent border-t-transparent rounded-full animate-spin"></div>
                     <span className="text-base font-medium text-foreground-secondary">Loading Inspection Dossier...</span>
                 </div>
             </div>
