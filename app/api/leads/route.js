@@ -4,6 +4,7 @@ import {
     createLeadAccessToken,
     escapeHtml,
     getClientIp,
+    getClientSlug,
     noStoreHeaders,
     rateLimit,
     validateLeadPayload,
@@ -211,6 +212,8 @@ export async function POST(req) {
             return json({ success: false, error: 'Too many requests for this email.' }, { status: 429 });
         }
 
+        const client = getClientSlug(req);
+
         const motivationPayload = JSON.stringify({
             service: lead.service,
             roofAge: lead.roofAge,
@@ -222,6 +225,7 @@ export async function POST(req) {
             state: lead.state,
             zip: lead.zip,
             appointment: lead.appointment,
+            client,
         });
 
         const leadData = {
@@ -238,6 +242,7 @@ export async function POST(req) {
             stories: lead.stories,
             status: 'Inspection Scheduled',
             date: new Date().toISOString(),
+            client,
         };
 
         const savedLead = await insertLead(leadData);
