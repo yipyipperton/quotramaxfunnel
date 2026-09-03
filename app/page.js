@@ -344,7 +344,12 @@ export default function Home() {
     };
 
     return (
-        <div className="min-h-screen bg-background-alt text-foreground flex flex-col font-sans selection:bg-primary-tint">
+        <div className="relative min-h-screen bg-background-alt text-foreground flex flex-col font-sans selection:bg-primary-tint">
+            <div className="pointer-events-none fixed inset-0 -z-10" aria-hidden="true">
+                <div className="absolute inset-0 bg-[url('/roof-hero.webp')] bg-cover bg-center opacity-60" />
+                <div className="absolute inset-0 bg-gradient-to-b from-background-alt/45 via-background-alt/85 to-background-alt" />
+            </div>
+
             <header className="border-b border-border bg-background/80 backdrop-blur-xl sticky top-0 z-40">
                 <div className="max-w-4xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-x-3 gap-y-2">
                     <div className="flex items-center gap-2 cursor-pointer min-w-0" onClick={() => goToStep(1)}>
@@ -649,7 +654,7 @@ export default function Home() {
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label className={fieldLabel}>Mobile Phone (For Text Alert) *</label>
+                                    <label className={fieldLabel}>Mobile Phone (For Inspection Call) *</label>
                                     <input
                                         type="tel"
                                         inputMode="numeric"

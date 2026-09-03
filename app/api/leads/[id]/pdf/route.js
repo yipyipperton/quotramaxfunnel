@@ -1,6 +1,7 @@
 import { calculateEstimate } from '@/lib/estimate';
 import { findLeadById, parseMotivation } from '@/lib/leads';
 import { isValidLeadId, noStoreHeaders, requireLeadAccess } from '@/lib/security';
+import { formatPhone } from '@/lib/format';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 
 export const dynamic = 'force-dynamic';
@@ -152,7 +153,7 @@ export async function GET(req, { params }) {
 
         // Right Col
         page.drawText('Phone Number:', { x: 330, y: 672, size: 8.5, font: helveticaBold, color: grayColor });
-        page.drawText(pdfSafe(lead.phone, 20) || 'Not provided', { x: 410, y: 672, size: 8.5, font: helveticaFont, color: primaryColor });
+        page.drawText(pdfSafe(formatPhone(lead.phone), 20) || 'Not provided', { x: 410, y: 672, size: 8.5, font: helveticaFont, color: primaryColor });
 
         page.drawText('Property Type:', { x: 330, y: 654, size: 8.5, font: helveticaBold, color: grayColor });
         page.drawText(propertyType, { x: 410, y: 654, size: 8.5, font: helveticaFont, color: primaryColor });

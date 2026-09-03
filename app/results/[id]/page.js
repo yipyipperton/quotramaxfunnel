@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Calendar, Check, ClipboardCopy, House, Map, PartyPopper, Shield, TriangleAlert } from 'lucide-react';
+import { formatPhone } from '@/lib/format';
 
 function ResultsDetail() {
     const { id } = useParams();
@@ -63,7 +64,7 @@ function ResultsDetail() {
         if (!lead) return;
         const text = `Roof Inspection Confirmation:
 Address: ${lead.address}
-Contact: ${lead.name} (${lead.phone || 'on file'})
+Contact: ${lead.name} (${lead.phone ? formatPhone(lead.phone) : 'on file'})
 Service: ${lead.service || 'Full Roof Replacement'}
 Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pending'})`;
         navigator.clipboard.writeText(text);
@@ -110,7 +111,12 @@ Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pendi
         : null;
 
     return (
-        <div className="min-h-screen bg-background-alt text-foreground flex flex-col font-sans selection:bg-primary-tint">
+        <div className="relative min-h-screen bg-background-alt text-foreground flex flex-col font-sans selection:bg-primary-tint">
+            <div className="pointer-events-none fixed inset-0 -z-10" aria-hidden="true">
+                <div className="absolute inset-0 bg-[url('/roof-hero.webp')] bg-cover bg-center opacity-45" />
+                <div className="absolute inset-0 bg-gradient-to-b from-background-alt/60 via-background-alt/90 to-background-alt" />
+            </div>
+
             <header className="border-b border-border bg-background/80 backdrop-blur-xl sticky top-0 z-50">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap justify-between items-center gap-x-3 gap-y-2">
                     <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/')}>
@@ -195,8 +201,8 @@ Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pendi
                                     },
                                     {
                                         step: '02',
-                                        title: 'Technician Text & Phone Confirmation',
-                                        desc: `A licensed technician will call or text ${lead.phone || 'your phone'} 30 minutes prior to arrival to confirm property access.`,
+                                        title: 'Technician Phone Confirmation',
+                                        desc: `A licensed technician will call ${lead.phone ? formatPhone(lead.phone) : 'your phone'} 30 minutes prior to arrival to confirm property access.`,
                                         status: 'Pending Tech Dispatch'
                                     },
                                     {

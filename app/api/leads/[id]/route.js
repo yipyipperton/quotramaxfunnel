@@ -6,6 +6,7 @@ import {
     noStoreHeaders,
     requireLeadAccess,
 } from '@/lib/security';
+import { formatPhone } from '@/lib/format';
 import { findLeadById, getContractorEmail, mapLead, parseMotivation, updateLead } from '@/lib/leads';
 import { getFromAddress, sendEmail } from '@/lib/email';
 
@@ -106,7 +107,7 @@ export async function PATCH(req, { params }) {
                         <ul style="color: #475569; font-size: 14px; line-height: 1.8;">
                             <li><strong>Name:</strong> ${escapeHtml(mapped.name)}</li>
                             <li><strong>Address:</strong> ${escapeHtml(mapped.address)}</li>
-                            <li><strong>Phone:</strong> ${escapeHtml(mapped.phone || 'Not provided')}</li>
+                            <li><strong>Phone:</strong> ${escapeHtml(mapped.phone ? formatPhone(mapped.phone) : 'Not provided')}</li>
                             <li><strong>Email:</strong> ${escapeHtml(mapped.email)}</li>
                         </ul>
                     </div>
