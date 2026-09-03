@@ -128,7 +128,7 @@ const FAQS = [
 ];
 
 const optionCardClass = (selected) =>
-    `w-full min-h-[44px] p-4 sm:p-5 rounded-2xl border text-left flex items-center justify-between gap-3 sm:gap-4 cursor-pointer transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background ${
+    `w-full min-h-[44px] px-3 py-2.5 sm:p-5 rounded-xl sm:rounded-2xl border text-left flex items-center justify-between gap-3 sm:gap-4 cursor-pointer transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background ${
         selected
             ? 'border-primary-accent bg-primary-tint shadow-card'
             : 'border-border bg-background hover:border-border-strong hover:shadow-card-hover hover:-translate-y-0.5'
@@ -351,38 +351,39 @@ export default function Home() {
             </div>
 
             <header className="border-b border-border bg-background/80 backdrop-blur-xl sticky top-0 z-40">
-                <div className="max-w-4xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-x-3 gap-y-2">
+                <div className="max-w-4xl mx-auto px-4 py-2 sm:py-3 flex justify-between items-center gap-3">
                     <div className="flex items-center gap-2 cursor-pointer min-w-0" onClick={() => goToStep(1)}>
-                        <div className="w-8 h-8 rounded-lg bg-primary-tint border border-border flex items-center justify-center flex-shrink-0">
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-primary-tint border border-border flex items-center justify-center flex-shrink-0">
                             <House className="w-4 h-4 text-primary-accent" aria-hidden="true" />
                         </div>
                         <span className="font-heading font-semibold text-base sm:text-lg tracking-tight text-foreground flex items-center gap-1.5 min-w-0">
                             QUOTRA<span className="text-primary-accent">MAX</span>
-                            <span className="text-xs font-semibold px-1.5 py-0.5 bg-muted text-foreground-secondary rounded-md">ASSESSMENT</span>
+                            <span className="hidden sm:inline-flex text-xs font-semibold px-1.5 py-0.5 bg-muted text-foreground-secondary rounded-md">ASSESSMENT</span>
                         </span>
                     </div>
 
-                    <div className="text-xs sm:text-sm font-medium text-foreground-secondary flex items-center gap-1.5 bg-muted px-3 py-1.5 rounded-full border border-border">
+                    <div className="text-xs sm:text-sm font-medium text-foreground-secondary flex items-center gap-1.5 bg-muted px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-border">
                         <span className="w-2 h-2 rounded-full bg-accent animate-pulse flex-shrink-0" aria-hidden="true"></span>
-                        Free 21-Point Inspection
+                        <span className="sm:hidden">Free Inspection</span>
+                        <span className="hidden sm:inline">Free 21-Point Inspection</span>
                     </div>
                 </div>
             </header>
 
-            <main className="relative z-10 flex-1 max-w-2xl w-full mx-auto px-4 py-10 sm:py-12 flex flex-col justify-center gap-10 sm:gap-12">
+            <main className="relative z-10 flex-1 max-w-2xl w-full mx-auto px-4 py-4 sm:py-12 flex flex-col justify-center gap-4 sm:gap-12">
                 <div className="text-center">
-                    <div className="inline-flex items-start sm:items-center gap-2 px-3 py-1.5 bg-primary-tint border border-border rounded-2xl sm:rounded-full text-xs sm:text-sm font-medium text-primary-accent mb-4 text-left">
+                    <div className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 bg-primary-tint border border-border rounded-full text-sm font-medium text-primary-accent mb-4">
                         <Zap className="w-5 h-5 flex-shrink-0" aria-hidden="true" />
                         Official 60-Second Roof Inspection & Price Estimate
                     </div>
-                    <h1 className="text-2xl sm:text-4xl font-heading font-bold tracking-tight leading-tight text-balance">
+                    <h1 className="text-xl sm:text-4xl font-heading font-bold tracking-tight leading-tight text-balance">
                         {step === 1 && 'What is the primary goal for your roof?'}
                         {step === 2 && 'What type of home and roofing material do you have?'}
                         {step === 3 && 'What is your ideal project timeline & payment preference?'}
                         {step === 4 && 'Where should we send your official roof inspection & price quote?'}
                         {step === 5 && 'Select your preferred date for a free on-site roof inspection'}
                     </h1>
-                    <p className="text-lg text-foreground-secondary leading-relaxed mt-3">
+                    <p className="hidden sm:block text-lg text-foreground-secondary leading-relaxed mt-3">
                         {step === 1 && 'Select your primary roof concern below to get started.'}
                         {step === 2 && 'Helps us calculate accurate material costs and labor scope.'}
                         {step === 3 && 'Choose the scheduling and funding options that fit your budget.'}
@@ -391,8 +392,8 @@ export default function Home() {
                     </p>
                 </div>
 
-                <div className="rounded-2xl border border-border bg-background shadow-card px-4 sm:px-6 py-6 sm:py-8">
-                    <div className="mb-6">
+                <div className="rounded-2xl border border-border bg-background shadow-card px-3 sm:px-6 py-4 sm:py-8">
+                    <div className="mb-3 sm:mb-6">
                         <div className="flex justify-between items-baseline gap-3 mb-2">
                             <span className="text-base text-foreground-secondary">
                                 Step {step} of 5:{' '}
@@ -422,7 +423,7 @@ export default function Home() {
                     )}
 
                     {step === 1 && (
-                        <div className="space-y-4 animate-stepIn">
+                        <div className="space-y-2 sm:space-y-4 animate-stepIn">
                             {SERVICES.map((item) => {
                                 const selected = formData.service === item.val;
                                 const Icon = item.icon;
@@ -437,8 +438,8 @@ export default function Home() {
                                         <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                                             <Icon className="w-6 h-6 text-primary-accent flex-shrink-0" aria-hidden="true" />
                                             <div className="min-w-0">
-                                                <div className="text-base sm:text-lg font-semibold text-foreground">{item.title}</div>
-                                                <div className="text-base text-foreground-secondary leading-relaxed mt-1">{item.desc}</div>
+                                                <div className="text-sm sm:text-lg font-semibold text-foreground">{item.title}</div>
+                                                <div className="hidden sm:block text-base text-foreground-secondary leading-relaxed mt-1">{item.desc}</div>
                                             </div>
                                         </div>
                                         <SelectionMark selected={selected} />
@@ -456,7 +457,7 @@ export default function Home() {
                     )}
 
                     {step === 2 && (
-                        <div className="space-y-8 animate-stepIn">
+                        <div className="space-y-4 sm:space-y-8 animate-stepIn">
                             <div>
                                 <label className={sectionLabel}>How many stories is your home?</label>
                                 <div className="grid grid-cols-3 gap-2 sm:gap-3">
@@ -478,7 +479,7 @@ export default function Home() {
 
                             <div>
                                 <label className={sectionLabel}>What is your preferred roofing material?</label>
-                                <div className="space-y-3">
+                                <div className="space-y-2 sm:space-y-3">
                                     {MATERIALS.map((mat) => {
                                         const selected = formData.material === mat.val;
                                         return (
@@ -490,8 +491,8 @@ export default function Home() {
                                                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleChange('material', mat.val); } }}
                                                 className={optionCardClass(selected)}>
                                                 <div className="min-w-0 pr-1 sm:pr-2">
-                                                    <div className="text-base sm:text-lg font-semibold text-foreground">{mat.name}</div>
-                                                    <div className="text-base text-foreground-secondary leading-relaxed mt-1">{mat.desc}</div>
+                                                    <div className="text-sm sm:text-lg font-semibold text-foreground">{mat.name}</div>
+                                                    <div className="hidden sm:block text-base text-foreground-secondary leading-relaxed mt-1">{mat.desc}</div>
                                                 </div>
                                                 <SelectionMark selected={selected} />
                                             </div>
@@ -513,10 +514,10 @@ export default function Home() {
                     )}
 
                     {step === 3 && (
-                        <div className="space-y-8 animate-stepIn">
+                        <div className="space-y-4 sm:space-y-8 animate-stepIn">
                             <div>
                                 <label className={sectionLabel}>When do you need this work completed?</label>
-                                <div className="space-y-3">
+                                <div className="space-y-2 sm:space-y-3">
                                     {TIMELINES.map((item) => {
                                         const selected = formData.timeline === item.val;
                                         return (
@@ -528,8 +529,8 @@ export default function Home() {
                                                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleChange('timeline', item.val); } }}
                                                 className={optionCardClass(selected)}>
                                                 <div className="min-w-0 pr-1 sm:pr-2">
-                                                    <div className="text-base sm:text-lg font-semibold text-foreground">{item.title}</div>
-                                                    <div className="text-base text-foreground-secondary leading-relaxed mt-1">{item.desc}</div>
+                                                    <div className="text-sm sm:text-lg font-semibold text-foreground">{item.title}</div>
+                                                    <div className="hidden sm:block text-base text-foreground-secondary leading-relaxed mt-1">{item.desc}</div>
                                                 </div>
                                                 <SelectionMark selected={selected} />
                                             </div>
@@ -540,7 +541,7 @@ export default function Home() {
 
                             <div>
                                 <label className={sectionLabel}>What is your preferred payment option?</label>
-                                <div className="space-y-3">
+                                <div className="space-y-2 sm:space-y-3">
                                     {PAYMENTS.map((pay) => {
                                         const selected = formData.insurance === pay.val;
                                         return (
@@ -552,8 +553,8 @@ export default function Home() {
                                                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleChange('insurance', pay.val); } }}
                                                 className={optionCardClass(selected)}>
                                                 <div className="min-w-0 pr-1 sm:pr-2">
-                                                    <div className="text-base sm:text-lg font-semibold text-foreground">{pay.name}</div>
-                                                    <div className="text-base text-foreground-secondary leading-relaxed mt-1">{pay.desc}</div>
+                                                    <div className="text-sm sm:text-lg font-semibold text-foreground">{pay.name}</div>
+                                                    <div className="hidden sm:block text-base text-foreground-secondary leading-relaxed mt-1">{pay.desc}</div>
                                                 </div>
                                                 <SelectionMark selected={selected} />
                                             </div>
@@ -575,7 +576,7 @@ export default function Home() {
                     )}
 
                     {step === 4 && (
-                        <div className="space-y-4 animate-stepIn animate-fadeIn">
+                        <div className="space-y-3 sm:space-y-4 animate-stepIn animate-fadeIn">
                             <div className="p-4 bg-primary-tint border border-border rounded-2xl flex items-start gap-3 text-base text-foreground">
                                 <House className="w-6 h-6 text-primary-accent flex-shrink-0 mt-0.5" aria-hidden="true" />
                                 <span><strong>Local Inspection Crew Available:</strong> Enter property location to check local scheduling availability and calculate your free estimate.</span>
@@ -696,7 +697,7 @@ export default function Home() {
                     )}
 
                     {step === 5 && (
-                        <form onSubmit={handleFinalSubmit} className="space-y-8 animate-stepIn">
+                        <form onSubmit={handleFinalSubmit} className="space-y-4 sm:space-y-8 animate-stepIn">
                             <div>
                                 <label className={sectionLabel}>Select Preferred Inspection Date</label>
                                 <div className="grid grid-cols-3 gap-2 sm:gap-3">
@@ -719,7 +720,7 @@ export default function Home() {
 
                             <div>
                                 <label className={sectionLabel}>Select Arrival Window</label>
-                                <div className="space-y-3">
+                                <div className="space-y-2 sm:space-y-3">
                                     {TIME_BLOCKS.map((block) => {
                                         const selected = formData.appointmentTime === block.time;
                                         return (
