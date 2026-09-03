@@ -5,6 +5,15 @@ import { useParams, useRouter } from 'next/navigation';
 import { Calendar, Check, ClipboardCopy, House, Map, PartyPopper, Shield, TriangleAlert } from 'lucide-react';
 import { formatPhone } from '@/lib/format';
 
+function Backdrop() {
+    return (
+        <div className="pointer-events-none fixed inset-0 -z-10" aria-hidden="true">
+            <div className="absolute inset-0 bg-[url('/roof-hero.webp')] bg-cover bg-center opacity-45" />
+            <div className="absolute inset-0 bg-gradient-to-b from-background-alt/60 via-background-alt/90 to-background-alt" />
+        </div>
+    );
+}
+
 function ResultsDetail() {
     const { id } = useParams();
     const router = useRouter();
@@ -74,7 +83,8 @@ Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pendi
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-background-alt text-foreground flex flex-col items-center justify-center font-sans">
+            <div className="relative min-h-screen bg-background-alt text-foreground flex flex-col items-center justify-center font-sans">
+                <Backdrop />
                 <div className="flex flex-col items-center gap-4">
                     <div className="w-12 h-12 border-4 border-primary-accent border-t-transparent rounded-full animate-spin"></div>
                     <span className="text-base font-medium text-foreground-secondary">Loading Your Inspection Confirmation...</span>
@@ -85,7 +95,8 @@ Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pendi
 
     if (error || !lead) {
         return (
-            <div className="min-h-screen bg-background-alt text-foreground flex flex-col items-center justify-center font-sans px-6 text-center">
+            <div className="relative min-h-screen bg-background-alt text-foreground flex flex-col items-center justify-center font-sans px-6 text-center">
+                <Backdrop />
                 <div className="w-16 h-16 bg-danger-tint border border-danger/20 rounded-full flex items-center justify-center mb-4">
                     <TriangleAlert className="w-7 h-7 text-danger" aria-hidden="true" />
                 </div>
@@ -112,10 +123,7 @@ Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pendi
 
     return (
         <div className="relative min-h-screen bg-background-alt text-foreground flex flex-col font-sans selection:bg-primary-tint">
-            <div className="pointer-events-none fixed inset-0 -z-10" aria-hidden="true">
-                <div className="absolute inset-0 bg-[url('/roof-hero.webp')] bg-cover bg-center opacity-45" />
-                <div className="absolute inset-0 bg-gradient-to-b from-background-alt/60 via-background-alt/90 to-background-alt" />
-            </div>
+            <Backdrop />
 
             <header className="border-b border-border bg-background/80 backdrop-blur-xl sticky top-0 z-50">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap justify-between items-center gap-x-3 gap-y-2">
@@ -286,7 +294,8 @@ Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pendi
 export default function Results() {
     return (
         <Suspense fallback={
-            <div className="min-h-screen bg-background-alt text-foreground flex flex-col items-center justify-center font-sans">
+            <div className="relative min-h-screen bg-background-alt text-foreground flex flex-col items-center justify-center font-sans">
+                <Backdrop />
                 <div className="flex flex-col items-center gap-4">
                     <div className="w-12 h-12 border-4 border-primary-accent border-t-transparent rounded-full animate-spin"></div>
                     <span className="text-base font-medium text-foreground-secondary">Loading Inspection Dossier...</span>
