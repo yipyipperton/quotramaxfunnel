@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, useLayoutEffect, Suspense } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Calendar, Check, ClipboardCopy, House, Map, PartyPopper, Shield, TriangleAlert } from 'lucide-react';
 import { formatPhone } from '@/lib/format';
@@ -22,6 +22,17 @@ function ResultsDetail() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [copied, setCopied] = useState(false);
+
+    useLayoutEffect(() => {
+        if (!id) return;
+        try {
+            const cached = sessionStorage.getItem('qm_lead_' + id);
+            if (cached) {
+                setLead(JSON.parse(cached));
+                setLoading(false);
+            }
+        } catch (e) {}
+    }, [id]);
 
     useEffect(() => {
         if (!id) return;

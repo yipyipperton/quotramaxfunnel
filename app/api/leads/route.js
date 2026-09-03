@@ -251,12 +251,12 @@ export async function POST(req) {
         const leadId = String(savedLead.id);
         const accessToken = createLeadAccessToken(leadId);
 
-        const contractorEmail = await getContractorEmail();
         const street = lead.address;
         const from = getFromAddress();
         const bcc = process.env.LEAD_ALERT_BCC || undefined;
 
         after(async () => {
+            const contractorEmail = await getContractorEmail();
             const emailTasks = [
                 sendEmail({
                     to: lead.email,
