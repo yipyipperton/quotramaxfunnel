@@ -10,8 +10,9 @@ import {
     validateLeadPayload,
 } from '@/lib/security';
 import { formatPhone, telHref } from '@/lib/format';
+import { getClientConfig, isBookingBlocked } from '@/lib/clients';
 import { getContractorEmail, insertLead } from '@/lib/leads';
-import { getFromAddress, sendEmail } from '@/lib/email';
+import { getFromAddress, sendEmail, withDisplayName } from '@/lib/email';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,7 +34,8 @@ export async function GET() {
     return json({ error: 'Endpoint restricted' }, { status: 403 });
 }
 
-function buildHomeownerHtml(lead) {
+function buildHomeownerHtml(lead, companyName) {
+    const brand = escapeHtml(String(companyName || 'Quotramax').toUpperCase());
     const name = escapeHtml(lead.name);
     const location = escapeHtml(lead.fullAddress);
     const phone = escapeHtml(formatPhone(lead.phone));
@@ -56,7 +58,7 @@ function buildHomeownerHtml(lead) {
     return `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
-                <h2 style="color: #0d9488; margin: 0; font-size: 22px;">QUOTRAMAX</h2>
+                <h2 style="color: #0d9488; margin: 0; font-size: 22px;">${brand}</h2>
             </div>
             <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-bottom: 20px;">
             <p style="font-size: 16px; color: #1e293b;">Hello <strong>${name}</strong>,</p>
@@ -192,6 +194,15 @@ export async function POST(req) {
             return json({ success: false, error: 'Too many requests. Please try again later.' }, { status: 429 });
         }
 
+        const client = getClientSlug(req);
+        const clientConfig = await getClientConfig(client);
+        if (isBookingBlocked(clientConfig)) {
+            return json(
+                { success: false, error: 'This booking page is not active. Please contact the contractor directly.' },
+                { status: 403 }
+            );
+        }
+
         let body;
         try {
             body = await req.json();
@@ -213,8 +224,6 @@ export async function POST(req) {
         if (!emailLimited.ok) {
             return json({ success: false, error: 'Too many requests for this email.' }, { status: 429 });
         }
-
-        const client = getClientSlug(req);
 
         const motivationPayload = JSON.stringify({
             service: lead.service,
@@ -252,16 +261,17 @@ export async function POST(req) {
         const accessToken = createLeadAccessToken(leadId);
 
         const street = lead.address;
-        const from = getFromAddress();
+        const companyName = clientConfig?.companyName || '';
+        const from = withDisplayName(getFromAddress(), companyName);
         const bcc = process.env.LEAD_ALERT_BCC || undefined;
 
         after(async () => {
-            const contractorEmail = await getContractorEmail();
+            const contractorEmail = await getContractorEmail(client);
             const emailTasks = [
                 sendEmail({
                     to: lead.email,
                     subject: `Confirmed: 21-Point Roof Inspection for ${street}`,
-                    html: buildHomeownerHtml(lead),
+                    html: buildHomeownerHtml(lead, companyName),
                     from,
                 }),
             ];

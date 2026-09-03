@@ -23,9 +23,25 @@ Leads are stored in Supabase. In production the JSON file fallback is disabled, 
 | `LEAD_ACCESS_SECRET` | HMAC secret for confirmation tokens (`openssl rand -base64 32`) |
 | `RESEND_API_KEY` | Transactional email |
 | `FROM_EMAIL` | Verified Resend from-address. Homeowners see this; use `Quotramax Inspections <inspections@quotramax.com>`. `leads@quotramax.com` is rewritten automatically. |
-| `CONTRACTOR_EMAIL` | Inbox that receives new-lead alerts |
+| `CONTRACTOR_EMAIL` | Fallback inbox for new-lead alerts when a client row has no address |
 | `LEAD_ALERT_BCC` | Optional extra copy of contractor alerts |
+| `REQUIRE_KNOWN_CLIENT` | Set to `true` once every paying slug exists in `clients`, so guessed subdomains stop serving a live funnel |
 
-Apply `supabase/migrations/001_leads_rls.sql` in the Supabase SQL editor so Row Level Security is enabled and the anon key cannot read leads.
+Apply the SQL in `supabase/migrations/` in order, in the Supabase SQL editor. `001` enables Row Level Security so the anon key cannot read leads.
+
+## Onboarding a customer
+
+One row per paying contractor. The subdomain is the slug, so `smith.quotramax.com` looks up `smith` and their bookings go to their inbox, not the global `CONTRACTOR_EMAIL`.
+
+```sql
+insert into public.clients (slug, company_name, contractor_email)
+values ('smith', 'Smith Roofing', 'office@smithroofing.com');
+```
+
+Then point `smith.quotramax.com` at the Vercel project (a wildcard `*.quotramax.com` record covers every customer at once) and send a test booking.
+
+Their company name replaces the Quotramax wordmark on the page, the from-name on the homeowner email, and the page title. `logo_url` (a public https image) and `faqs` (JSON array of `{"q","a"}`, up to 8) are optional overrides; leave them null to keep the defaults. Lookups are cached for 60 seconds, so an edit takes up to a minute to show.
+
+When a customer churns, `update public.clients set active = false where slug = 'smith';` — their page stops taking bookings and the API rejects submissions for that slug.
 
 If you previously committed Resend API keys, rotate them in the Resend dashboard. This repo no longer embeds fallback keys.
