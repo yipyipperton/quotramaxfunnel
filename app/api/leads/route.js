@@ -272,7 +272,7 @@ export async function POST(req) {
                         to: contractorEmail,
                         subject: `New lead: ${lead.name} (${lead.service}) - ${lead.fullAddress}`,
                         html: buildContractorHtml(lead),
-                        from: getFromAddress('Quotramax Lead Alert <leads@quotramax.com>'),
+                        from: getFromAddress('Quotramax Dispatch <inspections@quotramax.com>'),
                         bcc,
                     })
                 );

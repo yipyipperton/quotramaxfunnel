@@ -22,7 +22,7 @@ Leads are stored in Supabase. In production the JSON file fallback is disabled, 
 | `SUPABASE_SERVICE_ROLE_KEY` | Server-only service role key (never `NEXT_PUBLIC_`) |
 | `LEAD_ACCESS_SECRET` | HMAC secret for confirmation tokens (`openssl rand -base64 32`) |
 | `RESEND_API_KEY` | Transactional email |
-| `FROM_EMAIL` | Verified Resend from-address |
+| `FROM_EMAIL` | Verified Resend from-address. Homeowners see this; use `Quotramax Inspections <inspections@quotramax.com>`. `leads@quotramax.com` is rewritten automatically. |
 | `CONTRACTOR_EMAIL` | Inbox that receives new-lead alerts |
 | `LEAD_ALERT_BCC` | Optional extra copy of contractor alerts |
 
