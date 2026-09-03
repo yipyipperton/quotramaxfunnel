@@ -136,6 +136,16 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--foreground-tertiary);
 }
 
+/* Darkens the middle of the backdrop so centred copy that sits directly on the
+   photo (the confirmation loading and error states) keeps its contrast. */
+.backdrop-vignette {
+  background: radial-gradient(
+    60% 50% at 50% 45%,
+    oklch(10.5% 0.008 265 / 0.88) 0%,
+    oklch(10.5% 0.008 265 / 0) 72%
+  );
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

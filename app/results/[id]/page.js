@@ -7,9 +7,10 @@ import { formatPhone } from '@/lib/format';
 
 function Backdrop() {
     return (
-        <div className="pointer-events-none fixed inset-0 -z-10" aria-hidden="true">
-            <div className="absolute inset-0 bg-[url('/roof-hero.webp')] bg-cover bg-center opacity-45" />
-            <div className="absolute inset-0 bg-gradient-to-b from-background-alt/60 via-background-alt/90 to-background-alt" />
+        <div className="pointer-events-none fixed inset-0 z-0" aria-hidden="true">
+            <div className="absolute inset-0 bg-[url('/roof-hero.webp')] bg-cover bg-center opacity-70" />
+            <div className="absolute inset-0 bg-gradient-to-b from-background-alt/40 via-background-alt/60 to-background-alt/90" />
+            <div className="absolute inset-0 backdrop-vignette" />
         </div>
     );
 }
@@ -83,9 +84,9 @@ Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pendi
 
     if (loading) {
         return (
-            <div className="relative min-h-screen bg-background-alt text-foreground flex flex-col items-center justify-center font-sans">
+            <div className="relative min-h-screen text-foreground flex flex-col items-center justify-center font-sans">
                 <Backdrop />
-                <div className="flex flex-col items-center gap-4">
+                <div className="relative z-10 flex flex-col items-center gap-4">
                     <div className="w-12 h-12 border-4 border-primary-accent border-t-transparent rounded-full animate-spin"></div>
                     <span className="text-base font-medium text-foreground-secondary">Loading Your Inspection Confirmation...</span>
                 </div>
@@ -95,19 +96,21 @@ Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pendi
 
     if (error || !lead) {
         return (
-            <div className="relative min-h-screen bg-background-alt text-foreground flex flex-col items-center justify-center font-sans px-6 text-center">
+            <div className="relative min-h-screen text-foreground flex flex-col items-center justify-center font-sans px-6 text-center">
                 <Backdrop />
-                <div className="w-16 h-16 bg-danger-tint border border-danger/20 rounded-full flex items-center justify-center mb-4">
-                    <TriangleAlert className="w-7 h-7 text-danger" aria-hidden="true" />
+                <div className="relative z-10 flex flex-col items-center">
+                    <div className="w-16 h-16 bg-danger-tint border border-danger/20 rounded-full flex items-center justify-center mb-4">
+                        <TriangleAlert className="w-7 h-7 text-danger" aria-hidden="true" />
+                    </div>
+                    <h2 className="font-heading text-2xl font-bold text-foreground mb-2">Error Loading Confirmation</h2>
+                    <p className="text-base text-foreground-secondary mb-6">{error || 'The inspection request could not be found.'}</p>
+                    <button
+                        type="button"
+                        onClick={() => router.push('/')}
+                        className="min-h-[44px] px-6 py-3 bg-primary hover:bg-primary-hover text-primary-fg font-semibold rounded-xl text-lg transition-all duration-200 ease-out shadow-button focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background-alt">
+                        Return to Funnel Home
+                    </button>
                 </div>
-                <h2 className="font-heading text-2xl font-bold text-foreground mb-2">Error Loading Confirmation</h2>
-                <p className="text-base text-foreground-secondary mb-6">{error || 'The inspection request could not be found.'}</p>
-                <button
-                    type="button"
-                    onClick={() => router.push('/')}
-                    className="min-h-[44px] px-6 py-3 bg-primary hover:bg-primary-hover text-primary-fg font-semibold rounded-xl text-lg transition-all duration-200 ease-out shadow-button focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background-alt">
-                    Return to Funnel Home
-                </button>
             </div>
         );
     }
@@ -122,7 +125,7 @@ Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pendi
         : null;
 
     return (
-        <div className="relative min-h-screen bg-background-alt text-foreground flex flex-col font-sans selection:bg-primary-tint">
+        <div className="relative min-h-screen text-foreground flex flex-col font-sans selection:bg-primary-tint">
             <Backdrop />
 
             <header className="border-b border-border bg-background/80 backdrop-blur-xl sticky top-0 z-50">
@@ -152,7 +155,7 @@ Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pendi
                 </div>
             </header>
 
-            <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-10 sm:py-12">
+            <main className="relative z-10 flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-10 sm:py-12">
                 <div className="border border-border bg-background rounded-2xl p-6 sm:p-10 shadow-card relative overflow-hidden mb-10">
                     <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 text-center sm:text-left">
                         <div className="w-16 h-16 sm:w-20 sm:h-20 bg-primary-tint border border-border rounded-2xl flex items-center justify-center flex-shrink-0">
@@ -284,7 +287,7 @@ Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pendi
                 </div>
             </main>
 
-            <footer className="border-t border-border py-6 text-center text-sm text-foreground-tertiary">
+            <footer className="relative z-10 border-t border-border py-6 text-center text-sm text-foreground-tertiary">
                 &copy; 2026 Quotramax Conversion System. High-Intent Lead Qualification &amp; Booking.
             </footer>
         </div>
@@ -294,9 +297,9 @@ Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pendi
 export default function Results() {
     return (
         <Suspense fallback={
-            <div className="relative min-h-screen bg-background-alt text-foreground flex flex-col items-center justify-center font-sans">
+            <div className="relative min-h-screen text-foreground flex flex-col items-center justify-center font-sans">
                 <Backdrop />
-                <div className="flex flex-col items-center gap-4">
+                <div className="relative z-10 flex flex-col items-center gap-4">
                     <div className="w-12 h-12 border-4 border-primary-accent border-t-transparent rounded-full animate-spin"></div>
                     <span className="text-base font-medium text-foreground-secondary">Loading Inspection Dossier...</span>
                 </div>

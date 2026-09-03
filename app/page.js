@@ -344,10 +344,10 @@ export default function Home() {
     };
 
     return (
-        <div className="relative min-h-screen bg-background-alt text-foreground flex flex-col font-sans selection:bg-primary-tint">
-            <div className="pointer-events-none fixed inset-0 -z-10" aria-hidden="true">
-                <div className="absolute inset-0 bg-[url('/roof-hero.webp')] bg-cover bg-center opacity-60" />
-                <div className="absolute inset-0 bg-gradient-to-b from-background-alt/45 via-background-alt/85 to-background-alt" />
+        <div className="relative min-h-screen text-foreground flex flex-col font-sans selection:bg-primary-tint">
+            <div className="pointer-events-none fixed inset-0 z-0" aria-hidden="true">
+                <div className="absolute inset-0 bg-[url('/roof-hero.webp')] bg-cover bg-center opacity-70" />
+                <div className="absolute inset-0 bg-gradient-to-b from-background-alt/40 via-background-alt/80 to-background-alt" />
             </div>
 
             <header className="border-b border-border bg-background/80 backdrop-blur-xl sticky top-0 z-40">
@@ -369,7 +369,7 @@ export default function Home() {
                 </div>
             </header>
 
-            <main className="flex-1 max-w-2xl w-full mx-auto px-4 py-10 sm:py-12 flex flex-col justify-center gap-10 sm:gap-12">
+            <main className="relative z-10 flex-1 max-w-2xl w-full mx-auto px-4 py-10 sm:py-12 flex flex-col justify-center gap-10 sm:gap-12">
                 <div className="text-center">
                     <div className="inline-flex items-start sm:items-center gap-2 px-3 py-1.5 bg-primary-tint border border-border rounded-2xl sm:rounded-full text-xs sm:text-sm font-medium text-primary-accent mb-4 text-left">
                         <Zap className="w-5 h-5 flex-shrink-0" aria-hidden="true" />
@@ -800,7 +800,7 @@ export default function Home() {
                 </div>
             </main>
 
-            <footer className="border-t border-border text-sm text-foreground-tertiary py-6 text-center">
+            <footer className="relative z-10 border-t border-border text-sm text-foreground-tertiary py-6 text-center">
                 &copy; 2026 Quotramax Assessment Engine
             </footer>
         </div>
