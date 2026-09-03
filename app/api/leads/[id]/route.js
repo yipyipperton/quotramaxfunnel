@@ -114,7 +114,7 @@ export async function PATCH(req, { params }) {
                 `;
 
                 await sendEmail({
-                    from: getFromAddress('Quotramax Scheduling <leads@quotramax.com>'),
+                    from: getFromAddress('Quotramax Scheduling <inspections@quotramax.com>'),
                     to: contractorEmail,
                     subject: `Confirmed inspection: ${mapped.name} - ${nextAppointment.date}`,
                     html: appointmentHtml,
