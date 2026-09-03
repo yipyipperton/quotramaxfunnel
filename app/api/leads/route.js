@@ -9,6 +9,7 @@ import {
     rateLimit,
     validateLeadPayload,
 } from '@/lib/security';
+import { formatPhone, telHref } from '@/lib/format';
 import { getContractorEmail, insertLead } from '@/lib/leads';
 import { getFromAddress, sendEmail } from '@/lib/email';
 
@@ -35,7 +36,7 @@ export async function GET() {
 function buildHomeownerHtml(lead) {
     const name = escapeHtml(lead.name);
     const location = escapeHtml(lead.fullAddress);
-    const phone = escapeHtml(lead.phone);
+    const phone = escapeHtml(formatPhone(lead.phone));
     const service = escapeHtml(lead.service);
     const stories = escapeHtml(lead.stories);
     const pitch = escapeHtml(lead.pitch);
@@ -80,7 +81,7 @@ function buildHomeownerHtml(lead) {
                 <h4 style="margin: 0 0 8px 0; color: #0f172a; font-size: 14px;">Next Steps:</h4>
                 <p style="margin: 0; font-size: 13px; color: #64748b; line-height: 1.5;">
                     1. Our local inspection crew is preparing your property file.<br>
-                    2. A licensed technician will contact you via text/phone at <strong>${phone}</strong> to confirm access.<br>
+                    2. A licensed technician will call you at <strong>${phone}</strong> to confirm access.<br>
                     3. You will receive a written physical property condition report on-site.
                 </p>
             </div>
@@ -94,7 +95,8 @@ function buildHomeownerHtml(lead) {
 
 function buildContractorHtml(lead) {
     const name = escapeHtml(lead.name);
-    const phone = escapeHtml(lead.phone);
+    const phone = escapeHtml(formatPhone(lead.phone));
+    const phoneHref = escapeHtml(telHref(lead.phone));
     const email = escapeHtml(lead.email);
     const location = escapeHtml(lead.fullAddress);
     const city = escapeHtml(lead.city);
@@ -132,7 +134,7 @@ function buildContractorHtml(lead) {
                 <tr>
                     <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">Mobile Phone:</td>
                     <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; color: #0d9488; font-weight: bold;">
-                        <a href="tel:${phone}" style="color: #0d9488; text-decoration: none; font-size: 16px;">${phone}</a>
+                        <a href="tel:${phoneHref}" style="color: #0d9488; text-decoration: none; font-size: 16px;">${phone}</a>
                     </td>
                 </tr>
                 <tr>
@@ -171,7 +173,7 @@ function buildContractorHtml(lead) {
                 </tr>
             </table>
             <div style="margin-top: 24px; text-align: center; background-color: #f0fdfa; padding: 14px; border-radius: 8px; border: 1px solid #ccfbf1;">
-                <span style="color: #0f766e; font-weight: bold; font-size: 14px;">Immediate Action: Call or text homeowner at <a href="tel:${phone}" style="color: #0d9488;">${phone}</a></span>
+                <span style="color: #0f766e; font-weight: bold; font-size: 14px;">Immediate Action: Call or text homeowner at <a href="tel:${phoneHref}" style="color: #0d9488;">${phone}</a></span>
             </div>
         </div>
     `;
