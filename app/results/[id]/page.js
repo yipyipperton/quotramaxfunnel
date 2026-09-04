@@ -3,6 +3,7 @@
 import { useState, useEffect, useLayoutEffect, Suspense } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Calendar, Check, ClipboardCopy, House, Map, PartyPopper, Shield, TriangleAlert } from 'lucide-react';
+import { readPendingConfirmation } from '@/lib/confirmation-cache';
 import { formatPhone } from '@/lib/format';
 
 function Backdrop() {
@@ -18,8 +19,9 @@ function Backdrop() {
 function ResultsDetail() {
     const { id } = useParams();
     const router = useRouter();
-    const [lead, setLead] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const initialConfirmation = readPendingConfirmation(id);
+    const [lead, setLead] = useState(initialConfirmation);
+    const [loading, setLoading] = useState(!initialConfirmation);
     const [error, setError] = useState('');
     const [copied, setCopied] = useState(false);
 

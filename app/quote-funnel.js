@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { savePendingConfirmation } from '@/lib/confirmation-cache';
 import {
     ArrowRight,
     Check,
@@ -224,6 +225,12 @@ export default function QuoteFunnel({ branding }) {
         appointmentTime: 'Morning Arrival (8:00 AM - 11:00 AM)'
     });
 
+    useEffect(() => {
+        // Load the confirmation route and its JavaScript while the homeowner
+        // fills out the funnel, instead of after the final submission.
+        router.prefetch('/results/pending');
+    }, [router]);
+
     const handlePhoneChange = (e) => {
         const raw = e.target.value.replace(/\D/g, '').substring(0, 10);
         let formatted = '';
@@ -337,8 +344,8 @@ export default function QuoteFunnel({ branding }) {
 
             try {
                 sessionStorage.setItem('qm_access_' + data.leadId, data.accessToken || '');
-                sessionStorage.setItem('qm_lead_' + data.leadId, JSON.stringify(confirmation));
             } catch (e) {}
+            savePendingConfirmation(confirmation);
 
             router.push(`/results/${encodeURIComponent(data.leadId)}`);
         } catch (err) {
@@ -442,7 +449,7 @@ export default function QuoteFunnel({ branding }) {
                     )}
 
                     {step === 1 && (
-                        <div className="space-y-2 sm:space-y-4 animate-stepIn">
+                        <div className="space-y-2 sm:space-y-4">
                             {SERVICES.map((item) => {
                                 const selected = formData.service === item.val;
                                 const Icon = item.icon;
@@ -476,7 +483,7 @@ export default function QuoteFunnel({ branding }) {
                     )}
 
                     {step === 2 && (
-                        <div className="space-y-4 sm:space-y-8 animate-stepIn">
+                        <div className="space-y-4 sm:space-y-8">
                             <div>
                                 <label className={sectionLabel}>How many stories is your home?</label>
                                 <div className="grid grid-cols-3 gap-2 sm:gap-3">
@@ -533,7 +540,7 @@ export default function QuoteFunnel({ branding }) {
                     )}
 
                     {step === 3 && (
-                        <div className="space-y-4 sm:space-y-8 animate-stepIn">
+                        <div className="space-y-4 sm:space-y-8">
                             <div>
                                 <label className={sectionLabel}>When do you need this work completed?</label>
                                 <div className="space-y-2 sm:space-y-3">
@@ -595,7 +602,7 @@ export default function QuoteFunnel({ branding }) {
                     )}
 
                     {step === 4 && (
-                        <div className="space-y-3 sm:space-y-4 animate-stepIn animate-fadeIn">
+                        <div className="space-y-3 sm:space-y-4">
                             <div className="p-4 bg-primary-tint border border-border rounded-2xl flex items-start gap-3 text-base text-foreground">
                                 <House className="w-6 h-6 text-primary-accent flex-shrink-0 mt-0.5" aria-hidden="true" />
                                 <span><strong>Local Inspection Crew Available:</strong> Enter property location to check local scheduling availability for your free inspection.</span>
@@ -716,7 +723,7 @@ export default function QuoteFunnel({ branding }) {
                     )}
 
                     {step === 5 && (
-                        <form onSubmit={handleFinalSubmit} className="space-y-4 sm:space-y-8 animate-stepIn">
+                        <form onSubmit={handleFinalSubmit} className="space-y-4 sm:space-y-8">
                             <div>
                                 <label className={sectionLabel}>Select Preferred Inspection Date</label>
                                 <div className="grid grid-cols-3 gap-2 sm:gap-3">
@@ -806,13 +813,11 @@ export default function QuoteFunnel({ branding }) {
                                             aria-hidden="true"
                                         />
                                     </button>
-                                    <div className={`grid transition-all duration-300 ease-out ${open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
-                                        <div className="overflow-hidden">
-                                            <p className={`text-base text-foreground-secondary leading-relaxed pb-5 ${open ? 'animate-fadeIn' : ''}`}>
-                                                {faq.a}
-                                            </p>
-                                        </div>
-                                    </div>
+                                    {open ? (
+                                        <p className="text-base text-foreground-secondary leading-relaxed pb-5">
+                                            {faq.a}
+                                        </p>
+                                    ) : null}
                                 </div>
                             );
                         })}
