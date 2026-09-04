@@ -75,7 +75,7 @@ const TIMELINES = [
     },
     {
         title: 'Planning & Budgeting (1 to 3 Months)',
-        desc: 'Comparing options and gathering official estimates for upcoming work.',
+        desc: 'Comparing options and gathering official inspections for upcoming work.',
         val: '1 - 3 months'
     }
 ];
@@ -110,8 +110,8 @@ const FAQS = [
         a: "Yes, 100% free. A licensed local roofer conducts a thorough walk-through of your shingles, attic ventilation, gutters, and flashing. You receive a written physical condition report with zero pressure or obligation to buy."
     },
     {
-        q: "How do you calculate my roof quote and inspection report?",
-        a: "Our certified local inspectors review your property address, roof pitch, material preferences, and square footage to prepare an itemized price estimate before conducting your thorough physical inspection."
+        q: "What happens during the 21-point roof inspection?",
+        a: "A certified local inspector conducts a full on-site evaluation of your roof surface, shingles, flashing, gutters, and attic ventilation to document any wear or storm damage and review your options in person."
     },
     {
         q: "Will I get spammed with annoying phone calls?",
@@ -393,20 +393,20 @@ export default function QuoteFunnel({ branding }) {
                 <div className="text-center">
                     <div className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 bg-primary-tint border border-border rounded-full text-sm font-medium text-primary-accent mb-4">
                         <Zap className="w-5 h-5 flex-shrink-0" aria-hidden="true" />
-                        Official 60-Second Roof Inspection & Price Estimate
+                        Official 60-Second Priority Inspection Booking
                     </div>
                     <h1 className="text-xl sm:text-4xl font-heading font-bold tracking-tight leading-tight text-balance">
                         {step === 1 && 'What is the primary goal for your roof?'}
                         {step === 2 && 'What type of home and roofing material do you have?'}
                         {step === 3 && 'What is your ideal project timeline & payment preference?'}
-                        {step === 4 && 'Where should we send your official roof inspection & price quote?'}
+                        {step === 4 && 'Where should our local crew conduct your roof inspection?'}
                         {step === 5 && 'Select your preferred date for a free on-site roof inspection'}
                     </h1>
                     <p className="hidden sm:block text-lg text-foreground-secondary leading-relaxed mt-3">
                         {step === 1 && 'Select your primary roof concern below to get started.'}
-                        {step === 2 && 'Helps us calculate accurate material costs and labor scope.'}
+                        {step === 2 && 'Helps us match you with the right inspection specialists and equipment.'}
                         {step === 3 && 'Choose the scheduling and funding options that fit your budget.'}
-                        {step === 4 && 'Enter your property address so our local licensed crew can prepare your estimate.'}
+                        {step === 4 && 'Enter your property address so our local licensed crew can confirm service availability.'}
                         {step === 5 && 'Lock in your 21-point physical roof & attic condition check.'}
                     </p>
                 </div>
@@ -598,7 +598,7 @@ export default function QuoteFunnel({ branding }) {
                         <div className="space-y-3 sm:space-y-4 animate-stepIn animate-fadeIn">
                             <div className="p-4 bg-primary-tint border border-border rounded-2xl flex items-start gap-3 text-base text-foreground">
                                 <House className="w-6 h-6 text-primary-accent flex-shrink-0 mt-0.5" aria-hidden="true" />
-                                <span><strong>Local Inspection Crew Available:</strong> Enter property location to check local scheduling availability and calculate your free estimate.</span>
+                                <span><strong>Local Inspection Crew Available:</strong> Enter property location to check local scheduling availability for your free inspection.</span>
                             </div>
 
                             <input
