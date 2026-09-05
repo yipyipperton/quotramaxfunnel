@@ -5,8 +5,8 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "sw
 const manrope = Manrope({ subsets: ["latin"], variable: "--font-manrope", display: "swap" });
 
 export const metadata = {
-  title: "Quotramax - 21-Point Roof Assessment & Priority Inspection Booking",
-  description: "High-converting pre-qualification funnel and direct calendar booking engine for residential roofers.",
+  title: "Quotramax Demo - Roofing Lead Qualification Funnel",
+  description: "Interactive demonstration of the Quotramax lead qualification and inspection-booking funnel for residential roofers.",
 };
 
 export const viewport = {
