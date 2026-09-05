@@ -21,25 +21,25 @@ import {
 const SERVICES = [
     {
         title: 'Full Roof Replacement',
-        desc: 'My roof is old, worn out, or needs a complete teardown and new installation.',
+        desc: 'Aging, worn, or ready for a complete replacement.',
         icon: Hammer,
         val: 'Full Roof Replacement'
     },
     {
         title: 'Active Leak or Repair Emergency',
-        desc: 'Water dripping, ceiling stains, missing shingles, or emergency flashing repair.',
+        desc: 'Leaks, ceiling stains, missing shingles, or damaged flashing.',
         icon: Droplets,
         val: 'Active Leak / Repair'
     },
     {
         title: 'Storm & Hail Damage Claim',
-        desc: 'I suspect wind, hail, or tree damage and need an official inspection for insurance.',
+        desc: 'Possible wind, hail, or tree damage that needs documentation.',
         icon: CloudLightning,
         val: 'Storm / Hail Damage'
     },
     {
         title: 'Preventative 21-Point Inspection',
-        desc: 'I am buying, selling, or maintaining my home and want a thorough roof check.',
+        desc: 'A proactive roof check for buying, selling, or maintenance.',
         icon: Search,
         val: 'Preventative Inspection'
     }
@@ -48,17 +48,17 @@ const SERVICES = [
 const MATERIALS = [
     {
         name: 'Architectural Shingles',
-        desc: 'Most popular 30-year dimensional asphalt shingles (Durable & Cost-Effective)',
+        desc: 'Dimensional asphalt shingles with broad style and value options.',
         val: 'Architectural Shingles'
     },
     {
         name: 'Standing Seam Metal Roofing',
-        desc: 'Ultra-durable 50+ year architectural steel or aluminum (Maximum Storm Protection)',
+        desc: 'Long-lasting architectural steel or aluminum roofing.',
         val: 'Standing Seam Metal'
     },
     {
         name: 'Clay Tile or Natural Slate',
-        desc: 'Premium heavy-duty Spanish tile or natural slate (Luxury Long-Term System)',
+        desc: 'Premium tile or slate for a distinctive, long-term roof system.',
         val: 'Clay Tile / Slate'
     }
 ];
@@ -76,7 +76,7 @@ const TIMELINES = [
     },
     {
         title: 'Planning & Budgeting (1 to 3 Months)',
-        desc: 'Comparing options and gathering official inspections for upcoming work.',
+        desc: 'Comparing options and planning upcoming work.',
         val: '1 - 3 months'
     }
 ];
@@ -84,7 +84,7 @@ const TIMELINES = [
 const PAYMENTS = [
     {
         name: 'Explore Low Monthly Financing',
-        desc: 'Flexible payment plans starting as low as $119/month with approved credit.',
+        desc: 'Review available monthly payment options, subject to approval.',
         val: 'Low Monthly Financing'
     },
     {
@@ -129,26 +129,26 @@ const FAQS = [
 ];
 
 const optionCardClass = (selected) =>
-    `w-full min-h-[44px] px-3 py-2.5 sm:p-5 rounded-xl sm:rounded-2xl border text-left flex items-center justify-between gap-3 sm:gap-4 cursor-pointer transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background ${
+    `w-full min-h-[48px] px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl border text-left flex items-center justify-between gap-3 cursor-pointer transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background ${
         selected
             ? 'border-primary-accent bg-primary-tint shadow-card'
             : 'border-border bg-background hover:border-border-strong hover:shadow-card-hover hover:-translate-y-0.5'
     }`;
 
 const inputClass =
-    'w-full min-h-[44px] px-4 py-3 rounded-xl border border-border bg-background-alt text-base sm:text-lg text-foreground placeholder:text-foreground-tertiary transition-all duration-200 ease-out focus:outline-none focus:border-primary-accent focus:ring-2 focus:ring-ring';
+    'w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border border-border bg-background-alt text-base text-foreground placeholder:text-foreground-tertiary transition-all duration-200 ease-out focus:outline-none focus:border-primary-accent focus:ring-2 focus:ring-ring';
 
 const primaryBtn =
-    'inline-flex w-full sm:w-auto items-center justify-center gap-2 min-h-[48px] px-6 py-3 rounded-xl bg-primary text-primary-fg font-semibold text-base sm:text-lg shadow-button transition-all duration-200 ease-out hover:bg-primary-hover hover:shadow-lg active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background disabled:opacity-50 disabled:pointer-events-none';
+    'inline-flex w-full sm:w-auto items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-xl bg-primary text-primary-fg font-semibold text-sm sm:text-base shadow-button transition-all duration-200 ease-out hover:bg-primary-hover hover:shadow-lg active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background disabled:opacity-50 disabled:pointer-events-none';
 
 const backBtn =
-    'w-full sm:w-auto min-h-[44px] px-4 rounded-xl text-base font-medium text-foreground-secondary transition-colors duration-200 ease-out hover:bg-muted hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring';
+    'w-full sm:w-auto min-h-[44px] px-4 rounded-xl text-sm sm:text-base font-medium text-foreground-secondary transition-colors duration-200 ease-out hover:bg-muted hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring';
 
-const navRow = 'flex flex-col-reverse sm:flex-row sm:justify-between sm:items-center gap-3 pt-2';
+const navRow = 'flex flex-col-reverse sm:flex-row sm:justify-between sm:items-center gap-2 pt-1';
 
-const fieldLabel = 'block text-base font-medium text-foreground mb-2';
+const fieldLabel = 'block text-sm font-medium text-foreground mb-1.5';
 
-const sectionLabel = 'block text-base font-medium text-foreground mb-3';
+const sectionLabel = 'block text-sm sm:text-base font-medium text-foreground mb-2';
 
 function SelectionMark({ selected }) {
     return (
@@ -197,6 +197,7 @@ export default function QuoteFunnel({ branding }) {
     const companyName = branding?.companyName || '';
     const logoUrl = branding?.logoUrl || '';
     const faqs = branding?.faqs?.length ? branding.faqs : FAQS;
+    const isDemo = !companyName;
 
     const router = useRouter();
     const [step, setStep] = useState(1);
@@ -361,8 +362,8 @@ export default function QuoteFunnel({ branding }) {
                 <div className="absolute inset-0 bg-gradient-to-b from-background-alt/40 via-background-alt/80 to-background-alt" />
             </div>
 
-            <header className="border-b border-border bg-background/80 backdrop-blur-xl sticky top-0 z-40">
-                <div className="max-w-4xl mx-auto px-4 py-2 sm:py-3 flex justify-between items-center gap-3">
+            <header className="border-b border-border bg-background/85 backdrop-blur-xl sticky top-0 z-40">
+                <div className="max-w-5xl mx-auto px-4 py-2 flex justify-between items-center gap-3">
                     <div className="flex items-center gap-2 cursor-pointer min-w-0" onClick={() => goToStep(1)}>
                         {logoUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
@@ -388,40 +389,39 @@ export default function QuoteFunnel({ branding }) {
                         </span>
                     </div>
 
-                    <div className="text-xs sm:text-sm font-medium text-foreground-secondary flex items-center gap-1.5 bg-muted px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-border">
-                        <span className="w-2 h-2 rounded-full bg-accent animate-pulse flex-shrink-0" aria-hidden="true"></span>
-                        <span className="sm:hidden">Free Inspection</span>
-                        <span className="hidden sm:inline">Free 21-Point Inspection</span>
+                    <div className="text-[11px] sm:text-xs font-semibold text-foreground-secondary flex items-center gap-1.5 bg-muted px-2.5 py-1 rounded-full border border-border whitespace-nowrap">
+                        <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isDemo ? 'bg-primary-accent' : 'bg-accent animate-pulse'}`} aria-hidden="true"></span>
+                        {isDemo ? <span>INTERACTIVE DEMO</span> : <span>Free 21-Point Inspection</span>}
                     </div>
                 </div>
             </header>
 
-            <main className="relative z-10 flex-1 max-w-2xl w-full mx-auto px-4 py-4 sm:py-12 flex flex-col justify-center gap-4 sm:gap-12">
+            <main className="relative z-10 flex-1 max-w-3xl w-full mx-auto px-3.5 sm:px-5 py-4 sm:py-6 lg:py-8 flex flex-col gap-4 sm:gap-6 lg:gap-8">
                 <div className="text-center">
-                    <div className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 bg-primary-tint border border-border rounded-full text-sm font-medium text-primary-accent mb-4">
-                        <Zap className="w-5 h-5 flex-shrink-0" aria-hidden="true" />
-                        Official 60-Second Priority Inspection Booking
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-primary-tint border border-border rounded-full text-xs font-semibold text-primary-accent mb-2.5">
+                        <Zap className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true" />
+                        {isDemo ? 'Roofing conversion funnel preview' : '60-second priority inspection booking'}
                     </div>
-                    <h1 className="text-xl sm:text-4xl font-heading font-bold tracking-tight leading-tight text-balance">
+                    <h1 className="text-[clamp(1.4rem,4vw,2.15rem)] font-heading font-bold tracking-tight leading-[1.12] text-balance">
                         {step === 1 && 'What is the primary goal for your roof?'}
                         {step === 2 && 'What type of home and roofing material do you have?'}
                         {step === 3 && 'What is your ideal project timeline & payment preference?'}
                         {step === 4 && 'Where should our local crew conduct your roof inspection?'}
                         {step === 5 && 'Select your preferred date for a free on-site roof inspection'}
                     </h1>
-                    <p className="hidden sm:block text-lg text-foreground-secondary leading-relaxed mt-3">
+                    <p className="text-sm sm:text-base text-foreground-secondary leading-relaxed mt-2 max-w-2xl mx-auto">
                         {step === 1 && 'Select your primary roof concern below to get started.'}
                         {step === 2 && 'Helps us match you with the right inspection specialists and equipment.'}
                         {step === 3 && 'Choose the scheduling and funding options that fit your budget.'}
-                        {step === 4 && 'Enter your property address so our local licensed crew can confirm service availability.'}
+                        {step === 4 && (isDemo ? 'Preview how a homeowner submits their property and contact details.' : 'Enter your property address so our local crew can confirm service availability.')}
                         {step === 5 && 'Lock in your 21-point physical roof & attic condition check.'}
                     </p>
                 </div>
 
-                <div className="rounded-2xl border border-border bg-background shadow-card px-3 sm:px-6 py-4 sm:py-8">
-                    <div className="mb-3 sm:mb-6">
+                <div className="rounded-2xl border border-border bg-background/95 shadow-card px-3.5 sm:px-5 py-4 sm:py-5 backdrop-blur-sm">
+                    <div className="mb-3 sm:mb-4">
                         <div className="flex justify-between items-baseline gap-3 mb-2">
-                            <span className="text-base text-foreground-secondary">
+                            <span className="text-sm text-foreground-secondary">
                                 Step {step} of 5:{' '}
                                 <span className="text-primary-accent font-semibold">
                                     {step === 1 && 'Roof Goal'}
@@ -433,7 +433,7 @@ export default function QuoteFunnel({ branding }) {
                             </span>
                             <span className="text-foreground-tertiary tabular-nums">{Math.round((step / 5) * 100)}%</span>
                         </div>
-                        <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+                        <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
                             <div
                                 className="h-full bg-primary-accent rounded-full transition-all duration-300 ease-out"
                                 style={{ width: `${(step / 5) * 100}%` }}
@@ -449,7 +449,7 @@ export default function QuoteFunnel({ branding }) {
                     )}
 
                     {step === 1 && (
-                        <div className="space-y-2 sm:space-y-4">
+                        <div className="space-y-2.5">
                             {SERVICES.map((item) => {
                                 const selected = formData.service === item.val;
                                 const Icon = item.icon;
@@ -461,11 +461,11 @@ export default function QuoteFunnel({ branding }) {
                                         onClick={() => handleChange('service', item.val)}
                                         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleChange('service', item.val); } }}
                                         className={optionCardClass(selected)}>
-                                        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-                                            <Icon className="w-6 h-6 text-primary-accent flex-shrink-0" aria-hidden="true" />
+                                        <div className="flex items-center gap-3 min-w-0">
+                                            <Icon className="w-5 h-5 text-primary-accent flex-shrink-0" aria-hidden="true" />
                                             <div className="min-w-0">
-                                                <div className="text-sm sm:text-lg font-semibold text-foreground">{item.title}</div>
-                                                <div className="hidden sm:block text-base text-foreground-secondary leading-relaxed mt-1">{item.desc}</div>
+                                                <div className="text-sm sm:text-base font-semibold text-foreground">{item.title}</div>
+                                                <div className="text-xs sm:text-sm text-foreground-secondary leading-snug mt-0.5">{item.desc}</div>
                                             </div>
                                         </div>
                                         <SelectionMark selected={selected} />
@@ -483,16 +483,16 @@ export default function QuoteFunnel({ branding }) {
                     )}
 
                     {step === 2 && (
-                        <div className="space-y-4 sm:space-y-8">
+                        <div className="space-y-4 sm:space-y-5">
                             <div>
                                 <label className={sectionLabel}>How many stories is your home?</label>
-                                <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                                <div className="grid grid-cols-3 gap-2.5">
                                     {['1 Story', '2 Stories', '3+ Stories'].map((story) => (
                                         <button
                                             key={story}
                                             type="button"
                                             onClick={() => handleChange('stories', story)}
-                                            className={`min-h-[44px] px-2 py-3 sm:p-4 rounded-2xl border text-base font-semibold transition-all duration-200 ease-out text-center focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background ${
+                                            className={`min-h-[44px] px-2 py-2.5 rounded-xl border text-sm sm:text-base font-semibold transition-all duration-200 ease-out text-center focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background ${
                                                 formData.stories === story
                                                     ? 'border-primary-accent bg-primary-tint shadow-card text-foreground'
                                                     : 'border-border bg-background text-foreground-secondary hover:border-border-strong hover:shadow-card-hover hover:-translate-y-0.5'
@@ -505,7 +505,7 @@ export default function QuoteFunnel({ branding }) {
 
                             <div>
                                 <label className={sectionLabel}>What is your preferred roofing material?</label>
-                                <div className="space-y-2 sm:space-y-3">
+                                <div className="space-y-2.5">
                                     {MATERIALS.map((mat) => {
                                         const selected = formData.material === mat.val;
                                         return (
@@ -517,8 +517,8 @@ export default function QuoteFunnel({ branding }) {
                                                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleChange('material', mat.val); } }}
                                                 className={optionCardClass(selected)}>
                                                 <div className="min-w-0 pr-1 sm:pr-2">
-                                                    <div className="text-sm sm:text-lg font-semibold text-foreground">{mat.name}</div>
-                                                    <div className="hidden sm:block text-base text-foreground-secondary leading-relaxed mt-1">{mat.desc}</div>
+                                                    <div className="text-sm sm:text-base font-semibold text-foreground">{mat.name}</div>
+                                                    <div className="text-xs sm:text-sm text-foreground-secondary leading-snug mt-0.5">{mat.desc}</div>
                                                 </div>
                                                 <SelectionMark selected={selected} />
                                             </div>
@@ -540,10 +540,10 @@ export default function QuoteFunnel({ branding }) {
                     )}
 
                     {step === 3 && (
-                        <div className="space-y-4 sm:space-y-8">
+                        <div className="space-y-4 sm:space-y-5">
                             <div>
                                 <label className={sectionLabel}>When do you need this work completed?</label>
-                                <div className="space-y-2 sm:space-y-3">
+                                <div className="space-y-2.5">
                                     {TIMELINES.map((item) => {
                                         const selected = formData.timeline === item.val;
                                         return (
@@ -555,8 +555,8 @@ export default function QuoteFunnel({ branding }) {
                                                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleChange('timeline', item.val); } }}
                                                 className={optionCardClass(selected)}>
                                                 <div className="min-w-0 pr-1 sm:pr-2">
-                                                    <div className="text-sm sm:text-lg font-semibold text-foreground">{item.title}</div>
-                                                    <div className="hidden sm:block text-base text-foreground-secondary leading-relaxed mt-1">{item.desc}</div>
+                                                    <div className="text-sm sm:text-base font-semibold text-foreground">{item.title}</div>
+                                                    <div className="text-xs sm:text-sm text-foreground-secondary leading-snug mt-0.5">{item.desc}</div>
                                                 </div>
                                                 <SelectionMark selected={selected} />
                                             </div>
@@ -567,7 +567,7 @@ export default function QuoteFunnel({ branding }) {
 
                             <div>
                                 <label className={sectionLabel}>What is your preferred payment option?</label>
-                                <div className="space-y-2 sm:space-y-3">
+                                <div className="space-y-2.5">
                                     {PAYMENTS.map((pay) => {
                                         const selected = formData.insurance === pay.val;
                                         return (
@@ -579,8 +579,8 @@ export default function QuoteFunnel({ branding }) {
                                                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleChange('insurance', pay.val); } }}
                                                 className={optionCardClass(selected)}>
                                                 <div className="min-w-0 pr-1 sm:pr-2">
-                                                    <div className="text-sm sm:text-lg font-semibold text-foreground">{pay.name}</div>
-                                                    <div className="hidden sm:block text-base text-foreground-secondary leading-relaxed mt-1">{pay.desc}</div>
+                                                    <div className="text-sm sm:text-base font-semibold text-foreground">{pay.name}</div>
+                                                    <div className="text-xs sm:text-sm text-foreground-secondary leading-snug mt-0.5">{pay.desc}</div>
                                                 </div>
                                                 <SelectionMark selected={selected} />
                                             </div>
@@ -602,10 +602,10 @@ export default function QuoteFunnel({ branding }) {
                     )}
 
                     {step === 4 && (
-                        <div className="space-y-3 sm:space-y-4">
-                            <div className="p-4 bg-primary-tint border border-border rounded-2xl flex items-start gap-3 text-base text-foreground">
-                                <House className="w-6 h-6 text-primary-accent flex-shrink-0 mt-0.5" aria-hidden="true" />
-                                <span><strong>Local Inspection Crew Available:</strong> Enter property location to check local scheduling availability for your free inspection.</span>
+                        <div className="space-y-3">
+                            <div className="p-3 bg-primary-tint border border-border rounded-xl flex items-start gap-2.5 text-sm text-foreground">
+                                <House className="w-5 h-5 text-primary-accent flex-shrink-0" aria-hidden="true" />
+                                <span><strong>{isDemo ? 'Demo lead capture:' : 'Local crew availability:'}</strong> {isDemo ? 'These fields illustrate the information routed to the contractor.' : 'Enter the property location to check scheduling availability.'}</span>
                             </div>
 
                             <input
@@ -630,7 +630,7 @@ export default function QuoteFunnel({ branding }) {
                                 />
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div>
                                     <label className={fieldLabel}>City *</label>
                                     <input
@@ -654,7 +654,7 @@ export default function QuoteFunnel({ branding }) {
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div>
                                     <label className={fieldLabel}>5-Digit ZIP Code *</label>
                                     <input
@@ -679,7 +679,7 @@ export default function QuoteFunnel({ branding }) {
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div>
                                     <label className={fieldLabel}>Mobile Phone (For Inspection Call) *</label>
                                     <input
@@ -703,7 +703,7 @@ export default function QuoteFunnel({ branding }) {
                                 </div>
                             </div>
 
-                            <div className="p-4 bg-muted border border-border rounded-2xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-base text-foreground-secondary">
+                            <div className="p-3 bg-muted border border-border rounded-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 text-sm text-foreground-secondary">
                                 <span className="flex items-center gap-2">
                                     <Lock className="w-5 h-5 text-primary-accent flex-shrink-0" aria-hidden="true" /> 100% Spam-Free Privacy Guarantee
                                 </span>
@@ -723,22 +723,22 @@ export default function QuoteFunnel({ branding }) {
                     )}
 
                     {step === 5 && (
-                        <form onSubmit={handleFinalSubmit} className="space-y-4 sm:space-y-8">
+                        <form onSubmit={handleFinalSubmit} className="space-y-4 sm:space-y-5">
                             <div>
                                 <label className={sectionLabel}>Select Preferred Inspection Date</label>
-                                <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                                <div className="grid grid-cols-3 gap-2.5">
                                     {datePills.map((pill) => (
                                         <button
                                             key={pill.dateStr}
                                             type="button"
                                             onClick={() => handleChange('appointmentDate', pill.dateStr)}
-                                            className={`min-h-[44px] px-2 py-3 sm:p-4 rounded-2xl border text-center transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background ${
+                                            className={`min-h-[44px] px-2 py-2.5 rounded-xl border text-center transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background ${
                                                 formData.appointmentDate === pill.dateStr
                                                     ? 'border-primary-accent bg-primary-tint shadow-card text-foreground'
                                                     : 'border-border bg-background text-foreground-secondary hover:border-border-strong hover:shadow-card-hover hover:-translate-y-0.5'
                                             }`}>
                                             <div className="text-sm font-semibold text-primary-accent">{pill.label}</div>
-                                            <div className="text-sm sm:text-base font-semibold mt-1 text-foreground">{pill.display}</div>
+                                            <div className="text-xs sm:text-sm font-semibold mt-0.5 text-foreground">{pill.display}</div>
                                         </button>
                                     ))}
                                 </div>
@@ -746,7 +746,7 @@ export default function QuoteFunnel({ branding }) {
 
                             <div>
                                 <label className={sectionLabel}>Select Arrival Window</label>
-                                <div className="space-y-2 sm:space-y-3">
+                                <div className="space-y-2.5">
                                     {TIME_BLOCKS.map((block) => {
                                         const selected = formData.appointmentTime === block.time;
                                         return (
@@ -758,10 +758,10 @@ export default function QuoteFunnel({ branding }) {
                                                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleChange('appointmentTime', block.time); } }}
                                                 className={optionCardClass(selected)}>
                                                 <div className="flex items-center gap-3 min-w-0">
-                                                    <Clock className="w-6 h-6 text-primary-accent flex-shrink-0" aria-hidden="true" />
+                                                    <Clock className="w-5 h-5 text-primary-accent flex-shrink-0" aria-hidden="true" />
                                                     <div className="min-w-0 flex flex-wrap items-center gap-x-2 gap-y-1">
-                                                        <span className="text-base sm:text-lg font-semibold text-foreground">{block.time}</span>
-                                                        <span className="text-sm font-medium px-2 py-0.5 rounded-md bg-muted text-foreground-secondary">
+                                                        <span className="text-sm sm:text-base font-semibold text-foreground">{block.time}</span>
+                                                        <span className="text-xs font-medium px-2 py-0.5 rounded-md bg-muted text-foreground-secondary">
                                                             {block.tag}
                                                         </span>
                                                     </div>
@@ -778,7 +778,7 @@ export default function QuoteFunnel({ branding }) {
                                     ← Back
                                 </button>
                                 <button type="submit" disabled={submitting} className={primaryBtn}>
-                                    {submitting ? 'Confirming...' : 'Claim My Free Roof Inspection'}
+                                    {submitting ? 'Confirming...' : (isDemo ? 'Complete Demo Booking' : 'Claim My Free Roof Inspection')}
                                     {!submitting && <ArrowRight className="w-5 h-5" aria-hidden="true" />}
                                 </button>
                             </div>
@@ -786,13 +786,13 @@ export default function QuoteFunnel({ branding }) {
                     )}
                 </div>
 
-                <div>
-                    <div className="text-center mb-6">
-                        <span className="text-sm font-medium px-2.5 py-1 bg-muted text-foreground-secondary rounded-md">
+                <div className="pb-2">
+                    <div className="text-center mb-3">
+                        <span className="text-xs font-medium px-2.5 py-1 bg-muted text-foreground-secondary rounded-md">
                             Got Questions?
                         </span>
-                        <h2 className="text-xl sm:text-2xl font-heading font-bold text-foreground mt-4">Frequently Asked Questions</h2>
-                        <p className="text-base text-foreground-secondary leading-relaxed mt-2">Everything you need to know about your free 21-point roof inspection.</p>
+                        <h2 className="text-lg sm:text-xl font-heading font-bold text-foreground mt-2.5">Frequently Asked Questions</h2>
+                        <p className="text-sm text-foreground-secondary leading-relaxed mt-1">{isDemo ? 'Sample homeowner FAQs—customized for each roofing company.' : 'Everything you need to know about your free 21-point roof inspection.'}</p>
                     </div>
 
                     <div>
@@ -806,7 +806,7 @@ export default function QuoteFunnel({ branding }) {
                                         type="button"
                                         onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
                                         aria-expanded={open}
-                                        className="w-full min-h-[44px] py-5 flex items-center justify-between gap-4 text-left text-base sm:text-lg font-heading font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-ring rounded-lg">
+                                        className="w-full min-h-[44px] py-3.5 flex items-center justify-between gap-4 text-left text-sm sm:text-base font-heading font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-ring rounded-lg">
                                         <span>{faq.q}</span>
                                         <ChevronDown
                                             className={`w-5 h-5 text-foreground-secondary flex-shrink-0 transition-transform duration-200 ease-out ${open ? 'rotate-180' : ''}`}
@@ -814,7 +814,7 @@ export default function QuoteFunnel({ branding }) {
                                         />
                                     </button>
                                     {open ? (
-                                        <p className="text-base text-foreground-secondary leading-relaxed pb-5">
+                                        <p className="text-sm text-foreground-secondary leading-relaxed pb-3.5">
                                             {faq.a}
                                         </p>
                                     ) : null}
@@ -825,8 +825,8 @@ export default function QuoteFunnel({ branding }) {
                 </div>
             </main>
 
-            <footer className="relative z-10 border-t border-border text-sm text-foreground-tertiary py-6 text-center">
-                &copy; 2026 {companyName || 'Quotramax Assessment Engine'}
+            <footer className="relative z-10 border-t border-border text-xs text-foreground-tertiary py-4 px-4 text-center">
+                &copy; 2026 {companyName || 'Quotramax'}{isDemo ? ' · Interactive product demonstration—not an active roofing company' : ''}
             </footer>
         </div>
     );
