@@ -42,6 +42,7 @@ function buildHomeownerHtml(lead, companyName) {
     const service = escapeHtml(lead.service);
     const stories = escapeHtml(lead.stories);
     const pitch = escapeHtml(lead.pitch);
+    const roofAge = escapeHtml(lead.roofAge);
     const material = escapeHtml(lead.material);
     const timeline = escapeHtml(lead.timeline);
     const insurance = escapeHtml(lead.insurance);
@@ -75,6 +76,7 @@ function buildHomeownerHtml(lead, companyName) {
                 <li><strong>Service Goal:</strong> ${service}</li>
                 <li><strong>Property Location:</strong> ${location}</li>
                 <li><strong>Building Specs:</strong> ${stories} &bull; ${pitch}</li>
+                <li><strong>Roof Age:</strong> ${roofAge}</li>
                 <li><strong>Desired Material:</strong> ${material}</li>
                 <li><strong>Timeline / Urgency:</strong> ${timeline}</li>
                 <li><strong>Funding Preference:</strong> ${insurance}</li>
@@ -107,6 +109,7 @@ function buildContractorHtml(lead) {
     const service = escapeHtml(lead.service);
     const stories = escapeHtml(lead.stories);
     const pitch = escapeHtml(lead.pitch);
+    const roofAge = escapeHtml(lead.roofAge);
     const material = escapeHtml(lead.material);
     const timeline = escapeHtml(lead.timeline);
     const insurance = escapeHtml(lead.insurance);
@@ -160,6 +163,10 @@ function buildContractorHtml(lead) {
                 <tr>
                     <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">Stories &amp; Pitch:</td>
                     <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0;">${stories} &bull; ${pitch}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">Roof Age:</td>
+                    <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0;">${roofAge}</td>
                 </tr>
                 <tr>
                     <td style="padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-weight: bold; color: #475569;">Desired Material:</td>

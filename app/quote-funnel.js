@@ -63,6 +63,19 @@ const MATERIALS = [
     }
 ];
 
+const PITCHES = [
+    { label: 'Standard', sub: 'Walkable slope', val: 'Standard Pitch' },
+    { label: 'Steep', sub: 'High slope', val: 'Steep Pitch' },
+    { label: 'Flat', sub: 'Low slope', val: 'Flat / Low Slope' }
+];
+
+const ROOF_AGES = [
+    { label: 'Under 10 yrs', val: 'Under 10 years' },
+    { label: '10 – 20 yrs', val: '10 - 20 years' },
+    { label: '20+ yrs', val: '20+ years' },
+    { label: 'Not sure', val: 'Not sure' }
+];
+
 const TIMELINES = [
     {
         title: 'Emergency / Urgent (Under 2 Weeks)',
@@ -212,7 +225,7 @@ export default function QuoteFunnel({ branding }) {
         stories: '1 Story',
         pitch: 'Standard Pitch',
         material: 'Architectural Shingles',
-        timeline: 'Under 1 month',
+        timeline: '1 - 4 weeks',
         insurance: 'Cash / Direct Payment',
         address: '',
         city: '',
@@ -337,6 +350,9 @@ export default function QuoteFunnel({ branding }) {
                 name: payload.name,
                 address: fullLocationAddress,
                 service: payload.service,
+                stories: payload.stories,
+                pitch: payload.pitch,
+                roofAge: payload.roofAge,
                 material: payload.material,
                 timeline: payload.timeline,
                 appointment: payload.appointment,
@@ -500,6 +516,51 @@ export default function QuoteFunnel({ branding }) {
                                             {story}
                                         </button>
                                     ))}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className={sectionLabel}>How steep is the roof?</label>
+                                <div className="grid grid-cols-3 gap-2.5">
+                                    {PITCHES.map((pitch) => {
+                                        const selected = formData.pitch === pitch.val;
+                                        return (
+                                            <button
+                                                key={pitch.val}
+                                                type="button"
+                                                onClick={() => handleChange('pitch', pitch.val)}
+                                                className={`min-h-[44px] px-2 py-2.5 rounded-xl border text-center transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background ${
+                                                    selected
+                                                        ? 'border-primary-accent bg-primary-tint shadow-card text-foreground'
+                                                        : 'border-border bg-background text-foreground-secondary hover:border-border-strong hover:shadow-card-hover hover:-translate-y-0.5'
+                                                }`}>
+                                                <div className="text-sm sm:text-base font-semibold">{pitch.label}</div>
+                                                <div className="text-xs text-foreground-secondary mt-0.5">{pitch.sub}</div>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className={sectionLabel}>About how old is the current roof?</label>
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                                    {ROOF_AGES.map((age) => {
+                                        const selected = formData.roofAge === age.val;
+                                        return (
+                                            <button
+                                                key={age.val}
+                                                type="button"
+                                                onClick={() => handleChange('roofAge', age.val)}
+                                                className={`min-h-[44px] px-2 py-2.5 rounded-xl border text-sm sm:text-base font-semibold transition-all duration-200 ease-out text-center focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background ${
+                                                    selected
+                                                        ? 'border-primary-accent bg-primary-tint shadow-card text-foreground'
+                                                        : 'border-border bg-background text-foreground-secondary hover:border-border-strong hover:shadow-card-hover hover:-translate-y-0.5'
+                                                }`}>
+                                                {age.label}
+                                            </button>
+                                        );
+                                    })}
                                 </div>
                             </div>
 
