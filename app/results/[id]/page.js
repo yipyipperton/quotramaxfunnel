@@ -269,12 +269,22 @@ Date: ${lead.appointment?.date || 'Pending'} (${lead.appointment?.time || 'Pendi
                                     <span className="font-semibold text-foreground">{lead.service || 'Full Roof Replacement'}</span>
                                 </div>
                                 <div className="p-3 bg-muted rounded-xl border border-border flex justify-between items-center gap-2">
+                                    <span className="text-foreground-secondary">Stories &amp; Pitch:</span>
+                                    <span className="font-semibold text-foreground text-right">
+                                        {lead.stories || '1 Story'} · {lead.pitch || 'Standard Pitch'}
+                                    </span>
+                                </div>
+                                <div className="p-3 bg-muted rounded-xl border border-border flex justify-between items-center gap-2">
+                                    <span className="text-foreground-secondary">Roof Age:</span>
+                                    <span className="font-semibold text-foreground">{lead.roofAge || '10 - 20 years'}</span>
+                                </div>
+                                <div className="p-3 bg-muted rounded-xl border border-border flex justify-between items-center gap-2">
                                     <span className="text-foreground-secondary">Preferred Material:</span>
                                     <span className="font-semibold text-primary-accent">{lead.material || 'Architectural Shingles'}</span>
                                 </div>
                                 <div className="p-3 bg-muted rounded-xl border border-border flex justify-between items-center gap-2">
                                     <span className="text-foreground-secondary">Timeline:</span>
-                                    <span className="font-semibold text-foreground">{lead.timeline || 'Under 1 month'}</span>
+                                    <span className="font-semibold text-foreground">{lead.timeline || '1 - 4 weeks'}</span>
                                 </div>
                             </div>
 
